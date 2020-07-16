@@ -87,7 +87,6 @@ public class ServerSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/test/check").permitAll()
                 .anyRequest()
                 .access("isAuthenticated()");
-
     }
 
     @Bean
