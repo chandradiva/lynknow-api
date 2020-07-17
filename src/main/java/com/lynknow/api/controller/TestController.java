@@ -18,12 +18,20 @@ public class TestController {
 
     @GetMapping("check")
     public ResponseEntity testApi() {
-        return new ResponseEntity(BaseResponse.ok(), HttpStatus.OK);
+        return new ResponseEntity(new BaseResponse<>(
+                true,
+                200,
+                "Success",
+                null), HttpStatus.OK);
     }
 
     @GetMapping("check-db")
     public ResponseEntity testDb() {
-        return new ResponseEntity(BaseResponse.ok(roleDataRepo.getList()), HttpStatus.OK);
+        return new ResponseEntity(new BaseResponse<>(
+                true,
+                200,
+                "Success",
+                roleDataRepo.getList()), HttpStatus.OK);
     }
 
 }

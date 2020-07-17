@@ -84,7 +84,7 @@ public class ServerSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/password/**").permitAll()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/test/check", "/test/check-db").permitAll()
+                .antMatchers("/test/check", "/test/check-db", "/roles/**").permitAll()
                 .anyRequest()
                 .access("isAuthenticated()");
     }
