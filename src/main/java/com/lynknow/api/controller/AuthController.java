@@ -14,10 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -65,6 +62,11 @@ public class AuthController {
     @PostMapping("logout")
     public ResponseEntity logout(HttpServletRequest request) {
         return authService.logout(request);
+    }
+
+    @GetMapping("get")
+    public ResponseEntity getUserSession() {
+        return authService.getUserSession();
     }
 
 }

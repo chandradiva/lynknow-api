@@ -6,6 +6,7 @@ import com.lynknow.api.model.UserData;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.security.ResourceServerConfig;
 import com.lynknow.api.service.AuthService;
+import com.lynknow.api.util.GenerateResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -122,6 +124,23 @@ public class AuthServiceImpl implements AuthService {
                 LOGGER.error("Your Session is Expired / Token Invalid");
                 throw new BadRequestException("Your Session is Expired / Token Invalid");
             }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity getUserSession() {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    GenerateResponseUtil.generateResponseUser(userSession)), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());

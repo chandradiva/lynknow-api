@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 public interface UserDataService {
 
     ResponseEntity registerAdmin(UserDataRequest request);
+    ResponseEntity registerNewUser(UserDataRequest request);
     UserData getByUsername(String username);
 
 }

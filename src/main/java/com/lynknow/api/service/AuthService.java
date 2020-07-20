@@ -11,5 +11,6 @@ public interface AuthService {
 
     OAuth2AccessToken getToken(HashMap<String, String> params) throws HttpRequestMethodNotSupportedException;
     ResponseEntity logout(HttpServletRequest request);
+    ResponseEntity getUserSession();
 
 }

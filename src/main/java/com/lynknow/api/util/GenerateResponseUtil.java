@@ -3,11 +3,11 @@ package com.lynknow.api.util;
 import com.lynknow.api.model.RoleData;
 import com.lynknow.api.model.SubscriptionPackage;
 import com.lynknow.api.model.UserData;
+import com.lynknow.api.model.UserProfile;
 import com.lynknow.api.pojo.response.RoleDataResponse;
 import com.lynknow.api.pojo.response.SubscriptionPackageResponse;
 import com.lynknow.api.pojo.response.UserDataResponse;
-
-import java.util.function.Function;
+import com.lynknow.api.pojo.response.UserProfileResponse;
 
 public class GenerateResponseUtil {
 
@@ -35,12 +35,19 @@ public class GenerateResponseUtil {
         return res;
     }
 
+    public static UserProfileResponse generateResponseProfile(UserProfile profile) {
+        UserProfileResponse res = new UserProfileResponse();
+
+        return res;
+    }
+
     public static UserDataResponse generateResponseUser(UserData user) {
         UserDataResponse res = new UserDataResponse();
 
         res.setId(user.getId());
         res.setRole(generateResponseRole(user.getRoleData()));
         res.setCurrentSubscription(generateResponseSubscription(user.getCurrentSubscriptionPackage()));
+        res.setProfile(generateResponseProfile(null));
         res.setUsername(user.getUsername());
         res.setEmail(user.getEmail());
         res.setFirstName(user.getFirstName());

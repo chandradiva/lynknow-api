@@ -1,12 +1,15 @@
 package com.lynknow.api.service.impl;
 
+import com.lynknow.api.exception.ConflictException;
 import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.exception.NotFoundException;
 import com.lynknow.api.model.RoleData;
+import com.lynknow.api.model.SubscriptionPackage;
 import com.lynknow.api.model.UserData;
 import com.lynknow.api.pojo.request.UserDataRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.repository.RoleDataRepository;
+import com.lynknow.api.repository.SubscriptionPackageRepository;
 import com.lynknow.api.repository.UserDataRepository;
 import com.lynknow.api.service.UserDataService;
 import com.lynknow.api.util.GenerateResponseUtil;
@@ -32,6 +35,9 @@ public class UserDataServiceImpl implements UserDataService {
     private RoleDataRepository roleDataRepo;
 
     @Autowired
+    private SubscriptionPackageRepository subscriptionPackageRepo;
+
+    @Autowired
     private PasswordEncoder encoder;
 
     @Override
@@ -41,6 +47,11 @@ public class UserDataServiceImpl implements UserDataService {
             if (role == null) {
                 LOGGER.error("Role ID: " + 1 + " is not found");
                 throw new NotFoundException("Role ID: " + 1);
+            }
+
+            if (!this.checkByUsername(request.getEmail(), null)) {
+                LOGGER.error("Email: " + request.getEmail() + " already exist");
+                throw new ConflictException("Email: " + request.getEmail() + " already exist");
             }
 
             UserData user = new UserData();
@@ -69,12 +80,75 @@ public class UserDataServiceImpl implements UserDataService {
     }
 
     @Override
+    public ResponseEntity registerNewUser(UserDataRequest request) {
+        try {
+            RoleData role = roleDataRepo.getDetail(1);
+            if (role == null) {
+                LOGGER.error("Role ID: " + 1 + " is not found");
+                throw new NotFoundException("Role ID: " + 1);
+            }
+
+            SubscriptionPackage subs = subscriptionPackageRepo.getDetail(1);
+            if (subs == null) {
+                LOGGER.error("Subscription Package ID: " + 1 + " is not found");
+                throw new NotFoundException("Subscription Package ID: " + 1);
+            }
+
+            if (!this.checkByUsername(request.getEmail(), null)) {
+                LOGGER.error("Email: " + request.getEmail() + " already exist");
+                throw new ConflictException("Email: " + request.getEmail() + " already exist");
+            }
+
+            UserData user = new UserData();
+
+            user.setRoleData(role);
+            user.setCurrentSubscriptionPackage(subs);
+            user.setUsername(request.getUsername());
+            user.setEmail(request.getEmail());
+            user.setPassword(encoder.encode(request.getPassword()));
+            user.setFirstName(request.getFirstName());
+            user.setLastName(request.getLastName());
+            user.setJoinDate(new Date());
+            user.setCreatedDate(new Date());
+
+            userDataRepo.save(user);
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    201,
+                    "Success",
+                    GenerateResponseUtil.generateResponseUser(user)), HttpStatus.CREATED);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
     public UserData getByUsername(String username) {
         try {
             return userDataRepo.getByUsername(username);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    private boolean checkByUsername(String email, Long id) {
+        try {
+            UserData chkByUsername = userDataRepo.getByUsername(email);
+            if (chkByUsername == null) {
+                return true;
+            } else {
+                if (chkByUsername.getId().equals(id)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 

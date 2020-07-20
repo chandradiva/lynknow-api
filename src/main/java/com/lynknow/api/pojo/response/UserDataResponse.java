@@ -18,14 +18,15 @@ public class UserDataResponse {
     private int verificationPoint = 0;
     private SubscriptionPackageResponse currentSubscription;
     private RoleDataResponse role;
+    private UserProfileResponse profile;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss", timezone = "GMT+7")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss Z", timezone = "GMT+7")
     private Date joinDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss", timezone = "GMT+7")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss Z", timezone = "GMT+7")
     private Date createdDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss", timezone = "GMT+7")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss Z", timezone = "GMT+7")
     private Date updatedDate;
 
     public Long getId() {
@@ -114,5 +115,13 @@ public class UserDataResponse {
 
     public void setUpdatedDate(Date updatedDate) {
         this.updatedDate = updatedDate;
+    }
+
+    public UserProfileResponse getProfile() {
+        return profile;
+    }
+
+    public void setProfile(UserProfileResponse profile) {
+        this.profile = profile;
     }
 }
