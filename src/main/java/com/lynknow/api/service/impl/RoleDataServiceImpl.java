@@ -8,6 +8,7 @@ import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.pojo.response.RoleDataResponse;
 import com.lynknow.api.repository.RoleDataRepository;
 import com.lynknow.api.service.RoleDataService;
+import com.lynknow.api.util.GenerateResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +37,7 @@ public class RoleDataServiceImpl implements RoleDataService {
             List<RoleData> roles = roleDataRepo.getList();
             if (roles != null) {
                 for (RoleData role : roles) {
-                    datas.add(this.generateResponse(role));
+                    datas.add(GenerateResponseUtil.generateResponseRole(role));
                 }
             }
 
@@ -60,12 +60,12 @@ public class RoleDataServiceImpl implements RoleDataService {
                 page = roleDataRepo.getListPagination(
                         model.getParam(),
                         PageRequest.of(model.getPage(), model.getSize(), Sort.by(Sort.Direction.ASC, model.getSortBy())))
-                        .map(this::generateResponse);
+                        .map(GenerateResponseUtil::generateResponseRole);
             } else {
                 page = roleDataRepo.getListPagination(
                         model.getParam(),
                         PageRequest.of(model.getPage(), model.getSize(), Sort.by(Sort.Direction.DESC, model.getSortBy())))
-                        .map(this::generateResponse);
+                        .map(GenerateResponseUtil::generateResponseRole);
             }
 
             return new ResponseEntity(new BaseResponse<>(
@@ -88,7 +88,7 @@ public class RoleDataServiceImpl implements RoleDataService {
                         true,
                         200,
                         "Success",
-                        this.generateResponse(role)), HttpStatus.OK);
+                        GenerateResponseUtil.generateResponseRole(role)), HttpStatus.OK);
             } else {
                 LOGGER.error("Role ID: " + id + " is not found");
                 throw new NotFoundException("Role ID: " + id);
@@ -97,16 +97,6 @@ public class RoleDataServiceImpl implements RoleDataService {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
-    }
-
-    private RoleDataResponse generateResponse(RoleData role) {
-        RoleDataResponse res = new RoleDataResponse();
-
-        res.setId(role.getId());
-        res.setName(role.getName());
-        res.setDescription(role.getDescription());
-
-        return res;
     }
 
 }

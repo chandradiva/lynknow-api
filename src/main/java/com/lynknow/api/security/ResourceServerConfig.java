@@ -1,4 +1,4 @@
-package com.lynknow.api.config;
+package com.lynknow.api.security;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -38,7 +38,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .antMatchers("/api/oauth/check_token").permitAll()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/user/login").permitAll()
+                .antMatchers("/auth/login").permitAll()
                 .and()
                 .authorizeRequests()
                 .antMatchers("/user/register-sysadmin").permitAll()
@@ -50,7 +50,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .antMatchers("/password/**").permitAll()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/test/check", "/test/check-db", "/roles/**").permitAll()
+                .antMatchers("/test/check", "/test/check-db", "/roles/**", "/users/**").permitAll()
                 .and()
                 .authorizeRequests()
                 .anyRequest()
