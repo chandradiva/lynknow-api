@@ -82,10 +82,10 @@ public class UserDataServiceImpl implements UserDataService {
     @Override
     public ResponseEntity registerNewUser(UserDataRequest request) {
         try {
-            RoleData role = roleDataRepo.getDetail(1);
+            RoleData role = roleDataRepo.getDetail(2);
             if (role == null) {
-                LOGGER.error("Role ID: " + 1 + " is not found");
-                throw new NotFoundException("Role ID: " + 1);
+                LOGGER.error("Role ID: " + 2 + " is not found");
+                throw new NotFoundException("Role ID: " + 2);
             }
 
             SubscriptionPackage subs = subscriptionPackageRepo.getDetail(1);
