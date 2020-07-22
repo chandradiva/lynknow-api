@@ -1,13 +1,7 @@
 package com.lynknow.api.util;
 
-import com.lynknow.api.model.RoleData;
-import com.lynknow.api.model.SubscriptionPackage;
-import com.lynknow.api.model.UserData;
-import com.lynknow.api.model.UserProfile;
-import com.lynknow.api.pojo.response.RoleDataResponse;
-import com.lynknow.api.pojo.response.SubscriptionPackageResponse;
-import com.lynknow.api.pojo.response.UserDataResponse;
-import com.lynknow.api.pojo.response.UserProfileResponse;
+import com.lynknow.api.model.*;
+import com.lynknow.api.pojo.response.*;
 
 public class GenerateResponseUtil {
 
@@ -56,6 +50,49 @@ public class GenerateResponseUtil {
         res.setJoinDate(user.getJoinDate());
         res.setCreatedDate(user.getCreatedDate());
         res.setUpdatedDate(user.getUpdatedDate());
+
+        return res;
+    }
+
+    public static CardTypeResponse generateResponseCardType(CardType type) {
+        CardTypeResponse res = new CardTypeResponse();
+
+        res.setId(type.getId());
+        res.setName(type.getName());
+        res.setDescription(type.getDescription());
+
+        return res;
+    }
+
+    public static UserCardResponse generateResponseUserCard(UserCard card) {
+        UserCardResponse res = new UserCardResponse();
+
+        res.setId(card.getId());
+        res.setUserData(generateResponseUser(card.getUserData()));
+        res.setCardType(generateResponseCardType(card.getCardType()));
+        res.setFrontSide(card.getFrontSide());
+        res.setBackSide(card.getBackSide());
+        res.setProfilePhoto(card.getProfilePhoto());
+        res.setFirstName(card.getFirstName());
+        res.setLastName(card.getLastName());
+        res.setDesignation(card.getDesignation());
+        res.setCompany(card.getCompany());
+        res.setAddress1(card.getAddress1());
+        res.setAddress2(card.getAddress2());
+        res.setCity(card.getCity());
+        res.setPostalCode(card.getPostalCode());
+        res.setCountry(card.getCountry());
+        res.setEmail(card.getEmail());
+        res.setWebsite(card.getWebsite());
+        res.setWhatsappNo(card.getWhatsappNo());
+        res.setMobileNo(card.getMobileNo());
+        res.setFbEmail(card.getFbEmail());
+        res.setGoogleEmail(card.getGoogleEmail());
+        res.setIsPublished(card.getIsPublished());
+        res.setPublishedDate(card.getPublishedDate());
+        res.setUniqueCode(card.getUniqueCode());
+        res.setCreatedDate(card.getCreatedDate());
+        res.setUpdatedDate(card.getUpdatedDate());
 
         return res;
     }

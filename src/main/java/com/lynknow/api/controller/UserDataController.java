@@ -21,4 +21,9 @@ public class UserDataController {
         return userDataService.registerAdmin(request);
     }
 
+    @PostMapping("subs-register")
+    public ResponseEntity registerNewUser(@RequestBody UserDataRequest request) {
+        return userDataService.registerNewUser(request);
+    }
+
 }
