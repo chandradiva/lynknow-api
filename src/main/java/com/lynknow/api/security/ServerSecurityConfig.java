@@ -72,7 +72,7 @@ public class ServerSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/user/otp/validation").permitAll()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/user/login").permitAll()
+                .antMatchers("/auth/login").permitAll()
                 .and()
                 .authorizeRequests()
                 .antMatchers("/user/register-sysadmin").permitAll()
@@ -84,7 +84,7 @@ public class ServerSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/password/**").permitAll()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/test/check").permitAll()
+                .antMatchers("/test/check", "/test/check-db", "/roles/**", "/users/**").permitAll()
                 .anyRequest()
                 .access("isAuthenticated()");
     }

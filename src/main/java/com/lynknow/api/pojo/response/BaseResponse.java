@@ -1,47 +1,24 @@
 package com.lynknow.api.pojo.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+@Getter
+@Setter
+public class BaseResponse<Any> {
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class BaseResponse<T> {
+    private Boolean status = true;
+    private Integer code = 200;
+    private String message = "Success";
+    private Any data;
 
-    private boolean status;
-    private String code;
-    private String message;
-    private T data;
-
-    public static BaseResponse error(String code, String message) {
-        return new BaseResponse<>(false, code, message, null);
+    public BaseResponse(Boolean status, Integer code, String message, Any data) {
+        this.status = status;
+        this.code = code;
+        this.message = message;
+        this.data = data;
     }
 
-    public static BaseResponse ok() {
-        return new BaseResponse<>(true, "200", "success", null);
-    }
-
-    public static <I> BaseResponse<I> ok(I body) {
-        return new BaseResponse<I>(true, "200", "success", body);
-    }
-
-    public static BaseResponse created() {
-        return new BaseResponse<>(true, "201", "created", null);
-    }
-
-    public static BaseResponse created(String uri) {
-        BaseResponse<Map> baseResponse = new BaseResponse<>();
-        baseResponse.setStatus(true);
-        baseResponse.setCode("201");
-        baseResponse.setMessage("created");
-        Map<String, String> map = new LinkedHashMap<>();
-        map.put("uri", uri);
-        baseResponse.setData(map);
-        return baseResponse;
+    public BaseResponse() {
     }
 
 }
