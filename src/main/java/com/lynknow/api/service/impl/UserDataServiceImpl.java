@@ -17,6 +17,9 @@ import com.lynknow.api.util.GenerateResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -65,8 +68,8 @@ public class UserDataServiceImpl implements UserDataService {
 
             user.setRoleData(role);
             user.setCurrentSubscriptionPackage(null);
-            user.setUsername(request.getUsername());
-            user.setEmail(request.getEmail());
+            user.setUsername(request.getEmail().toLowerCase());
+            user.setEmail(request.getEmail().toLowerCase());
             user.setPassword(encoder.encode(request.getPassword()));
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
@@ -101,7 +104,12 @@ public class UserDataServiceImpl implements UserDataService {
                 throw new NotFoundException("Subscription Package ID: " + 1);
             }
 
-            if (!this.checkByUsername(request.getEmail(), null)) {
+            if (!this.checkByUsername(request.getUsername(), null)) {
+                LOGGER.error("Username: " + request.getEmail() + " already exist");
+                throw new ConflictException("Username: " + request.getEmail() + " already exist");
+            }
+
+            if (!this.checkByEmail(request.getEmail(), null)) {
                 LOGGER.error("Email: " + request.getEmail() + " already exist");
                 throw new ConflictException("Email: " + request.getEmail() + " already exist");
             }
@@ -110,8 +118,8 @@ public class UserDataServiceImpl implements UserDataService {
 
             user.setRoleData(role);
             user.setCurrentSubscriptionPackage(subs);
-            user.setUsername(request.getUsername());
-            user.setEmail(request.getEmail());
+            user.setUsername(request.getEmail().toLowerCase());
+            user.setEmail(request.getEmail().toLowerCase());
             user.setPassword(encoder.encode(request.getPassword()));
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
@@ -122,7 +130,7 @@ public class UserDataServiceImpl implements UserDataService {
 
             // auto login after register
             HashMap<String, String> maps = new HashMap<>();
-            maps.put("username", request.getUsername());
+            maps.put("username", request.getUsername().toLowerCase());
             maps.put("password", request.getPassword());
 
             HashMap<String, String> params = maps;
@@ -152,9 +160,17 @@ public class UserDataServiceImpl implements UserDataService {
         }
     }
 
-    private boolean checkByUsername(String email, Long id) {
+    private boolean checkByUsername(String username, Long id) {
         try {
-            UserData chkByUsername = userDataRepo.getByUsername(email);
+            UserData chkByUsername = null;
+            Page<UserData> pageUser = userDataRepo.getByUsername(
+                    username.toLowerCase(),
+                    PageRequest.of(0, 1, Sort.by("id").descending()));
+
+            if (pageUser.getContent() != null && pageUser.getContent().size() > 0) {
+                chkByUsername = pageUser.getContent().get(0);
+            }
+
             if (chkByUsername == null) {
                 return true;
             } else {
@@ -170,4 +186,29 @@ public class UserDataServiceImpl implements UserDataService {
         }
     }
 
+    private boolean checkByEmail(String email, Long id) {
+        try {
+            UserData chkByEmail = null;
+            Page<UserData> pageUser = userDataRepo.getByEmail(
+                    email.toLowerCase(),
+                    PageRequest.of(0, 1, Sort.by("id").descending()));
+
+            if (pageUser.getContent() != null && pageUser.getContent().size() > 0) {
+                chkByEmail = pageUser.getContent().get(0);
+            }
+
+            if (chkByEmail == null) {
+                return true;
+            } else {
+                if (chkByEmail.getId().equals(id)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
