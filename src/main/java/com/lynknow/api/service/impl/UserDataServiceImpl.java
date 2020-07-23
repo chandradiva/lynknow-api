@@ -11,6 +11,7 @@ import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.repository.RoleDataRepository;
 import com.lynknow.api.repository.SubscriptionPackageRepository;
 import com.lynknow.api.repository.UserDataRepository;
+import com.lynknow.api.service.AuthService;
 import com.lynknow.api.service.UserDataService;
 import com.lynknow.api.util.GenerateResponseUtil;
 import org.slf4j.Logger;
@@ -19,9 +20,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 
 import java.util.Date;
+import java.util.HashMap;
 
 @Service
 public class UserDataServiceImpl implements UserDataService {
@@ -39,6 +43,9 @@ public class UserDataServiceImpl implements UserDataService {
 
     @Autowired
     private PasswordEncoder encoder;
+
+    @Autowired
+    private AuthService authService;
 
     @Override
     public ResponseEntity registerAdmin(UserDataRequest request) {
@@ -113,14 +120,25 @@ public class UserDataServiceImpl implements UserDataService {
 
             userDataRepo.save(user);
 
+            // auto login after register
+            HashMap<String, String> maps = new HashMap<>();
+            maps.put("username", request.getUsername());
+            maps.put("password", request.getPassword());
+
+            HashMap<String, String> params = maps;
+            OAuth2AccessToken token = this.authService.getToken(params);
+
             return new ResponseEntity(new BaseResponse<>(
                     true,
                     201,
                     "Success",
-                    GenerateResponseUtil.generateResponseUser(user)), HttpStatus.CREATED);
+                    token), HttpStatus.CREATED);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (HttpRequestMethodNotSupportedException e) {
+            LOGGER.error("Failed to Get Auth Token", e);
+            throw new InternalServerErrorException("Failed to Get Auth Token" + e.getMessage());
         }
     }
 
