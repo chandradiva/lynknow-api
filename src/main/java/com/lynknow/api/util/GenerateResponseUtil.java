@@ -32,6 +32,25 @@ public class GenerateResponseUtil {
     public static UserProfileResponse generateResponseProfile(UserProfile profile) {
         UserProfileResponse res = new UserProfileResponse();
 
+        res.setId(profile.getId());
+        res.setFirstName(profile.getFirstName());
+        res.setLastName(profile.getLastName());
+        res.setAddress1(profile.getAddress1());
+        res.setAddress2(profile.getAddress2());
+        res.setCountry(profile.getCountry());
+        res.setWhatsappNo(profile.getWhatsappNo());
+        res.setMobileNo(profile.getMobileNo());
+        res.setFbId(profile.getFbId());
+        res.setFbToken(profile.getFbToken());
+        res.setFbEmail(profile.getFbEmail());
+        res.setGoogleId(profile.getGoogleId());
+        res.setGoogleToken(profile.getGoogleToken());
+        res.setGoogleEmail(profile.getGoogleEmail());
+        res.setIsWhatsappNoVerified(profile.getIsWhatsappNoVerified());
+        res.setIsEmailVerified(profile.getIsEmailVerified());
+        res.setCreatedDate(profile.getCreatedDate());
+        res.setUpdatedDate(profile.getUpdatedDate());
+
         return res;
     }
 

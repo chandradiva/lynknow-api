@@ -14,9 +14,11 @@ import com.lynknow.api.repository.CardTypeRepository;
 import com.lynknow.api.repository.UserCardRepository;
 import com.lynknow.api.service.UserCardService;
 import com.lynknow.api.util.GenerateResponseUtil;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -25,7 +27,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -41,6 +53,15 @@ public class UserCardServiceImpl implements UserCardService {
 
     @Autowired
     private CardTypeRepository cardTypeRepo;
+
+    @Value("${upload.dir.card.front-side}")
+    private String frontSideDir;
+
+    @Value("${upload.dir.card.back-side}")
+    private String backSideDir;
+
+    @Value("${upload.dir.card.profile-pic}")
+    private String profilePicDir;
 
     @Override
     public ResponseEntity saveData(UserCardRequest request) {
@@ -277,6 +298,219 @@ public class UserCardServiceImpl implements UserCardService {
             } else {
                 LOGGER.error("User Card ID: " + id + " is not found");
                 throw new NotFoundException("User Card ID: " + id);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity uploadFrontSide(MultipartFile file, Long id) {
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        fileName = fileName.replaceAll("\\s+", "_");
+
+        int idx = fileName.lastIndexOf(".");
+        String ext = fileName.substring(idx);
+
+        try {
+            String newFilename = UUID.randomUUID() + ext;
+            File uploadDir = new File(frontSideDir);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+            Path path = Paths.get(uploadDir.getAbsolutePath() + File.separator + newFilename);
+            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+
+            if (id != null || id != 0) {
+                UserCard card = userCardRepo.getDetail(id);
+                if (card != null) {
+                    card.setFrontSide(newFilename);
+                    card.setUpdatedDate(new Date());
+
+                    userCardRepo.save(card);
+                } else {
+                    File fileUpload = new File(uploadDir.getAbsolutePath() + File.separator + newFilename);
+                    if (fileUpload.exists()) {
+                        fileUpload.delete();
+                    }
+
+                    LOGGER.error("User Card ID: " + id + " is not found");
+                    throw new NotFoundException("User Card ID: " + id);
+                }
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    newFilename), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error("Error processing data", e);
+            return null;
+        }
+    }
+
+    @Override
+    public ResponseEntity uploadBackSide(MultipartFile file, Long id) {
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        fileName = fileName.replaceAll("\\s+", "_");
+
+        int idx = fileName.lastIndexOf(".");
+        String ext = fileName.substring(idx);
+
+        try {
+            String newFilename = UUID.randomUUID() + ext;
+            File uploadDir = new File(backSideDir);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+            Path path = Paths.get(uploadDir.getAbsolutePath() + File.separator + newFilename);
+            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+
+            if (id != null || id != 0) {
+                UserCard card = userCardRepo.getDetail(id);
+                if (card != null) {
+                    card.setBackSide(newFilename);
+                    card.setUpdatedDate(new Date());
+
+                    userCardRepo.save(card);
+                } else {
+                    File fileUpload = new File(uploadDir.getAbsolutePath() + File.separator + newFilename);
+                    if (fileUpload.exists()) {
+                        fileUpload.delete();
+                    }
+
+                    LOGGER.error("User Card ID: " + id + " is not found");
+                    throw new NotFoundException("User Card ID: " + id);
+                }
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    newFilename), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error("Error processing data", e);
+            return null;
+        }
+    }
+
+    @Override
+    public ResponseEntity uploadProfilePicture(MultipartFile file, Long id) {
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        fileName = fileName.replaceAll("\\s+", "_");
+
+        int idx = fileName.lastIndexOf(".");
+        String ext = fileName.substring(idx);
+
+        try {
+            String newFilename = UUID.randomUUID() + ext;
+            File uploadDir = new File(profilePicDir);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+            Path path = Paths.get(uploadDir.getAbsolutePath() + File.separator + newFilename);
+            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+
+            if (id != null || id != 0) {
+                UserCard card = userCardRepo.getDetail(id);
+                if (card != null) {
+                    card.setProfilePhoto(newFilename);
+                    card.setUpdatedDate(new Date());
+
+                    userCardRepo.save(card);
+                } else {
+                    File fileUpload = new File(uploadDir.getAbsolutePath() + File.separator + newFilename);
+                    if (fileUpload.exists()) {
+                        fileUpload.delete();
+                    }
+
+                    LOGGER.error("User Card ID: " + id + " is not found");
+                    throw new NotFoundException("User Card ID: " + id);
+                }
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    newFilename), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error("Error processing data", e);
+            return null;
+        }
+    }
+
+    @Override
+    public byte[] getImageFrontSide(String filename, HttpServletResponse httpResponse) throws IOException {
+        try {
+            File file = new File(frontSideDir + File.separator + filename);
+            if (file.exists()) {
+                httpResponse.setContentType("image/*");
+                httpResponse.setHeader("Content-Disposition", "inline; filename=" + filename);
+                httpResponse.setStatus(HttpServletResponse.SC_OK);
+                FileInputStream fis = new FileInputStream(file);
+
+                return IOUtils.toByteArray(fis);
+            } else {
+                LOGGER.error("Front Side Card Image with Filename: " + filename + " is not found");
+                throw new NotFoundException("Front Side Card Image with Filename: " + filename);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public byte[] getImageBackSide(String filename, HttpServletResponse httpResponse) throws IOException {
+        try {
+            File file = new File(backSideDir + File.separator + filename);
+            if (file.exists()) {
+                httpResponse.setContentType("image/*");
+                httpResponse.setHeader("Content-Disposition", "inline; filename=" + filename);
+                httpResponse.setStatus(HttpServletResponse.SC_OK);
+                FileInputStream fis = new FileInputStream(file);
+
+                return IOUtils.toByteArray(fis);
+            } else {
+                LOGGER.error("Back Side Card Image with Filename: " + filename + " is not found");
+                throw new NotFoundException("Back Side Card Image with Filename: " + filename);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public byte[] getImageProfilePicture(String filename, HttpServletResponse httpResponse) throws IOException {
+        try {
+            File file = new File(profilePicDir + File.separator + filename);
+            if (file.exists()) {
+                httpResponse.setContentType("image/*");
+                httpResponse.setHeader("Content-Disposition", "inline; filename=" + filename);
+                httpResponse.setStatus(HttpServletResponse.SC_OK);
+                FileInputStream fis = new FileInputStream(file);
+
+                return IOUtils.toByteArray(fis);
+            } else {
+                LOGGER.error("Profile Picture Card Image with Filename: " + filename + " is not found");
+                throw new NotFoundException("Profile Picture Card Image with Filename: " + filename);
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
