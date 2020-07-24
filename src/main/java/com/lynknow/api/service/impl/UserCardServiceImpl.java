@@ -6,12 +6,14 @@ import com.lynknow.api.exception.NotFoundException;
 import com.lynknow.api.model.CardType;
 import com.lynknow.api.model.UserCard;
 import com.lynknow.api.model.UserData;
+import com.lynknow.api.model.UserProfile;
 import com.lynknow.api.pojo.PaginationModel;
 import com.lynknow.api.pojo.request.UserCardRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.pojo.response.UserCardResponse;
 import com.lynknow.api.repository.CardTypeRepository;
 import com.lynknow.api.repository.UserCardRepository;
+import com.lynknow.api.repository.UserProfileRepository;
 import com.lynknow.api.service.UserCardService;
 import com.lynknow.api.util.GenerateResponseUtil;
 import org.apache.commons.io.IOUtils;
@@ -54,6 +56,12 @@ public class UserCardServiceImpl implements UserCardService {
     @Autowired
     private CardTypeRepository cardTypeRepo;
 
+    @Autowired
+    private UserProfileRepository userProfileRepo;
+
+    @Autowired
+    private GenerateResponseUtil generateRes;
+
     @Value("${upload.dir.card.front-side}")
     private String frontSideDir;
 
@@ -66,6 +74,9 @@ public class UserCardServiceImpl implements UserCardService {
     @Override
     public ResponseEntity saveData(UserCardRequest request) {
         try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+
             CardType type = cardTypeRepo.getDetail(request.getCardTypeId());
             if (type == null) {
                 LOGGER.error("Card Type ID: " + request.getCardTypeId() + " is not found");
@@ -74,9 +85,6 @@ public class UserCardServiceImpl implements UserCardService {
 
             if (request.getId() == null) {
                 // new data
-                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-                UserData userSession = (UserData) auth.getPrincipal();
-
                 List<UserCard> cards = userCardRepo.getList(userSession.getId(), null, null, Sort.by("id").ascending());
                 int countCard = cards == null ? 0 : cards.size();
                 if (userSession.getCurrentSubscriptionPackage().getId() == 1) {
@@ -124,7 +132,7 @@ public class UserCardServiceImpl implements UserCardService {
                         true,
                         201,
                         "Created",
-                        GenerateResponseUtil.generateResponseUserCard(card)), HttpStatus.CREATED);
+                        generateRes.generateResponseUserCard(card)), HttpStatus.CREATED);
             } else {
                 // update data
                 UserCard card = userCardRepo.getDetail(request.getId());
@@ -154,7 +162,7 @@ public class UserCardServiceImpl implements UserCardService {
                             true,
                             200,
                             "Success",
-                            GenerateResponseUtil.generateResponseUserCard(card)), HttpStatus.OK);
+                            generateRes.generateResponseUserCard(card)), HttpStatus.OK);
                 } else {
                     LOGGER.error("User Card ID: " + request.getId() + " is not found");
                     throw new NotFoundException("User Card ID: " + request.getId());
@@ -178,7 +186,7 @@ public class UserCardServiceImpl implements UserCardService {
 
             if (cards != null) {
                 for (UserCard item : cards) {
-                    datas.add(GenerateResponseUtil.generateResponseUserCard(item));
+                    datas.add(generateRes.generateResponseUserCard(item));
                 }
             }
 
@@ -204,7 +212,7 @@ public class UserCardServiceImpl implements UserCardService {
                         isPublished == -1 ? null : isPublished,
                         model.getParam().toLowerCase(),
                         PageRequest.of(model.getPage(), model.getSize(), Sort.by(Sort.Direction.ASC, model.getSortBy()))
-                ).map(GenerateResponseUtil::generateResponseUserCard);
+                ).map(generateRes::generateResponseUserCard);
             } else {
                 page = userCardRepo.getListPagination(
                         userId.equals(0) ? null : userId,
@@ -212,7 +220,7 @@ public class UserCardServiceImpl implements UserCardService {
                         isPublished == -1 ? null : isPublished,
                         model.getParam().toLowerCase(),
                         PageRequest.of(model.getPage(), model.getSize(), Sort.by(Sort.Direction.DESC, model.getSortBy()))
-                ).map(GenerateResponseUtil::generateResponseUserCard);
+                ).map(generateRes::generateResponseUserCard);
             }
 
             return new ResponseEntity(new BaseResponse<>(
@@ -235,7 +243,7 @@ public class UserCardServiceImpl implements UserCardService {
                         true,
                         200,
                         "Success",
-                        GenerateResponseUtil.generateResponseUserCard(card)), HttpStatus.OK);
+                        generateRes.generateResponseUserCard(card)), HttpStatus.OK);
             } else {
                 LOGGER.error("User Card ID: " + id + " is not found");
                 throw new NotFoundException("User Card ID: " + id);
@@ -294,7 +302,7 @@ public class UserCardServiceImpl implements UserCardService {
                         true,
                         200,
                         "Success",
-                        GenerateResponseUtil.generateResponseUserCard(card)), HttpStatus.OK);
+                        generateRes.generateResponseUserCard(card)), HttpStatus.OK);
             } else {
                 LOGGER.error("User Card ID: " + id + " is not found");
                 throw new NotFoundException("User Card ID: " + id);

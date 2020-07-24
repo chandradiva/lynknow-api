@@ -64,6 +64,9 @@ public class AuthServiceImpl implements AuthService {
         return defaultTokenServices;
     }
 
+    @Autowired
+    private GenerateResponseUtil generateRes;
+
     @Override
     public OAuth2AccessToken getToken(HashMap<String, String> params) throws HttpRequestMethodNotSupportedException {
         if (params.get("username") == null) {
@@ -140,7 +143,7 @@ public class AuthServiceImpl implements AuthService {
                     true,
                     200,
                     "Success",
-                    GenerateResponseUtil.generateResponseUser(userSession)), HttpStatus.OK);
+                    generateRes.generateResponseUser(userSession)), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());

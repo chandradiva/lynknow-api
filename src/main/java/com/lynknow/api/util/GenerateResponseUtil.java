@@ -2,11 +2,22 @@ package com.lynknow.api.util;
 
 import com.lynknow.api.model.*;
 import com.lynknow.api.pojo.response.*;
+import com.lynknow.api.repository.UserProfileRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class GenerateResponseUtil {
 
-    public static RoleDataResponse generateResponseRole(RoleData role) {
+    @Autowired
+    private UserProfileRepository userProfileRepo;
+
+    public RoleDataResponse generateResponseRole(RoleData role) {
         RoleDataResponse res = new RoleDataResponse();
+
+        if (role == null) {
+            return res;
+        }
 
         res.setId(role.getId());
         res.setName(role.getName());
@@ -15,8 +26,12 @@ public class GenerateResponseUtil {
         return res;
     }
 
-    public static SubscriptionPackageResponse generateResponseSubscription(SubscriptionPackage subs) {
+    public SubscriptionPackageResponse generateResponseSubscription(SubscriptionPackage subs) {
         SubscriptionPackageResponse res = new SubscriptionPackageResponse();
+
+        if (subs == null) {
+            return res;
+        }
 
         res.setId(subs.getId());
         res.setName(subs.getName());
@@ -29,8 +44,12 @@ public class GenerateResponseUtil {
         return res;
     }
 
-    public static UserProfileResponse generateResponseProfile(UserProfile profile) {
+    public UserProfileResponse generateResponseProfile(UserProfile profile) {
         UserProfileResponse res = new UserProfileResponse();
+
+        if (profile == null) {
+            return res;
+        }
 
         res.setId(profile.getId());
         res.setFirstName(profile.getFirstName());
@@ -54,13 +73,16 @@ public class GenerateResponseUtil {
         return res;
     }
 
-    public static UserDataResponse generateResponseUser(UserData user) {
+    public UserDataResponse generateResponseUser(UserData user) {
         UserDataResponse res = new UserDataResponse();
+
+        if (user == null) {
+            return res;
+        }
 
         res.setId(user.getId());
         res.setRole(generateResponseRole(user.getRoleData()));
         res.setCurrentSubscription(generateResponseSubscription(user.getCurrentSubscriptionPackage()));
-        res.setProfile(generateResponseProfile(null));
         res.setUsername(user.getUsername());
         res.setEmail(user.getEmail());
         res.setFirstName(user.getFirstName());
@@ -70,11 +92,20 @@ public class GenerateResponseUtil {
         res.setCreatedDate(user.getCreatedDate());
         res.setUpdatedDate(user.getUpdatedDate());
 
+        UserProfile profile = userProfileRepo.getDetailByUserId(user.getId());
+        if (profile != null) {
+            res.setProfile(generateResponseProfile(profile));
+        }
+
         return res;
     }
 
-    public static CardTypeResponse generateResponseCardType(CardType type) {
+    public CardTypeResponse generateResponseCardType(CardType type) {
         CardTypeResponse res = new CardTypeResponse();
+
+        if (type == null) {
+            return res;
+        }
 
         res.setId(type.getId());
         res.setName(type.getName());
@@ -83,8 +114,12 @@ public class GenerateResponseUtil {
         return res;
     }
 
-    public static UserCardResponse generateResponseUserCard(UserCard card) {
+    public UserCardResponse generateResponseUserCard(UserCard card) {
         UserCardResponse res = new UserCardResponse();
+
+        if (card == null) {
+            return res;
+        }
 
         res.setId(card.getId());
         res.setUserData(generateResponseUser(card.getUserData()));

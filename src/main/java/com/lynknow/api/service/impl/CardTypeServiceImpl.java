@@ -26,6 +26,9 @@ public class CardTypeServiceImpl implements CardTypeService {
     @Autowired
     private CardTypeRepository cardTypeRepo;
 
+    @Autowired
+    private GenerateResponseUtil generateRes;
+
     @Override
     public ResponseEntity getDetail(Integer id) {
         try {
@@ -35,7 +38,7 @@ public class CardTypeServiceImpl implements CardTypeService {
                         true,
                         200,
                         "Success",
-                        GenerateResponseUtil.generateResponseCardType(type)), HttpStatus.OK);
+                        generateRes.generateResponseCardType(type)), HttpStatus.OK);
             } else {
                 LOGGER.error("Card Type ID: " + id + " is not found");
                 throw new NotFoundException("Card Type ID: " + id);
@@ -53,7 +56,7 @@ public class CardTypeServiceImpl implements CardTypeService {
             List<CardType> types = cardTypeRepo.getList();
             if (types != null) {
                 for (CardType item : types) {
-                    datas.add(GenerateResponseUtil.generateResponseCardType(item));
+                    datas.add(generateRes.generateResponseCardType(item));
                 }
             }
 

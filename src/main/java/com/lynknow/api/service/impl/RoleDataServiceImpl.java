@@ -30,6 +30,9 @@ public class RoleDataServiceImpl implements RoleDataService {
     @Autowired
     private RoleDataRepository roleDataRepo;
 
+    @Autowired
+    private GenerateResponseUtil generateRes;
+
     @Override
     public ResponseEntity getList() {
         try {
@@ -37,7 +40,7 @@ public class RoleDataServiceImpl implements RoleDataService {
             List<RoleData> roles = roleDataRepo.getList();
             if (roles != null) {
                 for (RoleData role : roles) {
-                    datas.add(GenerateResponseUtil.generateResponseRole(role));
+                    datas.add(generateRes.generateResponseRole(role));
                 }
             }
 
@@ -60,12 +63,12 @@ public class RoleDataServiceImpl implements RoleDataService {
                 page = roleDataRepo.getListPagination(
                         model.getParam(),
                         PageRequest.of(model.getPage(), model.getSize(), Sort.by(Sort.Direction.ASC, model.getSortBy())))
-                        .map(GenerateResponseUtil::generateResponseRole);
+                        .map(generateRes::generateResponseRole);
             } else {
                 page = roleDataRepo.getListPagination(
                         model.getParam(),
                         PageRequest.of(model.getPage(), model.getSize(), Sort.by(Sort.Direction.DESC, model.getSortBy())))
-                        .map(GenerateResponseUtil::generateResponseRole);
+                        .map(generateRes::generateResponseRole);
             }
 
             return new ResponseEntity(new BaseResponse<>(
@@ -88,7 +91,7 @@ public class RoleDataServiceImpl implements RoleDataService {
                         true,
                         200,
                         "Success",
-                        GenerateResponseUtil.generateResponseRole(role)), HttpStatus.OK);
+                        generateRes.generateResponseRole(role)), HttpStatus.OK);
             } else {
                 LOGGER.error("Role ID: " + id + " is not found");
                 throw new NotFoundException("Role ID: " + id);

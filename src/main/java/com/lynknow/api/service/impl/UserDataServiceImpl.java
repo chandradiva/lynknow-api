@@ -50,6 +50,9 @@ public class UserDataServiceImpl implements UserDataService {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private GenerateResponseUtil generateRes;
+
     @Override
     public ResponseEntity registerAdmin(UserDataRequest request) {
         try {
@@ -82,7 +85,7 @@ public class UserDataServiceImpl implements UserDataService {
                     true,
                     201,
                     "Success",
-                    GenerateResponseUtil.generateResponseUser(user)), HttpStatus.CREATED);
+                    generateRes.generateResponseUser(user)), HttpStatus.CREATED);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
