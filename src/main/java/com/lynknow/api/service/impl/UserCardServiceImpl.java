@@ -339,10 +339,10 @@ public class UserCardServiceImpl implements UserCardService {
 
                     userCardRepo.save(card);
                 } else {
-                    File fileUpload = new File(uploadDir.getAbsolutePath() + File.separator + newFilename);
-                    if (fileUpload.exists()) {
-                        fileUpload.delete();
-                    }
+//                    File fileUpload = new File(uploadDir.getAbsolutePath() + File.separator + newFilename);
+//                    if (fileUpload.exists()) {
+//                        fileUpload.delete();
+//                    }
 
                     LOGGER.error("User Card ID: " + id + " is not found");
 //                    throw new NotFoundException("User Card ID: " + id);
@@ -389,10 +389,10 @@ public class UserCardServiceImpl implements UserCardService {
 
                     userCardRepo.save(card);
                 } else {
-                    File fileUpload = new File(uploadDir.getAbsolutePath() + File.separator + newFilename);
-                    if (fileUpload.exists()) {
-                        fileUpload.delete();
-                    }
+//                    File fileUpload = new File(uploadDir.getAbsolutePath() + File.separator + newFilename);
+//                    if (fileUpload.exists()) {
+//                        fileUpload.delete();
+//                    }
 
                     LOGGER.error("User Card ID: " + id + " is not found");
 //                    throw new NotFoundException("User Card ID: " + id);
@@ -439,10 +439,10 @@ public class UserCardServiceImpl implements UserCardService {
 
                     userCardRepo.save(card);
                 } else {
-                    File fileUpload = new File(uploadDir.getAbsolutePath() + File.separator + newFilename);
-                    if (fileUpload.exists()) {
-                        fileUpload.delete();
-                    }
+//                    File fileUpload = new File(uploadDir.getAbsolutePath() + File.separator + newFilename);
+//                    if (fileUpload.exists()) {
+//                        fileUpload.delete();
+//                    }
 
                     LOGGER.error("User Card ID: " + id + " is not found");
 //                    throw new NotFoundException("User Card ID: " + id);
