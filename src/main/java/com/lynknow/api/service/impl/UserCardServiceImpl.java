@@ -345,7 +345,7 @@ public class UserCardServiceImpl implements UserCardService {
                     }
 
                     LOGGER.error("User Card ID: " + id + " is not found");
-                    throw new NotFoundException("User Card ID: " + id);
+//                    throw new NotFoundException("User Card ID: " + id);
                 }
             }
 
@@ -395,7 +395,7 @@ public class UserCardServiceImpl implements UserCardService {
                     }
 
                     LOGGER.error("User Card ID: " + id + " is not found");
-                    throw new NotFoundException("User Card ID: " + id);
+//                    throw new NotFoundException("User Card ID: " + id);
                 }
             }
 
@@ -445,7 +445,7 @@ public class UserCardServiceImpl implements UserCardService {
                     }
 
                     LOGGER.error("User Card ID: " + id + " is not found");
-                    throw new NotFoundException("User Card ID: " + id);
+//                    throw new NotFoundException("User Card ID: " + id);
                 }
             }
 
