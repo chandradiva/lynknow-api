@@ -151,4 +151,22 @@ public class GenerateResponseUtil {
         return res;
     }
 
+    public CountryResponse generateResponseCountry(Country country) {
+        CountryResponse res = new CountryResponse();
+
+        if (country == null) {
+            return res;
+        }
+
+        res.setId(country.getId());
+        res.setIso(country.getIso());
+        res.setName(country.getName());
+        res.setNiceName(country.getNiceName());
+        res.setIso3(country.getIso3());
+        res.setNumCode(country.getNumCode());
+        res.setPhoneCode(country.getPhoneCode());
+
+        return res;
+    }
+
 }
