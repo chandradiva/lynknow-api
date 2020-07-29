@@ -112,4 +112,19 @@ public class UserCardController {
         }
     }
 
+    @PatchMapping("{id}/lock")
+    public ResponseEntity lockCard(@PathVariable Long id) {
+        return userCardService.lockCard(id, 1);
+    }
+
+    @PatchMapping("{id}/unlock")
+    public ResponseEntity unlockCard(@PathVariable Long id) {
+        return userCardService.lockCard(id, 2);
+    }
+
+    @GetMapping("check-create")
+    public ResponseEntity checkCreateCard() {
+        return userCardService.checkCreateCard();
+    }
+
 }

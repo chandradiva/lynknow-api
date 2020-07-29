@@ -24,5 +24,10 @@ public interface UserCardService {
     byte[] getImageFrontSide(String filename, HttpServletResponse httpResponse) throws IOException;
     byte[] getImageBackSide(String filename, HttpServletResponse httpResponse) throws IOException;
     byte[] getImageProfilePicture(String filename, HttpServletResponse httpResponse) throws IOException;
+    byte[] getImageCard(String filename, HttpServletResponse httpResponse) throws IOException;
+
+    ResponseEntity getDetailByCode(String code);
+    ResponseEntity lockCard(Long id, int type);
+    ResponseEntity checkCreateCard();
 
 }

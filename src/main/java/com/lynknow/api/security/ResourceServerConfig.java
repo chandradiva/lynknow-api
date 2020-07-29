@@ -50,7 +50,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .antMatchers("/password/**").permitAll()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/test/check", "/test/check-db", "/roles/**", "/users/**").permitAll()
+                .antMatchers("/test/check", "/test/check-db", "/roles/**", "/public/**").permitAll()
                 .and()
                 .authorizeRequests()
                 .anyRequest()

@@ -3,10 +3,10 @@ package com.lynknow.api.service.impl;
 import com.lynknow.api.exception.BadRequestException;
 import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.exception.NotFoundException;
+import com.lynknow.api.exception.UnprocessableEntityException;
 import com.lynknow.api.model.CardType;
 import com.lynknow.api.model.UserCard;
 import com.lynknow.api.model.UserData;
-import com.lynknow.api.model.UserProfile;
 import com.lynknow.api.pojo.PaginationModel;
 import com.lynknow.api.pojo.request.UserCardRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
@@ -520,6 +520,147 @@ public class UserCardServiceImpl implements UserCardService {
                 LOGGER.error("Profile Picture Card Image with Filename: " + filename + " is not found");
                 throw new NotFoundException("Profile Picture Card Image with Filename: " + filename);
             }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public byte[] getImageCard(String filename, HttpServletResponse httpResponse) throws IOException {
+        try {
+            File file = new File(frontSideDir + File.separator + filename);
+            if (file.exists()) {
+                httpResponse.setContentType("image/*");
+                httpResponse.setHeader("Content-Disposition", "inline; filename=" + filename);
+                httpResponse.setStatus(HttpServletResponse.SC_OK);
+                FileInputStream fis = new FileInputStream(file);
+
+                return IOUtils.toByteArray(fis);
+            } else {
+                file = new File(backSideDir + File.separator + filename);
+                if (file.exists()) {
+                    httpResponse.setContentType("image/*");
+                    httpResponse.setHeader("Content-Disposition", "inline; filename=" + filename);
+                    httpResponse.setStatus(HttpServletResponse.SC_OK);
+                    FileInputStream fis = new FileInputStream(file);
+
+                    return IOUtils.toByteArray(fis);
+                } else {
+                    file = new File(profilePicDir + File.separator + filename);
+                    if (file.exists()) {
+                        httpResponse.setContentType("image/*");
+                        httpResponse.setHeader("Content-Disposition", "inline; filename=" + filename);
+                        httpResponse.setStatus(HttpServletResponse.SC_OK);
+                        FileInputStream fis = new FileInputStream(file);
+
+                        return IOUtils.toByteArray(fis);
+                    } else {
+                        LOGGER.error("Card Image with Filename: " + filename + " is not found");
+                        throw new NotFoundException("Card Image with Filename: " + filename);
+                    }
+                }
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity getDetailByCode(String code) {
+        try {
+            UserCard card = userCardRepo.getByUniqueCode(code);
+            if (card != null) {
+                if (card.getUserData().getCurrentSubscriptionPackage().getId() == 2
+                        && card.getIsCardLocked() == 1) {
+                    // card locked
+                    LOGGER.error("Card Locked by Users. Users must Request to View Card");
+                    throw new UnprocessableEntityException("Card Locked by Users. Users must Request to View Card");
+                }
+
+                return new ResponseEntity(new BaseResponse<>(
+                        true,
+                        200,
+                        "Success",
+                        generateRes.generateResponseUserCard(card)), HttpStatus.OK);
+            } else {
+                LOGGER.error("User Card Code: " + code + " is not found");
+                throw new NotFoundException("User Card Code: " + code);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity lockCard(Long id, int type) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+
+            if (userSession.getCurrentSubscriptionPackage().getId() == 1) {
+                LOGGER.error("Only Premium Users that can Lock Their Cards");
+                throw new BadRequestException("Only Premium Users that can Lock Their Cards");
+            }
+
+            UserCard card = userCardRepo.getDetail(id);
+            if (card != null) {
+                if (type == 1) {
+                    // lock card
+                    card.setIsCardLocked(1);
+                } else {
+                    // unlock card
+                    card.setIsCardLocked(0);
+                }
+
+                card.setUpdatedDate(new Date());
+
+                userCardRepo.save(card);
+
+                return new ResponseEntity(new BaseResponse<>(
+                        true,
+                        200,
+                        "Success",
+                        generateRes.generateResponseUserCard(card)), HttpStatus.OK);
+            } else {
+                LOGGER.error("User Card ID: " + id + " is not found");
+                throw new NotFoundException("User Card ID: " + id);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity checkCreateCard() {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+
+            List<UserCard> cards = userCardRepo.getList(userSession.getId(), null, null, Sort.by("id").ascending());
+            int countCard = cards == null ? 0 : cards.size();
+            if (userSession.getCurrentSubscriptionPackage().getId() == 1) {
+                // basic
+                if (countCard == 2) {
+                    LOGGER.error("You have reached your card limit. User Basic can only have 2 cards");
+                    throw new BadRequestException("You have reached your card limit. User Basic can only have 2 cards");
+                }
+            } else {
+                // premium
+                if (countCard == 2) {
+                    LOGGER.error("You have reached your card limit. User Premium can only have 10 cards");
+                    throw new BadRequestException("You have reached your card limit. User Premium can only have 10 cards");
+                }
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    null), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());

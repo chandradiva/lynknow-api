@@ -41,4 +41,7 @@ public interface UserCardRepository extends JpaRepository<UserCard, Long> {
             @Param("param") String param,
             Pageable pageable);
 
+    @Query("FROM UserCard WHERE isActive = 1 AND uniqueCode = :code")
+    UserCard getByUniqueCode(@Param("code") String code);
+
 }
