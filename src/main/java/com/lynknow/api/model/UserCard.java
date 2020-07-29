@@ -105,4 +105,7 @@ public class UserCard {
     @Column(name = "is_active")
     private int isActive = 1;
 
+    @Column(name = "is_card_locked")
+    private int isCardLocked = 0;
+
 }
