@@ -13,6 +13,7 @@ import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.pojo.response.UserCardResponse;
 import com.lynknow.api.repository.CardTypeRepository;
 import com.lynknow.api.repository.UserCardRepository;
+import com.lynknow.api.repository.UserDataRepository;
 import com.lynknow.api.repository.UserProfileRepository;
 import com.lynknow.api.service.UserCardService;
 import com.lynknow.api.util.GenerateResponseUtil;
@@ -58,6 +59,9 @@ public class UserCardServiceImpl implements UserCardService {
 
     @Autowired
     private UserProfileRepository userProfileRepo;
+
+    @Autowired
+    private UserDataRepository userDataRepo;
 
     @Autowired
     private GenerateResponseUtil generateRes;
@@ -600,7 +604,9 @@ public class UserCardServiceImpl implements UserCardService {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
 
-            if (userSession.getCurrentSubscriptionPackage().getId() == 1) {
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
                 LOGGER.error("Only Premium Users that can Lock Their Cards");
                 throw new BadRequestException("Only Premium Users that can Lock Their Cards");
             }

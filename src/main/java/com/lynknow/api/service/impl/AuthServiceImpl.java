@@ -4,6 +4,7 @@ import com.lynknow.api.exception.BadRequestException;
 import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.model.UserData;
 import com.lynknow.api.pojo.response.BaseResponse;
+import com.lynknow.api.repository.UserDataRepository;
 import com.lynknow.api.security.ResourceServerConfig;
 import com.lynknow.api.service.AuthService;
 import com.lynknow.api.util.GenerateResponseUtil;
@@ -40,6 +41,9 @@ import java.util.Map;
 public class AuthServiceImpl implements AuthService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthServiceImpl.class);
+
+    @Autowired
+    private UserDataRepository userDataRepo;
 
     @Autowired
     private ClientDetailsService clientDetailsStore;
@@ -139,11 +143,13 @@ public class AuthServiceImpl implements AuthService {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
 
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
             return new ResponseEntity(new BaseResponse<>(
                     true,
                     200,
                     "Success",
-                    generateRes.generateResponseUser(userSession)), HttpStatus.OK);
+                    generateRes.generateResponseUser(userLogin)), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
