@@ -39,6 +39,7 @@ public class DevelopmentServiceImpl implements DevelopmentService {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
 
             // 2 = premium
             SubscriptionPackage subs = subscriptionPackageRepo.getDetail(2);
@@ -47,16 +48,16 @@ public class DevelopmentServiceImpl implements DevelopmentService {
                 throw new NotFoundException("Subscription Package ID: " + 2);
             }
 
-            userSession.setCurrentSubscriptionPackage(subs);
-            userSession.setUpdatedDate(new Date());
+            userLogin.setCurrentSubscriptionPackage(subs);
+            userLogin.setUpdatedDate(new Date());
 
-            userDataRepo.save(userSession);
+            userDataRepo.save(userLogin);
 
             return new ResponseEntity(new BaseResponse<>(
                     true,
                     200,
                     "Success",
-                    generateRes.generateResponseUser(userSession)), HttpStatus.OK);
+                    generateRes.generateResponseUser(userLogin)), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
@@ -68,6 +69,7 @@ public class DevelopmentServiceImpl implements DevelopmentService {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
 
             // 1 = basic
             SubscriptionPackage subs = subscriptionPackageRepo.getDetail(1);
@@ -76,16 +78,16 @@ public class DevelopmentServiceImpl implements DevelopmentService {
                 throw new NotFoundException("Subscription Package ID: " + 1);
             }
 
-            userSession.setCurrentSubscriptionPackage(subs);
-            userSession.setUpdatedDate(new Date());
+            userLogin.setCurrentSubscriptionPackage(subs);
+            userLogin.setUpdatedDate(new Date());
 
-            userDataRepo.save(userSession);
+            userDataRepo.save(userLogin);
 
             return new ResponseEntity(new BaseResponse<>(
                     true,
                     200,
                     "Success",
-                    generateRes.generateResponseUser(userSession)), HttpStatus.OK);
+                    generateRes.generateResponseUser(userLogin)), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());

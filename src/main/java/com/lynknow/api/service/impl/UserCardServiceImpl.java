@@ -80,6 +80,7 @@ public class UserCardServiceImpl implements UserCardService {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
 
             CardType type = cardTypeRepo.getDetail(request.getCardTypeId());
             if (type == null) {
@@ -89,9 +90,9 @@ public class UserCardServiceImpl implements UserCardService {
 
             if (request.getId() == null) {
                 // new data
-                List<UserCard> cards = userCardRepo.getList(userSession.getId(), null, null, Sort.by("id").ascending());
+                List<UserCard> cards = userCardRepo.getList(userLogin.getId(), null, null, Sort.by("id").ascending());
                 int countCard = cards == null ? 0 : cards.size();
-                if (userSession.getCurrentSubscriptionPackage().getId() == 1) {
+                if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
                     // basic
                     if (countCard == 2) {
                         LOGGER.error("You have reached your card limit. User Basic can only have 2 cards");
@@ -107,7 +108,7 @@ public class UserCardServiceImpl implements UserCardService {
 
                 UserCard card = new UserCard();
 
-                card.setUserData(userSession);
+                card.setUserData(userLogin);
                 card.setCardType(type);
                 card.setFrontSide(request.getFrontSide());
                 card.setBackSide(request.getBackSide());
@@ -603,7 +604,6 @@ public class UserCardServiceImpl implements UserCardService {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
-
             UserData userLogin = userDataRepo.getDetail(userSession.getId());
 
             if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
@@ -645,10 +645,11 @@ public class UserCardServiceImpl implements UserCardService {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
 
-            List<UserCard> cards = userCardRepo.getList(userSession.getId(), null, null, Sort.by("id").ascending());
+            List<UserCard> cards = userCardRepo.getList(userLogin.getId(), null, null, Sort.by("id").ascending());
             int countCard = cards == null ? 0 : cards.size();
-            if (userSession.getCurrentSubscriptionPackage().getId() == 1) {
+            if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
                 // basic
                 if (countCard == 2) {
                     LOGGER.error("You have reached your card limit. User Basic can only have 2 cards");

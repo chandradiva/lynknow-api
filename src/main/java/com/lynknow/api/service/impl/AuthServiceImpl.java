@@ -142,7 +142,6 @@ public class AuthServiceImpl implements AuthService {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
-
             UserData userLogin = userDataRepo.getDetail(userSession.getId());
 
             return new ResponseEntity(new BaseResponse<>(
