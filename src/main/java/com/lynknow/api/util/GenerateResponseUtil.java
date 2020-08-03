@@ -2,8 +2,12 @@ package com.lynknow.api.util;
 
 import com.lynknow.api.model.*;
 import com.lynknow.api.pojo.response.*;
+import com.lynknow.api.repository.UserPhoneDetailRepository;
 import com.lynknow.api.repository.UserProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -11,6 +15,9 @@ public class GenerateResponseUtil {
 
     @Autowired
     private UserProfileRepository userProfileRepo;
+
+    @Autowired
+    private UserPhoneDetailRepository userPhoneDetailRepo;
 
     public RoleDataResponse generateResponseRole(RoleData role) {
         RoleDataResponse res = new RoleDataResponse();
@@ -57,8 +64,6 @@ public class GenerateResponseUtil {
         res.setAddress1(profile.getAddress1());
         res.setAddress2(profile.getAddress2());
         res.setCountry(profile.getCountry());
-        res.setWhatsappNo(profile.getWhatsappNo());
-        res.setMobileNo(profile.getMobileNo());
         res.setFbId(profile.getFbId());
         res.setFbToken(profile.getFbToken());
         res.setFbEmail(profile.getFbEmail());
@@ -67,6 +72,54 @@ public class GenerateResponseUtil {
         res.setGoogleEmail(profile.getGoogleEmail());
         res.setIsWhatsappNoVerified(profile.getIsWhatsappNoVerified());
         res.setIsEmailVerified(profile.getIsEmailVerified());
+        res.setProfilePhoto(profile.getProfilePhoto());
+        res.setCreatedDate(profile.getCreatedDate());
+        res.setUpdatedDate(profile.getUpdatedDate());
+
+        Page<UserPhoneDetail> pageWa = userPhoneDetailRepo.getDetail(profile.getId(), 1, PageRequest.of(0, 1, Sort.by("id").descending()));
+        if (pageWa.getContent() != null && pageWa.getContent().size() > 0) {
+            UserPhoneDetail detail = pageWa.getContent().get(0);
+
+            UserPhoneDetailResponse resDetail = new UserPhoneDetailResponse();
+
+            resDetail.setId(detail.getId());
+            resDetail.setCountryCode(detail.getCountryCode());
+            resDetail.setDialCode(detail.getDialCode());
+            resDetail.setNumber(detail.getNumber());
+
+            res.setWhatsappNo(resDetail);
+        }
+
+        Page<UserPhoneDetail> pageMobile = userPhoneDetailRepo.getDetail(profile.getId(), 2, PageRequest.of(0, 1, Sort.by("id").descending()));
+        if (pageMobile.getContent() != null && pageMobile.getContent().size() > 0) {
+            UserPhoneDetail detail = pageMobile.getContent().get(0);
+
+            UserPhoneDetailResponse resDetail = new UserPhoneDetailResponse();
+
+            resDetail.setId(detail.getId());
+            resDetail.setCountryCode(detail.getCountryCode());
+            resDetail.setDialCode(detail.getDialCode());
+            resDetail.setNumber(detail.getNumber());
+
+            res.setMobileNo(resDetail);
+        }
+
+        return res;
+    }
+
+    public UserProfilePublicResponse generateResponseProfilePublic(UserProfile profile) {
+        UserProfilePublicResponse res = new UserProfilePublicResponse();
+
+        if (profile == null) {
+            return res;
+        }
+
+        res.setId(profile.getId());
+        res.setFirstName(profile.getFirstName());
+        res.setLastName(profile.getLastName());
+        res.setAddress1(profile.getAddress1());
+        res.setAddress2(profile.getAddress2());
+        res.setCountry(profile.getCountry());
         res.setCreatedDate(profile.getCreatedDate());
         res.setUpdatedDate(profile.getUpdatedDate());
 
@@ -95,6 +148,33 @@ public class GenerateResponseUtil {
         UserProfile profile = userProfileRepo.getDetailByUserId(user.getId());
         if (profile != null) {
             res.setProfile(generateResponseProfile(profile));
+        }
+
+        return res;
+    }
+
+    public UserDataPublicResponse generateResponseUserPublic(UserData user) {
+        UserDataPublicResponse res = new UserDataPublicResponse();
+
+        if (user == null) {
+            return res;
+        }
+
+        res.setId(user.getId());
+        res.setRole(generateResponseRole(user.getRoleData()));
+        res.setCurrentSubscription(generateResponseSubscription(user.getCurrentSubscriptionPackage()));
+        res.setUsername(user.getUsername());
+        res.setEmail(user.getEmail());
+        res.setFirstName(user.getFirstName());
+        res.setLastName(user.getLastName());
+        res.setVerificationPoint(user.getVerificationPoint());
+        res.setJoinDate(user.getJoinDate());
+        res.setCreatedDate(user.getCreatedDate());
+        res.setUpdatedDate(user.getUpdatedDate());
+
+        UserProfile profile = userProfileRepo.getDetailByUserId(user.getId());
+        if (profile != null) {
+            res.setProfile(generateResponseProfilePublic(profile));
         }
 
         return res;
@@ -142,6 +222,28 @@ public class GenerateResponseUtil {
         res.setMobileNo(card.getMobileNo());
         res.setFbEmail(card.getFbEmail());
         res.setGoogleEmail(card.getGoogleEmail());
+        res.setIsPublished(card.getIsPublished());
+        res.setPublishedDate(card.getPublishedDate());
+        res.setUniqueCode(card.getUniqueCode());
+        res.setCreatedDate(card.getCreatedDate());
+        res.setUpdatedDate(card.getUpdatedDate());
+
+        return res;
+    }
+
+    public UserCardPublicResponse generateResponseUserCardPublic(UserCard card) {
+        UserCardPublicResponse res = new UserCardPublicResponse();
+
+        if (card == null) {
+            return res;
+        }
+
+        res.setId(card.getId());
+        res.setUserData(generateResponseUserPublic(card.getUserData()));
+        res.setCardType(generateResponseCardType(card.getCardType()));
+        res.setFrontSide(card.getFrontSide());
+        res.setBackSide(card.getBackSide());
+        res.setProfilePhoto(card.getProfilePhoto());
         res.setIsPublished(card.getIsPublished());
         res.setPublishedDate(card.getPublishedDate());
         res.setUniqueCode(card.getUniqueCode());

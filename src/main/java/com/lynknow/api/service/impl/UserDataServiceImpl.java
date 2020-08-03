@@ -6,11 +6,13 @@ import com.lynknow.api.exception.NotFoundException;
 import com.lynknow.api.model.RoleData;
 import com.lynknow.api.model.SubscriptionPackage;
 import com.lynknow.api.model.UserData;
+import com.lynknow.api.model.UserProfile;
 import com.lynknow.api.pojo.request.UserDataRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.repository.RoleDataRepository;
 import com.lynknow.api.repository.SubscriptionPackageRepository;
 import com.lynknow.api.repository.UserDataRepository;
+import com.lynknow.api.repository.UserProfileRepository;
 import com.lynknow.api.service.AuthService;
 import com.lynknow.api.service.UserDataService;
 import com.lynknow.api.util.GenerateResponseUtil;
@@ -53,6 +55,9 @@ public class UserDataServiceImpl implements UserDataService {
     @Autowired
     private GenerateResponseUtil generateRes;
 
+    @Autowired
+    private UserProfileRepository userProfileRepo;
+
     @Override
     public ResponseEntity registerAdmin(UserDataRequest request) {
         try {
@@ -80,6 +85,18 @@ public class UserDataServiceImpl implements UserDataService {
             user.setCreatedDate(new Date());
 
             userDataRepo.save(user);
+
+            UserProfile profile = new UserProfile();
+
+            profile.setUserData(user);
+            profile.setFirstName(request.getFirstName());
+            profile.setLastName(request.getLastName());
+            profile.setIsWhatsappNoVerified(0);
+            profile.setIsEmailVerified(0);
+            profile.setCreatedDate(new Date());
+            profile.setIsActive(1);
+
+            userProfileRepo.save(profile);
 
             return new ResponseEntity(new BaseResponse<>(
                     true,
@@ -130,6 +147,18 @@ public class UserDataServiceImpl implements UserDataService {
             user.setCreatedDate(new Date());
 
             userDataRepo.save(user);
+
+            UserProfile profile = new UserProfile();
+
+            profile.setUserData(user);
+            profile.setFirstName(request.getFirstName());
+            profile.setLastName(request.getLastName());
+            profile.setIsWhatsappNoVerified(0);
+            profile.setIsEmailVerified(0);
+            profile.setCreatedDate(new Date());
+            profile.setIsActive(1);
+
+            userProfileRepo.save(profile);
 
             // auto login after register
             HashMap<String, String> maps = new HashMap<>();

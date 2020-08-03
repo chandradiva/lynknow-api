@@ -82,4 +82,7 @@ public class UserProfile {
     @Column(name = "is_active")
     private int isActive = 1;
 
+    @Column(name = "profile_photo")
+    private String profilePhoto;
+
 }

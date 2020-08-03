@@ -588,7 +588,7 @@ public class UserCardServiceImpl implements UserCardService {
                         true,
                         200,
                         "Success",
-                        generateRes.generateResponseUserCard(card)), HttpStatus.OK);
+                        generateRes.generateResponseUserCardPublic(card)), HttpStatus.OK);
             } else {
                 LOGGER.error("User Card Code: " + code + " is not found");
                 throw new NotFoundException("User Card Code: " + code);

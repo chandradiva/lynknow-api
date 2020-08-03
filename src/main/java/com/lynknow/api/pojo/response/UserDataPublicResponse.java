@@ -8,25 +8,20 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class UserProfileResponse {
+public class UserDataPublicResponse {
 
     private Long id;
+    private String username;
+    private String email;
     private String firstName;
     private String lastName;
-    private String address1;
-    private String address2;
-    private String country;
-    private UserPhoneDetailResponse whatsappNo;
-    private UserPhoneDetailResponse mobileNo;
-    private String fbId;
-    private String fbToken;
-    private String fbEmail;
-    private String googleId;
-    private String googleToken;
-    private String googleEmail;
-    private int isWhatsappNoVerified = 0;
-    private int isEmailVerified = 0;
-    private String profilePhoto;
+    private int verificationPoint = 0;
+    private SubscriptionPackageResponse currentSubscription;
+    private RoleDataResponse role;
+    private UserProfilePublicResponse profile;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss Z", timezone = "GMT+7")
+    private Date joinDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss Z", timezone = "GMT+7")
     private Date createdDate;
