@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserPhoneDetailResponse {
+public class PhoneDetailResponse {
 
     private Long id;
     private String countryCode;
