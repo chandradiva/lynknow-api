@@ -271,4 +271,17 @@ public class GenerateResponseUtil {
         return res;
     }
 
+    public OtpTypeResponse generateResponseOtpType(OtpType type) {
+        OtpTypeResponse res = new OtpTypeResponse();
+
+        if (type == null) {
+            return res;
+        }
+
+        res.setId(type.getId());
+        res.setName(type.getName());
+
+        return res;
+    }
+
 }
