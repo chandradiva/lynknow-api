@@ -16,8 +16,8 @@ public class UserProfileResponse {
     private String address1;
     private String address2;
     private String country;
-    private UserPhoneDetailResponse whatsappNo;
-    private UserPhoneDetailResponse mobileNo;
+    private PhoneDetailResponse whatsappNo;
+    private PhoneDetailResponse mobileNo;
     private String fbId;
     private String fbToken;
     private String fbEmail;

@@ -27,8 +27,8 @@ public class UserCardResponse {
     private String country;
     private String email;
     private String website;
-    private String whatsappNo;
-    private String mobileNo;
+    private PhoneDetailResponse whatsappNo;
+    private PhoneDetailResponse mobileNo;
     private String fbEmail;
     private String googleEmail;
     private int isPublished = 0;

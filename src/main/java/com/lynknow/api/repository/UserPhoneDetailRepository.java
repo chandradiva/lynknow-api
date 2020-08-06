@@ -15,7 +15,12 @@ public interface UserPhoneDetailRepository extends JpaRepository<UserPhoneDetail
     @Query("FROM UserPhoneDetail WHERE userProfile.id = :profileId AND type = :type")
     UserPhoneDetail getDetail(@Param("profileId") Long profileId, @Param("type") int type);
 
-    @Query("SELECT det FROM UserPhoneDetail det WHERE det.userProfile.id = :profileId AND det.type = :type")
-    Page<UserPhoneDetail> getDetail(@Param("profileId") Long profileId, @Param("type") int type, Pageable pageable);
+    @Query("SELECT det FROM UserPhoneDetail det " +
+            "WHERE det.userProfile.id = :profileId " +
+            "AND det.type = :type")
+    Page<UserPhoneDetail> getDetail(
+            @Param("profileId") Long profileId,
+            @Param("type") int type,
+            Pageable pageable);
 
 }

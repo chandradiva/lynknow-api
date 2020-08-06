@@ -2,6 +2,7 @@ package com.lynknow.api.util;
 
 import com.lynknow.api.model.*;
 import com.lynknow.api.pojo.response.*;
+import com.lynknow.api.repository.CardPhoneDetailRepository;
 import com.lynknow.api.repository.UserPhoneDetailRepository;
 import com.lynknow.api.repository.UserProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class GenerateResponseUtil {
 
     @Autowired
     private UserPhoneDetailRepository userPhoneDetailRepo;
+
+    @Autowired
+    private CardPhoneDetailRepository cardPhoneDetailRepo;
 
     public RoleDataResponse generateResponseRole(RoleData role) {
         RoleDataResponse res = new RoleDataResponse();
@@ -80,7 +84,7 @@ public class GenerateResponseUtil {
         if (pageWa.getContent() != null && pageWa.getContent().size() > 0) {
             UserPhoneDetail detail = pageWa.getContent().get(0);
 
-            UserPhoneDetailResponse resDetail = new UserPhoneDetailResponse();
+            PhoneDetailResponse resDetail = new PhoneDetailResponse();
 
             resDetail.setId(detail.getId());
             resDetail.setCountryCode(detail.getCountryCode());
@@ -94,7 +98,7 @@ public class GenerateResponseUtil {
         if (pageMobile.getContent() != null && pageMobile.getContent().size() > 0) {
             UserPhoneDetail detail = pageMobile.getContent().get(0);
 
-            UserPhoneDetailResponse resDetail = new UserPhoneDetailResponse();
+            PhoneDetailResponse resDetail = new PhoneDetailResponse();
 
             resDetail.setId(detail.getId());
             resDetail.setCountryCode(detail.getCountryCode());
@@ -218,8 +222,6 @@ public class GenerateResponseUtil {
         res.setCountry(card.getCountry());
         res.setEmail(card.getEmail());
         res.setWebsite(card.getWebsite());
-        res.setWhatsappNo(card.getWhatsappNo());
-        res.setMobileNo(card.getMobileNo());
         res.setFbEmail(card.getFbEmail());
         res.setGoogleEmail(card.getGoogleEmail());
         res.setIsPublished(card.getIsPublished());
@@ -227,6 +229,34 @@ public class GenerateResponseUtil {
         res.setUniqueCode(card.getUniqueCode());
         res.setCreatedDate(card.getCreatedDate());
         res.setUpdatedDate(card.getUpdatedDate());
+
+        Page<CardPhoneDetail> pageWa = cardPhoneDetailRepo.getDetail(card.getId(), 1, PageRequest.of(0, 1, Sort.by("id").descending()));
+        if (pageWa.getContent() != null && pageWa.getContent().size() > 0) {
+            CardPhoneDetail detail = pageWa.getContent().get(0);
+
+            PhoneDetailResponse resDetail = new PhoneDetailResponse();
+
+            resDetail.setId(detail.getId());
+            resDetail.setCountryCode(detail.getCountryCode());
+            resDetail.setDialCode(detail.getDialCode());
+            resDetail.setNumber(detail.getNumber());
+
+            res.setWhatsappNo(resDetail);
+        }
+
+        Page<CardPhoneDetail> pageMobile = cardPhoneDetailRepo.getDetail(card.getId(), 2, PageRequest.of(0, 1, Sort.by("id").descending()));
+        if (pageMobile.getContent() != null && pageMobile.getContent().size() > 0) {
+            CardPhoneDetail detail = pageMobile.getContent().get(0);
+
+            PhoneDetailResponse resDetail = new PhoneDetailResponse();
+
+            resDetail.setId(detail.getId());
+            resDetail.setCountryCode(detail.getCountryCode());
+            resDetail.setDialCode(detail.getDialCode());
+            resDetail.setNumber(detail.getNumber());
+
+            res.setMobileNo(resDetail);
+        }
 
         return res;
     }
