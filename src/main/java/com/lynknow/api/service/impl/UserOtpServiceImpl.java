@@ -76,7 +76,17 @@ public class UserOtpServiceImpl implements UserOtpService {
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.HOUR_OF_DAY, 3);
 
-            UserOtp otp = new UserOtp();
+            UserOtp otp;
+            Page<UserOtp> page = userOtpRepo.getDetail(
+                    userLogin.getId(),
+                    1, // whatsapp
+                    PageRequest.of(0, 1, Sort.by("id").descending()));
+            if (page.getContent() != null && page.getContent().size() > 0) {
+                otp = page.getContent().get(0);
+                otp.setUpdatedDate(new Date());
+            } else {
+                otp = new UserOtp();
+            }
 
             otp.setUserData(userLogin);
             otp.setOtpType(type);
@@ -87,6 +97,9 @@ public class UserOtpServiceImpl implements UserOtpService {
             otp.setIsActive(1);
 
             userOtpRepo.save(otp);
+
+            // send whatsapp
+            // end of send whatsapp
 
             return new ResponseEntity(new BaseResponse<>(
                     true,
@@ -121,7 +134,17 @@ public class UserOtpServiceImpl implements UserOtpService {
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.HOUR_OF_DAY, 3);
 
-            UserOtp otp = new UserOtp();
+            UserOtp otp;
+            Page<UserOtp> page = userOtpRepo.getDetail(
+                    userLogin.getId(),
+                    2, // email
+                    PageRequest.of(0, 1, Sort.by("id").descending()));
+            if (page.getContent() != null && page.getContent().size() > 0) {
+                otp = page.getContent().get(0);
+                otp.setUpdatedDate(new Date());
+            } else {
+                otp = new UserOtp();
+            }
 
             otp.setUserData(userLogin);
             otp.setOtpType(type);
@@ -179,6 +202,13 @@ public class UserOtpServiceImpl implements UserOtpService {
 
                     userProfileRepo.save(profile);
 
+                    // update verification point
+                    userLogin.setVerificationPoint(userLogin.getVerificationPoint() + 20);
+                    userLogin.setUpdatedDate(new Date());
+
+                    userDataRepo.save(userLogin);
+                    // end of update verification point
+
                     return new ResponseEntity(new BaseResponse<>(
                             true,
                             200,
@@ -231,6 +261,13 @@ public class UserOtpServiceImpl implements UserOtpService {
 
                     userProfileRepo.save(profile);
 
+                    // update verification point
+                    userLogin.setVerificationPoint(userLogin.getVerificationPoint() + 20);
+                    userLogin.setUpdatedDate(new Date());
+
+                    userDataRepo.save(userLogin);
+                    // end of update verification point
+
                     return new ResponseEntity(new BaseResponse<>(
                             true,
                             200,
@@ -254,5 +291,46 @@ public class UserOtpServiceImpl implements UserOtpService {
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
-    
+
+    @Override
+    public ResponseEntity peekOtp(String email, int type) {
+        try {
+            UserData user = null;
+            Page<UserData> pageUser = userDataRepo.getByEmail(
+                    email.toLowerCase(),
+                    PageRequest.of(0, 1, Sort.by("id").descending()));
+
+            if (pageUser.getContent() != null && pageUser.getContent().size() > 0) {
+                user = pageUser.getContent().get(0);
+
+                Page<UserOtp> pageOtp = userOtpRepo.getDetail(
+                        user.getId(),
+                        type,
+                        PageRequest.of(0, 1, Sort.by("id").descending()));
+                if (pageOtp.getContent() != null && pageOtp.getContent().size() > 0) {
+                    return new ResponseEntity(new BaseResponse<>(
+                            true,
+                            200,
+                            "Success",
+                            pageOtp.getContent().get(0).getOtpCode()), HttpStatus.OK);
+                } else {
+                    return new ResponseEntity(new BaseResponse<>(
+                            true,
+                            200,
+                            "Success",
+                            null), HttpStatus.OK);
+                }
+            } else {
+                return new ResponseEntity(new BaseResponse<>(
+                        true,
+                        200,
+                        "Success",
+                        null), HttpStatus.OK);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
 }

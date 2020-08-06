@@ -1,6 +1,7 @@
 package com.lynknow.api.controller;
 
 import com.lynknow.api.service.UserCardService;
+import com.lynknow.api.service.UserOtpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,9 @@ public class PublicController {
     @Autowired
     private UserCardService userCardService;
 
+    @Autowired
+    private UserOtpService userOtpService;
+
     @GetMapping("get-card")
     public ResponseEntity getCard(@RequestParam String code) {
         return userCardService.getDetailByCode(code);
@@ -26,6 +30,13 @@ public class PublicController {
     @GetMapping("get-image")
     public byte[] getImage(@RequestParam String filename, HttpServletResponse httpResponse) throws IOException {
         return userCardService.getImageCard(filename, httpResponse);
+    }
+
+    @GetMapping("peek-otp")
+    public ResponseEntity peekOtp(
+            @RequestParam String email,
+            @RequestParam(defaultValue = "1") int type) {
+        return userOtpService.peekOtp(email, type);
     }
 
 }

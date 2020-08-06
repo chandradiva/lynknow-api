@@ -30,4 +30,13 @@ public interface UserOtpRepository extends JpaRepository<UserOtp, Long> {
             @Param("code") String code,
             Pageable pageable);
 
+    @Query("SELECT otp FROM UserOtp otp " +
+            "WHERE otp.userData.id = :userId " +
+            "AND otp.otpType.id = :typeId " +
+            "AND otp.isActive = 1")
+    Page<UserOtp> getDetail(
+            @Param("userId") Long userId,
+            @Param("typeId") Integer typeId,
+            Pageable pageable);
+
 }

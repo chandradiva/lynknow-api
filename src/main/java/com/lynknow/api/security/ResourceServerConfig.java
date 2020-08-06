@@ -54,7 +54,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                         "/test/check-db",
                         "/roles/**",
                         "/public/**",
-                        "/users/**").permitAll()
+                        "/users/admin-register",
+                        "/users/subs-register").permitAll()
                 .and()
                 .authorizeRequests()
                 .anyRequest()

@@ -9,5 +9,6 @@ public interface UserOtpService {
 
     ResponseEntity challengeWhatsapp(String code);
     ResponseEntity challengeEmail(String code);
+    ResponseEntity peekOtp(String email, int type);
 
 }

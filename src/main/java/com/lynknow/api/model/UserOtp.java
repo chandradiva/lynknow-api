@@ -1,8 +1,13 @@
 package com.lynknow.api.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.util.Date;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "user_otp", schema = "public")
 public class UserOtp {
@@ -39,75 +44,4 @@ public class UserOtp {
     @Column(name = "is_active")
     private int isActive = 0;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public UserData getUserData() {
-        return userData;
-    }
-
-    public void setUserData(UserData userData) {
-        this.userData = userData;
-    }
-
-    public OtpType getOtpType() {
-        return otpType;
-    }
-
-    public void setOtpType(OtpType otpType) {
-        this.otpType = otpType;
-    }
-
-    public String getOtpCode() {
-        return otpCode;
-    }
-
-    public void setOtpCode(String otpCode) {
-        this.otpCode = otpCode;
-    }
-
-    public String getSendTo() {
-        return sendTo;
-    }
-
-    public void setSendTo(String sendTo) {
-        this.sendTo = sendTo;
-    }
-
-    public Date getExpiredDate() {
-        return expiredDate;
-    }
-
-    public void setExpiredDate(Date expiredDate) {
-        this.expiredDate = expiredDate;
-    }
-
-    public Date getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public Date getUpdatedDate() {
-        return updatedDate;
-    }
-
-    public void setUpdatedDate(Date updatedDate) {
-        this.updatedDate = updatedDate;
-    }
-
-    public int getIsActive() {
-        return isActive;
-    }
-
-    public void setIsActive(int isActive) {
-        this.isActive = isActive;
-    }
 }
