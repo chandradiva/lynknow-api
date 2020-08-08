@@ -21,7 +21,7 @@ public class TestController {
         return new ResponseEntity(new BaseResponse<>(
                 true,
                 200,
-                "Successa",
+                "Success",
                 null), HttpStatus.OK);
     }
 
