@@ -5,10 +5,12 @@ import com.lynknow.api.exception.ConflictException;
 import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.exception.NotFoundException;
 import com.lynknow.api.model.*;
+import com.lynknow.api.pojo.request.WablasSendMessageRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.repository.*;
 import com.lynknow.api.service.UserOtpService;
 import com.lynknow.api.util.EmailUtil;
+import com.lynknow.api.util.HttpRequestUtil;
 import com.lynknow.api.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +51,14 @@ public class UserOtpServiceImpl implements UserOtpService {
     @Autowired
     private EmailUtil emailUtil;
 
+    @Autowired
+    private HttpRequestUtil httpRequestUtil;
+
     @Value("${email.subject.send-otp}")
     private String subjectEmailOtp;
+
+    @Value("${wablas.message.send-otp}")
+    private String wablasSendOtp;
 
     @Override
     public ResponseEntity verifyWhatsapp() {
@@ -91,7 +99,7 @@ public class UserOtpServiceImpl implements UserOtpService {
             otp.setUserData(userLogin);
             otp.setOtpType(type);
             otp.setOtpCode(StringUtil.generateOtp());
-            otp.setSendTo(phoneDetail.getDialCode() + phoneDetail.getNumber());
+            otp.setSendTo(phoneDetail.getDialCode() + StringUtil.normalizePhoneNumber(phoneDetail.getNumber()));
             otp.setExpiredDate(cal.getTime());
             otp.setCreatedDate(new Date());
             otp.setIsActive(1);
@@ -99,6 +107,18 @@ public class UserOtpServiceImpl implements UserOtpService {
             userOtpRepo.save(otp);
 
             // send whatsapp
+            WablasSendMessageRequest request = new WablasSendMessageRequest();
+
+            request.setPhone(StringUtil.normalizePhoneNumber(otp.getSendTo()));
+            request.setMessage(wablasSendOtp.replace("#", otp.getOtpCode()));
+
+            new Thread(() -> {
+                try {
+                    httpRequestUtil.sendPost(request);
+                } catch (Exception e) {
+                    LOGGER.error("Error processing data", e);
+                }
+            }).start();
             // end of send whatsapp
 
             return new ResponseEntity(new BaseResponse<>(
@@ -107,6 +127,9 @@ public class UserOtpServiceImpl implements UserOtpService {
                     "Success",
                     null), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
@@ -224,8 +247,8 @@ public class UserOtpServiceImpl implements UserOtpService {
                     throw new BadRequestException("Your OTP Code is Already Expired");
                 }
             } else {
-                LOGGER.error("OTP Code: " + code + " is not found");
-                throw new NotFoundException("OTP Code: " + code + " is not found", 404);
+                LOGGER.error("Your OTP Code: " + code + " is invalid");
+                throw new NotFoundException("OTP Code: " + code + " is invalid", 404);
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
@@ -283,8 +306,8 @@ public class UserOtpServiceImpl implements UserOtpService {
                     throw new BadRequestException("Your OTP Code is Already Expired");
                 }
             } else {
-                LOGGER.error("OTP Code: " + code + " is not found");
-                throw new NotFoundException("OTP Code: " + code + " is not found", 404);
+                LOGGER.error("OTP Code: " + code + " is invalid");
+                throw new NotFoundException("OTP Code: " + code + " is invalid", 404);
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);

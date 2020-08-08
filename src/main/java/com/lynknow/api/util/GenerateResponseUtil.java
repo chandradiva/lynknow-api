@@ -89,7 +89,7 @@ public class GenerateResponseUtil {
             resDetail.setId(detail.getId());
             resDetail.setCountryCode(detail.getCountryCode());
             resDetail.setDialCode(detail.getDialCode());
-            resDetail.setNumber(detail.getNumber());
+            resDetail.setNumber(StringUtil.normalizePhoneNumber(detail.getNumber()));
 
             res.setWhatsappNo(resDetail);
         }
@@ -103,7 +103,7 @@ public class GenerateResponseUtil {
             resDetail.setId(detail.getId());
             resDetail.setCountryCode(detail.getCountryCode());
             resDetail.setDialCode(detail.getDialCode());
-            resDetail.setNumber(detail.getNumber());
+            resDetail.setNumber(StringUtil.normalizePhoneNumber(detail.getNumber()));
 
             res.setMobileNo(resDetail);
         }

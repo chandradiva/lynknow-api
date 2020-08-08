@@ -17,4 +17,12 @@ public class StringUtil {
         return new String(otp);
     }
 
+    public static String normalizePhoneNumber(String param) {
+        if (param != null) {
+            return param.replaceAll("-", "");
+        } else {
+            return null;
+        }
+    }
+
 }
