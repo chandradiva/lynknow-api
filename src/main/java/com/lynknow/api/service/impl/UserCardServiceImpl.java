@@ -10,8 +10,10 @@ import com.lynknow.api.pojo.request.UserCardRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.pojo.response.UserCardResponse;
 import com.lynknow.api.repository.*;
+import com.lynknow.api.service.CardVerificationService;
 import com.lynknow.api.service.UserCardService;
 import com.lynknow.api.util.GenerateResponseUtil;
+import com.lynknow.api.util.StringUtil;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +65,9 @@ public class UserCardServiceImpl implements UserCardService {
 
     @Autowired
     private CardPhoneDetailRepository cardPhoneDetailRepo;
+
+    @Autowired
+    private CardVerificationService cardVerificationService;
 
     @Value("${upload.dir.card.front-side}")
     private String frontSideDir;
@@ -122,8 +127,8 @@ public class UserCardServiceImpl implements UserCardService {
                 card.setCountry(request.getCountry());
                 card.setEmail(request.getEmail());
                 card.setWebsite(request.getWebsite());
-                card.setWhatsappNo(request.getWhatsappNo().getNumber());
-                card.setMobileNo(request.getMobileNo().getNumber());
+                card.setWhatsappNo(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
+                card.setMobileNo(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
                 card.setIsPublished(0);
                 card.setUniqueCode(UUID.randomUUID().toString());
                 card.setCreatedDate(new Date());
@@ -140,14 +145,14 @@ public class UserCardServiceImpl implements UserCardService {
 
                     waDetail.setCountryCode(request.getWhatsappNo().getCountryCode());
                     waDetail.setDialCode(request.getWhatsappNo().getDialCode());
-                    waDetail.setNumber(request.getWhatsappNo().getNumber());
+                    waDetail.setNumber(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
                 } else {
                     waDetail = new CardPhoneDetail();
 
                     waDetail.setUserCard(card);
                     waDetail.setCountryCode(request.getWhatsappNo().getCountryCode());
                     waDetail.setDialCode(request.getWhatsappNo().getDialCode());
-                    waDetail.setNumber(request.getWhatsappNo().getNumber());
+                    waDetail.setNumber(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
                     waDetail.setType(1);
                 }
 
@@ -157,19 +162,23 @@ public class UserCardServiceImpl implements UserCardService {
 
                     mobileDetail.setCountryCode(request.getMobileNo().getCountryCode());
                     mobileDetail.setDialCode(request.getMobileNo().getDialCode());
-                    mobileDetail.setNumber(request.getMobileNo().getNumber());
+                    mobileDetail.setNumber(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
                 } else {
                     mobileDetail = new CardPhoneDetail();
 
                     mobileDetail.setUserCard(card);
                     mobileDetail.setCountryCode(request.getMobileNo().getCountryCode());
                     mobileDetail.setDialCode(request.getMobileNo().getDialCode());
-                    mobileDetail.setNumber(request.getMobileNo().getNumber());
+                    mobileDetail.setNumber(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
                     mobileDetail.setType(2);
                 }
 
                 cardPhoneDetailRepo.save(waDetail);
                 cardPhoneDetailRepo.save(mobileDetail);
+
+                // init card verification
+                cardVerificationService.initCardVerification(card);
+                // end of init card verification
 
                 return new ResponseEntity(new BaseResponse<>(
                         true,
@@ -210,14 +219,14 @@ public class UserCardServiceImpl implements UserCardService {
 
                         waDetail.setCountryCode(request.getWhatsappNo().getCountryCode());
                         waDetail.setDialCode(request.getWhatsappNo().getDialCode());
-                        waDetail.setNumber(request.getWhatsappNo().getNumber());
+                        waDetail.setNumber(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
                     } else {
                         waDetail = new CardPhoneDetail();
 
                         waDetail.setUserCard(card);
                         waDetail.setCountryCode(request.getWhatsappNo().getCountryCode());
                         waDetail.setDialCode(request.getWhatsappNo().getDialCode());
-                        waDetail.setNumber(request.getWhatsappNo().getNumber());
+                        waDetail.setNumber(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
                         waDetail.setType(1);
                     }
 
@@ -227,14 +236,14 @@ public class UserCardServiceImpl implements UserCardService {
 
                         mobileDetail.setCountryCode(request.getMobileNo().getCountryCode());
                         mobileDetail.setDialCode(request.getMobileNo().getDialCode());
-                        mobileDetail.setNumber(request.getMobileNo().getNumber());
+                        mobileDetail.setNumber(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
                     } else {
                         mobileDetail = new CardPhoneDetail();
 
                         mobileDetail.setUserCard(card);
                         mobileDetail.setCountryCode(request.getMobileNo().getCountryCode());
                         mobileDetail.setDialCode(request.getMobileNo().getDialCode());
-                        mobileDetail.setNumber(request.getMobileNo().getNumber());
+                        mobileDetail.setNumber(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
                         mobileDetail.setType(2);
                     }
 

@@ -11,6 +11,7 @@ import com.lynknow.api.repository.UserPhoneDetailRepository;
 import com.lynknow.api.repository.UserProfileRepository;
 import com.lynknow.api.service.UserProfileService;
 import com.lynknow.api.util.GenerateResponseUtil;
+import com.lynknow.api.util.StringUtil;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,8 +80,8 @@ public class UserProfileServiceImpl implements UserProfileService {
             profile.setAddress1(request.getAddress1());
             profile.setAddress2(request.getAddress2());
             profile.setCountry(request.getCountry());
-            profile.setWhatsappNo(request.getWhatsappNo().getNumber());
-            profile.setMobileNo(request.getMobileNo().getNumber());
+            profile.setWhatsappNo(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
+            profile.setMobileNo(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
 
             userProfileRepo.save(profile);
 
@@ -93,14 +94,14 @@ public class UserProfileServiceImpl implements UserProfileService {
 
                 waDetail.setCountryCode(request.getWhatsappNo().getCountryCode());
                 waDetail.setDialCode(request.getWhatsappNo().getDialCode());
-                waDetail.setNumber(request.getWhatsappNo().getNumber());
+                waDetail.setNumber(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
             } else {
                 waDetail = new UserPhoneDetail();
 
                 waDetail.setUserProfile(profile);
                 waDetail.setCountryCode(request.getWhatsappNo().getCountryCode());
                 waDetail.setDialCode(request.getWhatsappNo().getDialCode());
-                waDetail.setNumber(request.getWhatsappNo().getNumber());
+                waDetail.setNumber(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
                 waDetail.setType(1);
             }
 
@@ -110,14 +111,14 @@ public class UserProfileServiceImpl implements UserProfileService {
 
                 mobileDetail.setCountryCode(request.getMobileNo().getCountryCode());
                 mobileDetail.setDialCode(request.getMobileNo().getDialCode());
-                mobileDetail.setNumber(request.getMobileNo().getNumber());
+                mobileDetail.setNumber(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
             } else {
                 mobileDetail = new UserPhoneDetail();
 
                 mobileDetail.setUserProfile(profile);
                 mobileDetail.setCountryCode(request.getMobileNo().getCountryCode());
                 mobileDetail.setDialCode(request.getMobileNo().getDialCode());
-                mobileDetail.setNumber(request.getMobileNo().getNumber());
+                mobileDetail.setNumber(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
                 mobileDetail.setType(2);
             }
 
