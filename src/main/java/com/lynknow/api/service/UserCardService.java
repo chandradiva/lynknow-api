@@ -30,4 +30,7 @@ public interface UserCardService {
     ResponseEntity lockCard(Long id, int type);
     ResponseEntity checkCreateCard();
 
+    ResponseEntity getDetail(Long id, int typeId);
+    byte[] downloadContact(Long id, HttpServletResponse httpResponse) throws IOException;
+
 }

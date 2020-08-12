@@ -127,4 +127,17 @@ public class UserCardController {
         return userCardService.checkCreateCard();
     }
 
+    @GetMapping("detail")
+    public ResponseEntity getDetail(
+            @RequestParam Long id,
+            @RequestParam Integer type
+    ) {
+        return userCardService.getDetail(id, type);
+    }
+
+    @GetMapping(value = "download-contact")
+    public byte[] downloadContact(@RequestParam Long id, HttpServletResponse httpResponse) throws IOException {
+        return userCardService.downloadContact(id, httpResponse);
+    }
+
 }
