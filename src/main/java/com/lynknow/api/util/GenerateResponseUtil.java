@@ -314,4 +314,36 @@ public class GenerateResponseUtil {
         return res;
     }
 
+    public NotificationTypeResponse generateResponseNotificationType(NotificationType type) {
+        NotificationTypeResponse res = new NotificationTypeResponse();
+
+        if (type == null) {
+            return res;
+        }
+
+        res.setId(type.getId());
+        res.setName(type.getName());
+
+        return res;
+    }
+
+    public NotificationResponse generateResponseNotification(Notification notification) {
+        NotificationResponse res = new NotificationResponse();
+
+        if (notification == null) {
+            return res;
+        }
+
+        res.setId(notification.getId());
+        res.setUserData(generateResponseUser(notification.getUserData()));
+        res.setTargetUserData(generateResponseUser(notification.getTargetUserData()));
+        res.setNotificationType(generateResponseNotificationType(notification.getNotificationType()));
+        res.setRemarks(notification.getRemarks());
+        res.setIsRead(notification.getIsRead());
+        res.setCreatedDate(notification.getCreatedDate());
+        res.setUpdatedDate(notification.getUpdatedDate());
+
+        return res;
+    }
+
 }

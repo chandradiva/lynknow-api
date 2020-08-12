@@ -31,9 +31,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -69,6 +67,12 @@ public class UserCardServiceImpl implements UserCardService {
     @Autowired
     private CardVerificationService cardVerificationService;
 
+    @Autowired
+    private NotificationTypeRepository notificationTypeRepo;
+
+    @Autowired
+    private NotificationRepository notificationRepo;
+
     @Value("${upload.dir.card.front-side}")
     private String frontSideDir;
 
@@ -77,6 +81,9 @@ public class UserCardServiceImpl implements UserCardService {
 
     @Value("${upload.dir.card.profile-pic}")
     private String profilePicDir;
+
+    @Value("${contact.vcf.dir}")
+    private String contactDir;
 
     @Override
     public ResponseEntity saveData(UserCardRequest request) {
@@ -758,6 +765,120 @@ public class UserCardServiceImpl implements UserCardService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity getDetail(Long id, int typeId) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            // 1 = profile pic
+            // 2 = mobile number
+            // 3 = sms
+            // 4 = whatsapp
+            // 5 = email
+            // 6 = exchange card
+            // 7 = view detail card
+            // 8 = download contact
+            UserCard card = userCardRepo.getDetail(id);
+            if (card != null) {
+                NotificationType type = notificationTypeRepo.getDetail(typeId);
+
+                Notification notification = new Notification();
+
+                notification.setUserData(userLogin);
+                notification.setTargetUserData(card.getUserData());
+                notification.setNotificationType(type);
+                notification.setIsRead(0);
+                notification.setCreatedDate(new Date());
+                notification.setIsActive(1);
+
+                notificationRepo.save(notification);
+
+                return new ResponseEntity(new BaseResponse<>(
+                        true,
+                        200,
+                        "Success",
+                        generateRes.generateResponseUserCard(card)), HttpStatus.OK);
+            } else {
+                LOGGER.error("User Card ID: " + id + " is not found");
+                throw new NotFoundException("User Card ID: " + id);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public byte[] downloadContact(Long id, HttpServletResponse httpResponse) throws IOException {
+        BufferedWriter writer = null;
+
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            UserCard card = userCardRepo.getDetail(id);
+            if (card != null) {
+                NotificationType type = notificationTypeRepo.getDetail(8);
+
+                Notification notification = new Notification();
+
+                notification.setUserData(userLogin);
+                notification.setTargetUserData(card.getUserData());
+                notification.setNotificationType(type);
+                notification.setIsRead(0);
+                notification.setCreatedDate(new Date());
+                notification.setIsActive(1);
+
+                notificationRepo.save(notification);
+            } else {
+                LOGGER.error("User Card ID: " + id + " is not found");
+                throw new NotFoundException("User Card ID: " + id);
+            }
+
+            String filename = new Date().getTime() + "_" + UUID.randomUUID().toString() + ".vcf";
+            File contactFolder = new File( contactDir);
+            if (!contactFolder.exists()) {
+                contactFolder.mkdirs();
+            }
+
+            String data = "BEGIN:VCARD\n" +
+                    "VERSION:4.0\n" +
+                    "N:Gump;Forrest;;Mr.;\n" +
+                    "FN:Forrest Gump\n" +
+                    "ORG:Bubba Gump Shrimp Co.\n" +
+                    "TITLE:Shrimp Man\n" +
+                    "PHOTO;MEDIATYPE=image/gif:http://www.example.com/dir_photos/my_photo.gif\n" +
+                    "TEL;TYPE=work,voice;VALUE=uri:tel:+1-111-555-1212\n" +
+                    "TEL;TYPE=home,voice;VALUE=uri:tel:+1-404-555-1212\n" +
+                    "ADR;TYPE=WORK;PREF=1;LABEL=\"100 Waters Edge\\nBaytown\\, LA 30314\\nUnited States of America\":;;100 Waters Edge;Baytown;LA;30314;United States of America\n" +
+                    "ADR;TYPE=HOME;LABEL=\"42 Plantation St.\\nBaytown\\, LA 30314\\nUnited States of America\":;;42 Plantation St.;Baytown;LA;30314;United States of America\n" +
+                    "EMAIL:forrestgump@example.com\n" +
+                    "REV:20080424T195243Z\n" +
+                    "x-qq:21588891\n" +
+                    "END:VCARD";
+
+            writer = new BufferedWriter(new FileWriter(contactFolder.getAbsoluteFile() + File.separator + filename));
+            writer.write(data);
+
+            httpResponse.setContentType("text/vcard");
+            httpResponse.setHeader("Content-Disposition", "attachment; filename=" + filename);
+            httpResponse.setStatus(HttpServletResponse.SC_OK);
+            FileInputStream fis = new FileInputStream(new File(contactFolder + File.separator + filename));
+
+            return IOUtils.toByteArray(fis);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } finally {
+            if (writer != null) {
+                writer.close();
+            }
         }
     }
 
