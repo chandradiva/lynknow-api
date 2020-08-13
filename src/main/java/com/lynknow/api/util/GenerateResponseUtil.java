@@ -227,6 +227,7 @@ public class GenerateResponseUtil {
         res.setIsPublished(card.getIsPublished());
         res.setPublishedDate(card.getPublishedDate());
         res.setUniqueCode(card.getUniqueCode());
+        res.setVerificationPoint(card.getVerificationPoint());
         res.setCreatedDate(card.getCreatedDate());
         res.setUpdatedDate(card.getUpdatedDate());
 
@@ -277,6 +278,7 @@ public class GenerateResponseUtil {
         res.setIsPublished(card.getIsPublished());
         res.setPublishedDate(card.getPublishedDate());
         res.setUniqueCode(card.getUniqueCode());
+        res.setVerificationPoint(card.getVerificationPoint());
         res.setCreatedDate(card.getCreatedDate());
         res.setUpdatedDate(card.getUpdatedDate());
 
@@ -342,6 +344,42 @@ public class GenerateResponseUtil {
         res.setIsRead(notification.getIsRead());
         res.setCreatedDate(notification.getCreatedDate());
         res.setUpdatedDate(notification.getUpdatedDate());
+
+        return res;
+    }
+
+    public CardVerificationItemResponse generateResponseCardVerificationItem(CardVerificationItem item) {
+        CardVerificationItemResponse res = new CardVerificationItemResponse();
+
+        if (item == null) {
+            return res;
+        }
+
+        res.setId(item.getId());
+        res.setName(item.getName());
+        res.setDescription(item.getDescription());
+        res.setType(item.getType());
+
+        return res;
+    }
+
+    public CardVerificationResponse generateResponseCardVerification(CardVerification verification) {
+        CardVerificationResponse res = new CardVerificationResponse();
+
+        if (verification == null) {
+            return res;
+        }
+
+        res.setId(verification.getId());
+        res.setUserCard(generateResponseUserCard(verification.getUserCard()));
+        res.setCardVerificationItem(generateResponseCardVerificationItem(verification.getCardVerificationItem()));
+        res.setIsVerified(verification.getIsVerified());
+        res.setParam(verification.getParam());
+        res.setReason(verification.getReason());
+        res.setIsRequested(verification.getIsRequested());
+        res.setCreatedDate(verification.getCreatedDate());
+        res.setUpdatedDate(verification.getUpdatedDate());
+        res.setExpiredDate(verification.getExpiredDate());
 
         return res;
     }

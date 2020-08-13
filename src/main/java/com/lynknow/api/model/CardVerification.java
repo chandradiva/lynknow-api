@@ -37,51 +37,17 @@ public class CardVerification {
     @Column(name = "updated_date")
     private Date updatedDate;
 
-    public Long getId() {
-        return id;
-    }
+    @Column(name = "param")
+    private String param;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "expired_date")
+    private Date expiredDate;
 
-    public UserCard getUserCard() {
-        return userCard;
-    }
+    @Column(name = "reason")
+    private String reason;
 
-    public void setUserCard(UserCard userCard) {
-        this.userCard = userCard;
-    }
+    @Column(name = "is_requested")
+    private int isRequested = 0;
 
-    public CardVerificationItem getCardVerificationItem() {
-        return cardVerificationItem;
-    }
-
-    public void setCardVerificationItem(CardVerificationItem cardVerificationItem) {
-        this.cardVerificationItem = cardVerificationItem;
-    }
-
-    public int getIsVerified() {
-        return isVerified;
-    }
-
-    public void setIsVerified(int isVerified) {
-        this.isVerified = isVerified;
-    }
-
-    public Date getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public Date getUpdatedDate() {
-        return updatedDate;
-    }
-
-    public void setUpdatedDate(Date updatedDate) {
-        this.updatedDate = updatedDate;
-    }
 }

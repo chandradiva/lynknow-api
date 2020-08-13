@@ -108,4 +108,7 @@ public class UserCard {
     @Column(name = "is_card_locked")
     private int isCardLocked = 0;
 
+    @Column(name = "verification_point")
+    private int verificationPoint = 0;
+
 }

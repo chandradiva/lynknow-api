@@ -138,6 +138,7 @@ public class UserCardServiceImpl implements UserCardService {
                 card.setMobileNo(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
                 card.setIsPublished(0);
                 card.setUniqueCode(UUID.randomUUID().toString());
+                card.setVerificationPoint(0);
                 card.setCreatedDate(new Date());
                 card.setIsActive(1);
 
@@ -438,13 +439,7 @@ public class UserCardServiceImpl implements UserCardService {
 
                     userCardRepo.save(card);
                 } else {
-//                    File fileUpload = new File(uploadDir.getAbsolutePath() + File.separator + newFilename);
-//                    if (fileUpload.exists()) {
-//                        fileUpload.delete();
-//                    }
-
                     LOGGER.error("User Card ID: " + id + " is not found");
-//                    throw new NotFoundException("User Card ID: " + id);
                 }
             }
 
@@ -488,13 +483,7 @@ public class UserCardServiceImpl implements UserCardService {
 
                     userCardRepo.save(card);
                 } else {
-//                    File fileUpload = new File(uploadDir.getAbsolutePath() + File.separator + newFilename);
-//                    if (fileUpload.exists()) {
-//                        fileUpload.delete();
-//                    }
-
                     LOGGER.error("User Card ID: " + id + " is not found");
-//                    throw new NotFoundException("User Card ID: " + id);
                 }
             }
 
@@ -538,13 +527,7 @@ public class UserCardServiceImpl implements UserCardService {
 
                     userCardRepo.save(card);
                 } else {
-//                    File fileUpload = new File(uploadDir.getAbsolutePath() + File.separator + newFilename);
-//                    if (fileUpload.exists()) {
-//                        fileUpload.delete();
-//                    }
-
                     LOGGER.error("User Card ID: " + id + " is not found");
-//                    throw new NotFoundException("User Card ID: " + id);
                 }
             }
 

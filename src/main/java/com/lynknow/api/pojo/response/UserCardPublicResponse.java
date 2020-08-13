@@ -22,6 +22,7 @@ public class UserCardPublicResponse {
     private Date publishedDate;
 
     private String uniqueCode;
+    private int verificationPoint = 0;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss Z", timezone = "GMT+7")
     private Date createdDate;
