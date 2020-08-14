@@ -50,4 +50,11 @@ public class CardVerification {
     @Column(name = "is_requested")
     private int isRequested = 0;
 
+    @ManyToOne
+    @JoinColumn(name = "verified_by_id")
+    private UserData verifiedBy;
+
+    @Column(name = "verified_date")
+    private Date verifiedDate;
+
 }

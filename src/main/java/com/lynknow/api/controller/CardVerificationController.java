@@ -1,5 +1,6 @@
 package com.lynknow.api.controller;
 
+import com.lynknow.api.pojo.request.VerifyCardRequest;
 import com.lynknow.api.service.CardVerificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +44,16 @@ public class CardVerificationController {
     @GetMapping("by-param")
     public ResponseEntity getDetail(@RequestParam Long cardId, @RequestParam Integer item) {
         return cardVerificationService.getDetail(cardId, item);
+    }
+
+    @GetMapping("{cardId}/list")
+    public ResponseEntity getList(@PathVariable Long cardId) {
+        return cardVerificationService.getList(cardId);
+    }
+
+    @PatchMapping("verify")
+    public ResponseEntity verifyRequest(@RequestBody VerifyCardRequest request) {
+        return cardVerificationService.verifyRequest(request);
     }
 
 }

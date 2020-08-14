@@ -380,6 +380,8 @@ public class GenerateResponseUtil {
         res.setCreatedDate(verification.getCreatedDate());
         res.setUpdatedDate(verification.getUpdatedDate());
         res.setExpiredDate(verification.getExpiredDate());
+        res.setVerifiedBy(generateResponseUser(verification.getVerifiedBy()));
+        res.setVerifiedDate(verification.getVerifiedDate());
 
         return res;
     }

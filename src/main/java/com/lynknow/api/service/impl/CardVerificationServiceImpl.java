@@ -1,14 +1,20 @@
 package com.lynknow.api.service.impl;
 
+import com.lynknow.api.exception.BadRequestException;
 import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.exception.NotFoundException;
+import com.lynknow.api.exception.UnprocessableEntityException;
 import com.lynknow.api.model.CardVerification;
 import com.lynknow.api.model.CardVerificationItem;
 import com.lynknow.api.model.UserCard;
+import com.lynknow.api.model.UserData;
+import com.lynknow.api.pojo.request.VerifyCardRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
+import com.lynknow.api.pojo.response.CardVerificationResponse;
 import com.lynknow.api.repository.CardVerificationItemRepository;
 import com.lynknow.api.repository.CardVerificationRepository;
 import com.lynknow.api.repository.UserCardRepository;
+import com.lynknow.api.repository.UserDataRepository;
 import com.lynknow.api.service.CardVerificationService;
 import com.lynknow.api.util.GenerateResponseUtil;
 import org.slf4j.Logger;
@@ -17,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,9 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class CardVerificationServiceImpl implements CardVerificationService {
@@ -47,6 +53,9 @@ public class CardVerificationServiceImpl implements CardVerificationService {
 
     @Autowired
     private UserCardRepository userCardRepo;
+
+    @Autowired
+    private UserDataRepository userDataRepo;
 
     @Value("${upload.dir.card.verification}")
     private String cardVerificationDir;
@@ -361,6 +370,84 @@ public class CardVerificationServiceImpl implements CardVerificationService {
             } else {
                 LOGGER.error("Card Verification with Card ID: " + cardId + " and Item ID: " + itemId + " is not found");
                 throw new NotFoundException("Card Verification with Card ID: " + cardId + " and Item ID: " + itemId);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity getList(Long cardId) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            if (userLogin.getRoleData().getId() != 1) {
+                LOGGER.error("Only Administrator Roles That Get List Request for Card Verification");
+                throw new BadRequestException("Only Administrator Roles That Get List Request for Card Verification");
+            }
+
+            List<CardVerificationResponse> datas = new ArrayList<>();
+            List<CardVerification> verifications = cardVerificationRepo.getList(cardId);
+            if (verifications != null) {
+                for (CardVerification item : verifications) {
+                    datas.add(generateRes.generateResponseCardVerification(item));
+                }
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    datas), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity verifyRequest(VerifyCardRequest request) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            if (userLogin.getRoleData().getId() != 1) {
+                LOGGER.error("Only Administrator Roles That Can Verify Request for Card Verification");
+                throw new BadRequestException("Only Administrator Roles That Can Verify Request for Card Verification");
+            }
+
+            if (request.getVerify() > 1 || request.getVerify() < 0) {
+                LOGGER.error("Verify Data Can Only be Filled with 0 or 1");
+                throw new UnprocessableEntityException("Verify Data Can Only be Filled with 0 or 1");
+            }
+
+            CardVerification verification = cardVerificationRepo.getDetail(request.getCardId(), request.getItemId());
+            if (verification != null) {
+                if (request.getVerify() == 1) {
+                    verification.setIsVerified(1);
+                    verification.setVerifiedBy(userLogin);
+                    verification.setVerifiedDate(new Date());
+                } else {
+                    verification.setIsVerified(0);
+                    verification.setReason(request.getReason());
+                }
+
+                verification.setUpdatedDate(new Date());
+
+                cardVerificationRepo.save(verification);
+
+                return new ResponseEntity(new BaseResponse<>(
+                        true,
+                        200,
+                        "Success",
+                        generateRes.generateResponseCardVerification(verification)), HttpStatus.OK);
+            } else {
+                LOGGER.error("Card Verification with Card ID: " + request.getCardId() + " and Item ID: " + request.getItemId() + " is not found");
+                throw new NotFoundException("Card Verification with Card ID: " + request.getCardId() + " and Item ID: " + request.getItemId());
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
