@@ -52,6 +52,9 @@ public class RoleDataServiceImpl implements RoleDataService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -79,6 +82,9 @@ public class RoleDataServiceImpl implements RoleDataService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -97,6 +103,9 @@ public class RoleDataServiceImpl implements RoleDataService {
                 throw new NotFoundException("Role ID: " + id);
             }
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }

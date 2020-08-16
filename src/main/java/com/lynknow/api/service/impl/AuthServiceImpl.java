@@ -134,6 +134,9 @@ public class AuthServiceImpl implements AuthService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -150,6 +153,9 @@ public class AuthServiceImpl implements AuthService {
                     "Success",
                     generateRes.generateResponseUserComplete(userLogin)), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }

@@ -36,6 +36,10 @@ public class GenerateResponseUtil {
     public SubscriptionPackageResponse generateResponseSubscription(SubscriptionPackage subs) {
         SubscriptionPackageResponse res = new SubscriptionPackageResponse();
 
+        if (subs == null) {
+            return null;
+        }
+
         res.setId(subs.getId());
         res.setName(subs.getName());
         res.setDescription(subs.getDescription());
@@ -49,6 +53,10 @@ public class GenerateResponseUtil {
 
     public UserProfileResponse generateResponseProfile(UserProfile profile) {
         UserProfileResponse res = new UserProfileResponse();
+
+        if (profile == null) {
+            return null;
+        }
 
         res.setId(profile.getId());
         res.setFirstName(profile.getFirstName());
@@ -102,6 +110,10 @@ public class GenerateResponseUtil {
     public UserProfilePublicResponse generateResponseProfilePublic(UserProfile profile) {
         UserProfilePublicResponse res = new UserProfilePublicResponse();
 
+        if (profile == null) {
+            return null;
+        }
+
         res.setId(profile.getId());
         res.setFirstName(profile.getFirstName());
         res.setLastName(profile.getLastName());
@@ -116,6 +128,10 @@ public class GenerateResponseUtil {
 
     public UserDataResponse generateResponseUser(UserData user) {
         UserDataResponse res = new UserDataResponse();
+
+        if (user == null) {
+            return null;
+        }
 
         res.setId(user.getId());
         res.setRole(generateResponseRole(user.getRoleData()));
@@ -135,6 +151,10 @@ public class GenerateResponseUtil {
 
     public UserDataResponse generateResponseUserComplete(UserData user) {
         UserDataResponse res = new UserDataResponse();
+
+        if (user == null) {
+            return null;
+        }
 
         res.setId(user.getId());
         res.setRole(generateResponseRole(user.getRoleData()));
@@ -158,6 +178,10 @@ public class GenerateResponseUtil {
 
     public UserDataPublicResponse generateResponseUserPublic(UserData user) {
         UserDataPublicResponse res = new UserDataPublicResponse();
+
+        if (user == null) {
+            return null;
+        }
 
         res.setId(user.getId());
         res.setRole(generateResponseRole(user.getRoleData()));
@@ -191,6 +215,10 @@ public class GenerateResponseUtil {
 
     public UserCardResponse generateResponseUserCard(UserCard card) {
         UserCardResponse res = new UserCardResponse();
+
+        if (card == null) {
+            return null;
+        }
 
         res.setId(card.getId());
         res.setUserData(generateResponseUser(card.getUserData()));
@@ -252,6 +280,10 @@ public class GenerateResponseUtil {
 
     public UserCardPublicResponse generateResponseUserCardPublic(UserCard card) {
         UserCardPublicResponse res = new UserCardPublicResponse();
+
+        if (card == null) {
+            return null;
+        }
 
         res.setId(card.getId());
         res.setUserData(generateResponseUserPublic(card.getUserData()));

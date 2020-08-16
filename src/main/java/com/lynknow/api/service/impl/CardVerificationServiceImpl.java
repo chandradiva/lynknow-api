@@ -254,6 +254,9 @@ public class CardVerificationServiceImpl implements CardVerificationService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -303,6 +306,13 @@ public class CardVerificationServiceImpl implements CardVerificationService {
         } catch (IOException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Exception", e);
+            return new ResponseEntity(new BaseResponse<>(
+                    false,
+                    500,
+                    e.getMessage(),
+                    null), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -334,6 +344,9 @@ public class CardVerificationServiceImpl implements CardVerificationService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -352,6 +365,9 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                 throw new NotFoundException("Card Verification ID: " + id);
             }
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
@@ -374,6 +390,9 @@ public class CardVerificationServiceImpl implements CardVerificationService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -394,6 +413,9 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                     "Success",
                     datas), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
@@ -441,6 +463,9 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                 throw new NotFoundException("Card Verification with Card ID: " + request.getCardId() + " and Item ID: " + request.getItemId());
             }
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }

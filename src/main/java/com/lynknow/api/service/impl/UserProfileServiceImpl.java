@@ -133,6 +133,9 @@ public class UserProfileServiceImpl implements UserProfileService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -157,6 +160,9 @@ public class UserProfileServiceImpl implements UserProfileService {
                         null), HttpStatus.OK);
             }
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
@@ -213,6 +219,9 @@ public class UserProfileServiceImpl implements UserProfileService {
         } catch (IOException e) {
             LOGGER.error("Error processing data", e);
             return null;
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -236,6 +245,9 @@ public class UserProfileServiceImpl implements UserProfileService {
                 throw new NotFoundException("Profile Picture with Filename: " + profile.getProfilePhoto());
             }
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }

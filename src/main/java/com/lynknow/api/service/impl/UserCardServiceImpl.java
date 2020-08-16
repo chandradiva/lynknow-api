@@ -274,6 +274,9 @@ public class UserCardServiceImpl implements UserCardService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -299,6 +302,9 @@ public class UserCardServiceImpl implements UserCardService {
                     "Success",
                     datas), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
@@ -334,6 +340,9 @@ public class UserCardServiceImpl implements UserCardService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -352,6 +361,9 @@ public class UserCardServiceImpl implements UserCardService {
                 throw new NotFoundException("User Card ID: " + id);
             }
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
@@ -377,6 +389,9 @@ public class UserCardServiceImpl implements UserCardService {
                 throw new NotFoundException("User Card ID: " + id);
             }
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
@@ -411,6 +426,9 @@ public class UserCardServiceImpl implements UserCardService {
                 throw new NotFoundException("User Card ID: " + id);
             }
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
@@ -457,6 +475,9 @@ public class UserCardServiceImpl implements UserCardService {
         } catch (IOException e) {
             LOGGER.error("Error processing data", e);
             return null;
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -501,6 +522,9 @@ public class UserCardServiceImpl implements UserCardService {
         } catch (IOException e) {
             LOGGER.error("Error processing data", e);
             return null;
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -545,6 +569,9 @@ public class UserCardServiceImpl implements UserCardService {
         } catch (IOException e) {
             LOGGER.error("Error processing data", e);
             return null;
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -564,6 +591,9 @@ public class UserCardServiceImpl implements UserCardService {
                 throw new NotFoundException("Front Side Card Image with Filename: " + filename);
             }
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
@@ -587,6 +617,9 @@ public class UserCardServiceImpl implements UserCardService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -606,6 +639,9 @@ public class UserCardServiceImpl implements UserCardService {
                 throw new NotFoundException("Profile Picture Card Image with Filename: " + filename);
             }
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
@@ -647,6 +683,9 @@ public class UserCardServiceImpl implements UserCardService {
                 }
             }
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
@@ -693,6 +732,9 @@ public class UserCardServiceImpl implements UserCardService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -734,6 +776,9 @@ public class UserCardServiceImpl implements UserCardService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -766,6 +811,9 @@ public class UserCardServiceImpl implements UserCardService {
                     "Success",
                     null), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
@@ -811,6 +859,9 @@ public class UserCardServiceImpl implements UserCardService {
                 throw new NotFoundException("User Card ID: " + id);
             }
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
@@ -878,6 +929,9 @@ public class UserCardServiceImpl implements UserCardService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }  catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         } finally {
             if (writer != null) {
                 writer.close();
@@ -929,6 +983,9 @@ public class UserCardServiceImpl implements UserCardService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -969,6 +1026,9 @@ public class UserCardServiceImpl implements UserCardService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -1002,6 +1062,9 @@ public class UserCardServiceImpl implements UserCardService {
                 throw new NotFoundException("User Card ID: " + id);
             }
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
