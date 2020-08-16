@@ -380,15 +380,6 @@ public class CardVerificationServiceImpl implements CardVerificationService {
     @Override
     public ResponseEntity getList(Long cardId) {
         try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            UserData userSession = (UserData) auth.getPrincipal();
-            UserData userLogin = userDataRepo.getDetail(userSession.getId());
-
-            if (userLogin.getRoleData().getId() != 1) {
-                LOGGER.error("Only Administrator Roles That Get List Request for Card Verification");
-                throw new BadRequestException("Only Administrator Roles That Get List Request for Card Verification");
-            }
-
             List<CardVerificationResponse> datas = new ArrayList<>();
             List<CardVerification> verifications = cardVerificationRepo.getList(cardId);
             if (verifications != null) {

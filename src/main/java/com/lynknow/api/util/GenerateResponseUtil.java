@@ -26,10 +26,6 @@ public class GenerateResponseUtil {
     public RoleDataResponse generateResponseRole(RoleData role) {
         RoleDataResponse res = new RoleDataResponse();
 
-        if (role == null) {
-            return res;
-        }
-
         res.setId(role.getId());
         res.setName(role.getName());
         res.setDescription(role.getDescription());
@@ -39,10 +35,6 @@ public class GenerateResponseUtil {
 
     public SubscriptionPackageResponse generateResponseSubscription(SubscriptionPackage subs) {
         SubscriptionPackageResponse res = new SubscriptionPackageResponse();
-
-        if (subs == null) {
-            return res;
-        }
 
         res.setId(subs.getId());
         res.setName(subs.getName());
@@ -57,10 +49,6 @@ public class GenerateResponseUtil {
 
     public UserProfileResponse generateResponseProfile(UserProfile profile) {
         UserProfileResponse res = new UserProfileResponse();
-
-        if (profile == null) {
-            return res;
-        }
 
         res.setId(profile.getId());
         res.setFirstName(profile.getFirstName());
@@ -114,10 +102,6 @@ public class GenerateResponseUtil {
     public UserProfilePublicResponse generateResponseProfilePublic(UserProfile profile) {
         UserProfilePublicResponse res = new UserProfilePublicResponse();
 
-        if (profile == null) {
-            return res;
-        }
-
         res.setId(profile.getId());
         res.setFirstName(profile.getFirstName());
         res.setLastName(profile.getLastName());
@@ -133,9 +117,24 @@ public class GenerateResponseUtil {
     public UserDataResponse generateResponseUser(UserData user) {
         UserDataResponse res = new UserDataResponse();
 
-        if (user == null) {
-            return res;
-        }
+        res.setId(user.getId());
+        res.setRole(generateResponseRole(user.getRoleData()));
+        res.setCurrentSubscription(generateResponseSubscription(user.getCurrentSubscriptionPackage()));
+        res.setProfile(null);
+        res.setUsername(user.getUsername());
+        res.setEmail(user.getEmail());
+        res.setFirstName(user.getFirstName());
+        res.setLastName(user.getLastName());
+        res.setVerificationPoint(user.getVerificationPoint());
+        res.setJoinDate(user.getJoinDate());
+        res.setCreatedDate(user.getCreatedDate());
+        res.setUpdatedDate(user.getUpdatedDate());
+
+        return res;
+    }
+
+    public UserDataResponse generateResponseUserComplete(UserData user) {
+        UserDataResponse res = new UserDataResponse();
 
         res.setId(user.getId());
         res.setRole(generateResponseRole(user.getRoleData()));
@@ -160,10 +159,6 @@ public class GenerateResponseUtil {
     public UserDataPublicResponse generateResponseUserPublic(UserData user) {
         UserDataPublicResponse res = new UserDataPublicResponse();
 
-        if (user == null) {
-            return res;
-        }
-
         res.setId(user.getId());
         res.setRole(generateResponseRole(user.getRoleData()));
         res.setCurrentSubscription(generateResponseSubscription(user.getCurrentSubscriptionPackage()));
@@ -187,10 +182,6 @@ public class GenerateResponseUtil {
     public CardTypeResponse generateResponseCardType(CardType type) {
         CardTypeResponse res = new CardTypeResponse();
 
-        if (type == null) {
-            return res;
-        }
-
         res.setId(type.getId());
         res.setName(type.getName());
         res.setDescription(type.getDescription());
@@ -200,10 +191,6 @@ public class GenerateResponseUtil {
 
     public UserCardResponse generateResponseUserCard(UserCard card) {
         UserCardResponse res = new UserCardResponse();
-
-        if (card == null) {
-            return res;
-        }
 
         res.setId(card.getId());
         res.setUserData(generateResponseUser(card.getUserData()));
@@ -228,6 +215,7 @@ public class GenerateResponseUtil {
         res.setPublishedDate(card.getPublishedDate());
         res.setUniqueCode(card.getUniqueCode());
         res.setVerificationPoint(card.getVerificationPoint());
+        res.setIsCardLocked(card.getIsCardLocked());
         res.setCreatedDate(card.getCreatedDate());
         res.setUpdatedDate(card.getUpdatedDate());
 
@@ -265,10 +253,6 @@ public class GenerateResponseUtil {
     public UserCardPublicResponse generateResponseUserCardPublic(UserCard card) {
         UserCardPublicResponse res = new UserCardPublicResponse();
 
-        if (card == null) {
-            return res;
-        }
-
         res.setId(card.getId());
         res.setUserData(generateResponseUserPublic(card.getUserData()));
         res.setCardType(generateResponseCardType(card.getCardType()));
@@ -279,6 +263,7 @@ public class GenerateResponseUtil {
         res.setPublishedDate(card.getPublishedDate());
         res.setUniqueCode(card.getUniqueCode());
         res.setVerificationPoint(card.getVerificationPoint());
+        res.setIsCardLocked(card.getIsCardLocked());
         res.setCreatedDate(card.getCreatedDate());
         res.setUpdatedDate(card.getUpdatedDate());
 
@@ -287,10 +272,6 @@ public class GenerateResponseUtil {
 
     public CountryResponse generateResponseCountry(Country country) {
         CountryResponse res = new CountryResponse();
-
-        if (country == null) {
-            return res;
-        }
 
         res.setId(country.getId());
         res.setIso(country.getIso());
@@ -306,10 +287,6 @@ public class GenerateResponseUtil {
     public OtpTypeResponse generateResponseOtpType(OtpType type) {
         OtpTypeResponse res = new OtpTypeResponse();
 
-        if (type == null) {
-            return res;
-        }
-
         res.setId(type.getId());
         res.setName(type.getName());
 
@@ -319,10 +296,6 @@ public class GenerateResponseUtil {
     public NotificationTypeResponse generateResponseNotificationType(NotificationType type) {
         NotificationTypeResponse res = new NotificationTypeResponse();
 
-        if (type == null) {
-            return res;
-        }
-
         res.setId(type.getId());
         res.setName(type.getName());
 
@@ -331,10 +304,6 @@ public class GenerateResponseUtil {
 
     public NotificationResponse generateResponseNotification(Notification notification) {
         NotificationResponse res = new NotificationResponse();
-
-        if (notification == null) {
-            return res;
-        }
 
         res.setId(notification.getId());
         res.setUserData(generateResponseUser(notification.getUserData()));
@@ -351,10 +320,6 @@ public class GenerateResponseUtil {
     public CardVerificationItemResponse generateResponseCardVerificationItem(CardVerificationItem item) {
         CardVerificationItemResponse res = new CardVerificationItemResponse();
 
-        if (item == null) {
-            return res;
-        }
-
         res.setId(item.getId());
         res.setName(item.getName());
         res.setDescription(item.getDescription());
@@ -365,10 +330,6 @@ public class GenerateResponseUtil {
 
     public CardVerificationResponse generateResponseCardVerification(CardVerification verification) {
         CardVerificationResponse res = new CardVerificationResponse();
-
-        if (verification == null) {
-            return res;
-        }
 
         res.setId(verification.getId());
         res.setUserCard(generateResponseUserCard(verification.getUserCard()));
@@ -382,6 +343,21 @@ public class GenerateResponseUtil {
         res.setExpiredDate(verification.getExpiredDate());
         res.setVerifiedBy(generateResponseUser(verification.getVerifiedBy()));
         res.setVerifiedDate(verification.getVerifiedDate());
+
+        return res;
+    }
+
+    public CardRequestViewResponse generateResponseCardRequestView(CardRequestView request) {
+        CardRequestViewResponse res = new CardRequestViewResponse();
+
+        res.setId(request.getId());
+        res.setUserCard(generateResponseUserCard(request.getUserCard()));
+        res.setUserData(generateResponseUser(request.getUserData()));
+        res.setIsGranted(request.getIsGranted());
+        res.setExpiredRequestDate(request.getExpiredRequestDate());
+        res.setCreatedDate(request.getCreatedDate());
+        res.setUpdatedDate(request.getUpdatedDate());
+        res.setIsActive(request.getIsActive());
 
         return res;
     }

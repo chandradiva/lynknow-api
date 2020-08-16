@@ -73,6 +73,9 @@ public class UserCardServiceImpl implements UserCardService {
     @Autowired
     private NotificationRepository notificationRepo;
 
+    @Autowired
+    private CardRequestViewRepository cardRequestViewRepo;
+
     @Value("${upload.dir.card.front-side}")
     private String frontSideDir;
 
@@ -652,11 +655,28 @@ public class UserCardServiceImpl implements UserCardService {
     @Override
     public ResponseEntity getDetailByCode(String code) {
         try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = null;
+            if (!(auth.getPrincipal() instanceof String) && !auth.getPrincipal().equals("anonymousUser")) {
+                userSession = (UserData) auth.getPrincipal();
+            }
+
             UserCard card = userCardRepo.getByUniqueCode(code);
             if (card != null) {
                 if (card.getUserData().getCurrentSubscriptionPackage().getId() == 2
                         && card.getIsCardLocked() == 1) {
                     // card locked
+                    if (userSession != null) {
+                        CardRequestView request = cardRequestViewRepo.getDetail(card.getId(), userSession.getId());
+                        if (request.getIsGranted() == 1) {
+                            return new ResponseEntity(new BaseResponse<>(
+                                    true,
+                                    200,
+                                    "Success",
+                                    generateRes.generateResponseUserCardPublic(card)), HttpStatus.OK);
+                        }
+                    }
+
                     LOGGER.error("Card Locked by Users. Users must Request to View Card");
                     throw new UnprocessableEntityException("Card Locked by Users. Users must Request to View Card");
                 }
@@ -862,6 +882,128 @@ public class UserCardServiceImpl implements UserCardService {
             if (writer != null) {
                 writer.close();
             }
+        }
+    }
+
+    @Override
+    public ResponseEntity requestToViewCard(String code) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            UserCard card = userCardRepo.getByUniqueCode(code);
+            if (card != null) {
+                if (card.getIsCardLocked() == 0) {
+                    LOGGER.error("You Can't Request to View Card, Because is not Locked");
+                    throw new UnprocessableEntityException("You Can't Request to View Card, Because is not Locked");
+                }
+
+                // insert to table request to view card
+                CardRequestView request = cardRequestViewRepo.getDetail(card.getId(), userLogin.getId());
+                if (request == null) {
+                    request = new CardRequestView();
+
+                    request.setExpiredRequestDate(new Date());
+                    request.setCreatedDate(new Date());
+                } else {
+                    request.setUpdatedDate(new Date());
+                }
+
+                request.setUserCard(card);
+                request.setUserData(userLogin);
+                request.setIsGranted(0);
+                request.setIsActive(1);
+
+                cardRequestViewRepo.save(request);
+
+                return new ResponseEntity(new BaseResponse<>(
+                        true,
+                        200,
+                        "Success",
+                        generateRes.generateResponseUserCardPublic(card)), HttpStatus.OK);
+            } else {
+                LOGGER.error("User Card Code: " + code + " is not found");
+                throw new NotFoundException("User Card Code: " + code);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity grantRequest(Long requestId, int flag) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+
+            CardRequestView request = cardRequestViewRepo.getDetail(requestId);
+            if (request != null) {
+                if (!userSession.getId().equals(request.getUserCard().getUserData().getId())) {
+                    LOGGER.error("You Can't Grant / Reject Request to View Other User Card");
+                    throw new BadRequestException("You Can't Grant / Reject Request to View Other User Card");
+                }
+
+                if (flag == 1) {
+                    request.setIsGranted(1);
+                } else {
+                    request.setIsGranted(0);
+                    request.setIsActive(0);
+                }
+
+                request.setExpiredRequestDate(null);
+                request.setUpdatedDate(new Date());
+
+                cardRequestViewRepo.save(request);
+
+                return new ResponseEntity(new BaseResponse<>(
+                        true,
+                        200,
+                        "Success",
+                        null), HttpStatus.OK);
+            } else {
+                LOGGER.error("Card Request View ID: " + requestId + " is not found");
+                throw new NotFoundException("Card Request View ID: " + requestId);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity getDetailLockedCard(Long id) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            UserCard card = userCardRepo.getDetail(id);
+            if (card != null) {
+                CardRequestView request = cardRequestViewRepo.getDetail(id, userLogin.getId());
+                if (request != null) {
+                    if (request.getIsGranted() == 1) {
+                        return new ResponseEntity(new BaseResponse<>(
+                                true,
+                                200,
+                                "Success",
+                                generateRes.generateResponseUserCard(card)), HttpStatus.OK);
+                    } else {
+                        LOGGER.error("Your Request to View Card not yet Granted");
+                        throw new UnprocessableEntityException("Your Request to View Card not yet Granted");
+                    }
+                } else {
+                    LOGGER.error("You Haven't Request to View Card yet");
+                    throw new UnprocessableEntityException("You Haven't Request to View Card yet");
+                }
+            } else {
+                LOGGER.error("User Card ID: " + id + " is not found");
+                throw new NotFoundException("User Card ID: " + id);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 

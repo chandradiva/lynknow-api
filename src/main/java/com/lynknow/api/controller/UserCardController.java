@@ -140,4 +140,24 @@ public class UserCardController {
         return userCardService.downloadContact(id, httpResponse);
     }
 
+    @PostMapping("request-to-view")
+    public ResponseEntity requestToViewCard(@RequestParam String code) {
+        return userCardService.requestToViewCard(code);
+    }
+
+    @PatchMapping("grant-request")
+    public ResponseEntity grantRequestToViewCard(@RequestParam Long requestId) {
+        return userCardService.grantRequest(requestId, 1);
+    }
+
+    @PatchMapping("reject-request")
+    public ResponseEntity rejectRequestToViewCard(@RequestParam Long requestId) {
+        return userCardService.grantRequest(requestId, 0);
+    }
+
+    @GetMapping("detail-locked")
+    public ResponseEntity getDetailLocked(@RequestParam Long id) {
+        return userCardService.getDetailLockedCard(id);
+    }
+
 }

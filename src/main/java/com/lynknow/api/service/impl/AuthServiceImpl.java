@@ -148,7 +148,7 @@ public class AuthServiceImpl implements AuthService {
                     true,
                     200,
                     "Success",
-                    generateRes.generateResponseUser(userLogin)), HttpStatus.OK);
+                    generateRes.generateResponseUserComplete(userLogin)), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());

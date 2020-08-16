@@ -32,5 +32,8 @@ public interface UserCardService {
 
     ResponseEntity getDetail(Long id, int typeId);
     byte[] downloadContact(Long id, HttpServletResponse httpResponse) throws IOException;
+    ResponseEntity requestToViewCard(String code);
+    ResponseEntity grantRequest(Long requestId, int flag);
+    ResponseEntity getDetailLockedCard(Long id);
 
 }
