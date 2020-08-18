@@ -483,7 +483,7 @@ public class UserOtpServiceImpl implements UserOtpService {
             // send email
             emailUtil.sendEmail(
                     otp.getSendTo(),
-                    subjectEmailOtp,
+                    subjectEmailOtpCard,
                     "Your OTP Code is: " + otp.getOtpCode());
             // end of send email
 
