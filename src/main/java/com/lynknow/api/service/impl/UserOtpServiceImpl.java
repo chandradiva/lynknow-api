@@ -1,9 +1,6 @@
 package com.lynknow.api.service.impl;
 
-import com.lynknow.api.exception.BadRequestException;
-import com.lynknow.api.exception.ConflictException;
-import com.lynknow.api.exception.InternalServerErrorException;
-import com.lynknow.api.exception.NotFoundException;
+import com.lynknow.api.exception.*;
 import com.lynknow.api.model.*;
 import com.lynknow.api.pojo.request.WablasSendMessageRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
@@ -54,11 +51,23 @@ public class UserOtpServiceImpl implements UserOtpService {
     @Autowired
     private HttpRequestUtil httpRequestUtil;
 
+    @Autowired
+    private UserCardRepository userCardRepo;
+
+    @Autowired
+    private CardPhoneDetailRepository cardPhoneDetailRepo;
+
     @Value("${email.subject.send-otp}")
     private String subjectEmailOtp;
 
+    @Value("${email.subject.send-otp-card}")
+    private String subjectEmailOtpCard;
+
     @Value("${wablas.message.send-otp}")
     private String wablasSendOtp;
+
+    @Value("${wablas.message.send-otp-card}")
+    private String wablasSendOtpCard;
 
     @Override
     public ResponseEntity verifyWhatsapp() {
@@ -129,9 +138,6 @@ public class UserOtpServiceImpl implements UserOtpService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
-        } catch (Exception e) {
-            LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -194,9 +200,6 @@ public class UserOtpServiceImpl implements UserOtpService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
-        } catch (Exception e) {
-            LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -254,9 +257,6 @@ public class UserOtpServiceImpl implements UserOtpService {
                 throw new NotFoundException("OTP Code: " + code + " is invalid", 404);
             }
         } catch (InternalServerErrorException e) {
-            LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
-        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
@@ -318,9 +318,6 @@ public class UserOtpServiceImpl implements UserOtpService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
-        } catch (Exception e) {
-            LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -362,7 +359,282 @@ public class UserOtpServiceImpl implements UserOtpService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
-        } catch (Exception e) {
+        }
+    }
+
+    @Override
+    public ResponseEntity verifyCardWhatsapp(Long cardId) {
+        try {
+            UserCard card = userCardRepo.getDetail(cardId);
+            if (card == null) {
+                LOGGER.error("User Card ID: " + cardId + " is not found");
+                throw new NotFoundException("User Card ID: " + cardId);
+            }
+
+            CardPhoneDetail phoneDetail = cardPhoneDetailRepo.getDetail(card.getId(), 1);
+
+            if (card.getIsWhatsappNoVerified() == 1) {
+                LOGGER.error("Your Card WhatsApp Number is Already Verified");
+                throw new ConflictException("Your Card WhatsApp Number is Already Verified");
+            }
+
+            OtpType type = otpTypeRepo.getDetail(1);
+            if (type == null) {
+                LOGGER.error("OTP Type ID: " + 1 + " is not found");
+                throw new NotFoundException("OTP Type ID: " + 1);
+            }
+
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.HOUR_OF_DAY, 3);
+
+            UserOtp otp;
+            Page<UserOtp> page = userOtpRepo.getDetailCardOtp(
+                    card.getId(),
+                    1, // whatsapp
+                    PageRequest.of(0, 1, Sort.by("id").descending()));
+            if (page.getContent() != null && page.getContent().size() > 0) {
+                otp = page.getContent().get(0);
+                otp.setUpdatedDate(new Date());
+            } else {
+                otp = new UserOtp();
+            }
+
+            otp.setUserCard(card);
+            otp.setOtpType(type);
+            otp.setOtpCode(StringUtil.generateOtp());
+            otp.setSendTo(phoneDetail.getDialCode() + StringUtil.normalizePhoneNumber(phoneDetail.getNumber()));
+            otp.setExpiredDate(cal.getTime());
+            otp.setCreatedDate(new Date());
+            otp.setIsActive(1);
+
+            userOtpRepo.save(otp);
+
+            // send whatsapp
+            WablasSendMessageRequest request = new WablasSendMessageRequest();
+
+            request.setPhone(StringUtil.normalizePhoneNumber(otp.getSendTo()));
+            request.setMessage(wablasSendOtpCard.replace("#", otp.getOtpCode()));
+
+            new Thread(() -> {
+                try {
+                    httpRequestUtil.sendPost(request);
+                } catch (Exception e) {
+                    LOGGER.error("Error processing data", e);
+                }
+            }).start();
+            // end of send whatsapp
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    null), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity verifyCardEmail(Long cardId) {
+        try {
+            UserCard card = userCardRepo.getDetail(cardId);
+            if (card == null) {
+                LOGGER.error("User Card ID: " + cardId + " is not found");
+                throw new NotFoundException("User Card ID: " + cardId);
+            }
+
+            if (card.getIsEmailVerified() == 1) {
+                LOGGER.error("Your Card Email is Already Verified");
+                throw new ConflictException("Your Card Email is Already Verified");
+            }
+
+            OtpType type = otpTypeRepo.getDetail(2);
+            if (type == null) {
+                LOGGER.error("OTP Type ID: " + 2 + " is not found");
+                throw new NotFoundException("OTP Type ID: " + 2);
+            }
+
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.HOUR_OF_DAY, 3);
+
+            UserOtp otp;
+            Page<UserOtp> page = userOtpRepo.getDetailCardOtp(
+                    card.getId(),
+                    2, // email
+                    PageRequest.of(0, 1, Sort.by("id").descending()));
+            if (page.getContent() != null && page.getContent().size() > 0) {
+                otp = page.getContent().get(0);
+                otp.setUpdatedDate(new Date());
+            } else {
+                otp = new UserOtp();
+            }
+
+            otp.setUserCard(card);
+            otp.setOtpType(type);
+            otp.setOtpCode(StringUtil.generateOtp());
+            otp.setSendTo(card.getEmail());
+            otp.setExpiredDate(cal.getTime());
+            otp.setCreatedDate(new Date());
+            otp.setIsActive(1);
+
+            userOtpRepo.save(otp);
+
+            // send email
+            emailUtil.sendEmail(
+                    otp.getSendTo(),
+                    subjectEmailOtp,
+                    "Your OTP Code is: " + otp.getOtpCode());
+            // end of send email
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    null), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity challengeCardWhatsapp(Long cardId, String code) {
+        try {
+            Date today = new Date();
+            UserCard card = userCardRepo.getDetail(cardId);
+            if (card == null) {
+                LOGGER.error("User Card ID: " + cardId + " is not found");
+                throw new NotFoundException("User Card ID: " + cardId);
+            }
+
+            Page<UserOtp> page = userOtpRepo.getDetailCardOtp(
+                    card.getId(),
+                    1, // whatsapp
+                    code,
+                    PageRequest.of(0, 1, Sort.by("id").descending()));
+            if (page.getContent() != null && page.getContent().size() > 0) {
+                UserOtp otp = page.getContent().get(0);
+                if (today.before(otp.getExpiredDate())) {
+                    otp.setIsActive(0);
+                    otp.setUpdatedDate(new Date());
+
+                    userOtpRepo.save(otp);
+
+                    // update verification point
+//                    card.setVerificationPoint(card.getVerificationPoint() + 20);
+                    card.setIsWhatsappNoVerified(1);
+                    card.setUpdatedDate(new Date());
+
+                    userCardRepo.save(card);
+                    // end of update verification point
+
+                    return new ResponseEntity(new BaseResponse<>(
+                            true,
+                            200,
+                            "Success",
+                            null), HttpStatus.OK);
+                } else {
+                    otp.setIsActive(0);
+                    otp.setUpdatedDate(new Date());
+
+                    userOtpRepo.save(otp);
+
+                    LOGGER.error("Your OTP Code is Already Expired");
+                    throw new BadRequestException("Your OTP Code is Already Expired");
+                }
+            } else {
+                LOGGER.error("Your OTP Code: " + code + " is invalid");
+                throw new NotFoundException("OTP Code: " + code + " is invalid", 404);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity challengeCardEmail(Long cardId, String code) {
+        try {
+            Date today = new Date();
+            UserCard card = userCardRepo.getDetail(cardId);
+            if (card == null) {
+                LOGGER.error("User Card ID: " + cardId + " is not found");
+                throw new NotFoundException("User Card ID: " + cardId);
+            }
+
+            Page<UserOtp> page = userOtpRepo.getDetailCardOtp(
+                    card.getId(),
+                    2, // email
+                    code,
+                    PageRequest.of(0, 1, Sort.by("id").descending()));
+            if (page.getContent() != null && page.getContent().size() > 0) {
+                UserOtp otp = page.getContent().get(0);
+                if (today.before(otp.getExpiredDate())) {
+                    otp.setIsActive(0);
+                    otp.setUpdatedDate(new Date());
+
+                    userOtpRepo.save(otp);
+
+                    // update verification point
+//                    card.setVerificationPoint(card.getVerificationPoint() + 20);
+                    card.setIsEmailVerified(1);
+                    card.setUpdatedDate(new Date());
+
+                    userCardRepo.save(card);
+                    // end of update verification point
+
+                    return new ResponseEntity(new BaseResponse<>(
+                            true,
+                            200,
+                            "Success",
+                            null), HttpStatus.OK);
+                } else {
+                    otp.setIsActive(0);
+                    otp.setUpdatedDate(new Date());
+
+                    userOtpRepo.save(otp);
+
+                    LOGGER.error("Your OTP Code is Already Expired");
+                    throw new BadRequestException("Your OTP Code is Already Expired");
+                }
+            } else {
+                LOGGER.error("OTP Code: " + code + " is invalid");
+                throw new NotFoundException("OTP Code: " + code + " is invalid", 404);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity peekCardOtp(Long cardId, int type) throws Exception {
+        try {
+            UserCard card = userCardRepo.getDetail(cardId);
+            if (card == null) {
+                LOGGER.error("User Card ID: " + cardId + " is not found");
+                throw new NotFoundException("User Card ID: " + cardId);
+            }
+
+            Page<UserOtp> pageOtp = userOtpRepo.getDetailCardOtp(
+                    card.getId(),
+                    type,
+                    PageRequest.of(0, 1, Sort.by("id").descending()));
+            if (pageOtp.getContent() != null && pageOtp.getContent().size() > 0) {
+                return new ResponseEntity(new BaseResponse<>(
+                        true,
+                        200,
+                        "Success",
+                        pageOtp.getContent().get(0).getOtpCode()), HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new BaseResponse<>(
+                        true,
+                        200,
+                        "Success",
+                        null), HttpStatus.OK);
+            }
+        } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }

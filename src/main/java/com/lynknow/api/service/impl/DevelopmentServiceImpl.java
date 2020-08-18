@@ -61,9 +61,6 @@ public class DevelopmentServiceImpl implements DevelopmentService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
-        } catch (Exception e) {
-            LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -92,9 +89,6 @@ public class DevelopmentServiceImpl implements DevelopmentService {
                     "Success",
                     generateRes.generateResponseUser(userLogin)), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
-            LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
-        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }

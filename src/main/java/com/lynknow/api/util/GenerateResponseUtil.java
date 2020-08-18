@@ -244,6 +244,8 @@ public class GenerateResponseUtil {
         res.setUniqueCode(card.getUniqueCode());
         res.setVerificationPoint(card.getVerificationPoint());
         res.setIsCardLocked(card.getIsCardLocked());
+        res.setIsWhatsappNoVerified(card.getIsWhatsappNoVerified());
+        res.setIsEmailVerified(card.getIsEmailVerified());
         res.setCreatedDate(card.getCreatedDate());
         res.setUpdatedDate(card.getUpdatedDate());
 

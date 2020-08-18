@@ -39,4 +39,31 @@ public interface UserOtpRepository extends JpaRepository<UserOtp, Long> {
             @Param("typeId") Integer typeId,
             Pageable pageable);
 
+    @Query("FROM UserOtp " +
+            "WHERE userCard.id = :cardId " +
+            "AND otpType.id = :typeId " +
+            "AND otpCode = :code " +
+            "AND isActive = 1")
+    UserOtp getDetailCardOtp(@Param("cardId") Long cardId, @Param("typeId") Integer typeId, @Param("code") String code);
+
+    @Query("SELECT otp FROM UserOtp otp " +
+            "WHERE otp.userCard.id = :cardId " +
+            "AND otp.otpType.id = :typeId " +
+            "AND otp.otpCode = :code " +
+            "AND otp.isActive = 1")
+    Page<UserOtp> getDetailCardOtp(
+            @Param("cardId") Long cardId,
+            @Param("typeId") Integer typeId,
+            @Param("code") String code,
+            Pageable pageable);
+
+    @Query("SELECT otp FROM UserOtp otp " +
+            "WHERE otp.userCard.id = :cardId " +
+            "AND otp.otpType.id = :typeId " +
+            "AND otp.isActive = 1")
+    Page<UserOtp> getDetailCardOtp(
+            @Param("cardId") Long cardId,
+            @Param("typeId") Integer typeId,
+            Pageable pageable);
+
 }

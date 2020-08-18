@@ -33,6 +33,8 @@ public class UserCardResponse {
     private String googleEmail;
     private int isPublished = 0;
     private int isCardLocked = 0;
+    private int isWhatsappNoVerified = 0;
+    private int isEmailVerified = 0;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss Z", timezone = "GMT+7")
     private Date publishedDate;

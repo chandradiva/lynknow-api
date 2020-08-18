@@ -23,6 +23,10 @@ public class UserOtp {
     private UserData userData;
 
     @ManyToOne
+    @JoinColumn(name = "user_card_id")
+    private UserCard userCard;
+
+    @ManyToOne
     @JoinColumn(name = "otp_type_id")
     private OtpType otpType;
 

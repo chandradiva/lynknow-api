@@ -21,4 +21,11 @@ public class BaseResponse<Any> {
     public BaseResponse() {
     }
 
+    public BaseResponse(String message) {
+        this.status = false;
+        this.code = 500;
+        this.message = message;
+        this.data = null;
+    }
+
 }

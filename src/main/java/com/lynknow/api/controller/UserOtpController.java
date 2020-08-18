@@ -32,4 +32,24 @@ public class UserOtpController {
         return userOtpService.challengeEmail(code);
     }
 
+    @GetMapping("verify-card-wa/{cardId}")
+    public ResponseEntity verifyCardWhatsapp(@PathVariable Long cardId) {
+        return userOtpService.verifyCardWhatsapp(cardId);
+    }
+
+    @GetMapping("verify-card-email/{cardId}")
+    public ResponseEntity verifyCardEmail(@PathVariable Long cardId) {
+        return userOtpService.verifyCardEmail(cardId);
+    }
+
+    @PatchMapping("challenge-card-wa")
+    public ResponseEntity challengeCardWhatsapp(@RequestParam Long cardId, @RequestParam String code) {
+        return userOtpService.challengeCardWhatsapp(cardId, code);
+    }
+
+    @PatchMapping("challenge-card-email")
+    public ResponseEntity challengeCardEmail(@RequestParam Long cardId, @RequestParam String code) {
+        return userOtpService.challengeCardEmail(cardId, code);
+    }
+
 }

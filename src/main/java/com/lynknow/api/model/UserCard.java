@@ -111,4 +111,10 @@ public class UserCard {
     @Column(name = "verification_point")
     private int verificationPoint = 0;
 
+    @Column(name = "is_whatsapp_no_verified")
+    private int isWhatsappNoVerified = 0;
+
+    @Column(name = "is_email_verified")
+    private int isEmailVerified = 0;
+
 }

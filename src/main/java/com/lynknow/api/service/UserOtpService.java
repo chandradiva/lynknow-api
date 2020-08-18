@@ -11,4 +11,11 @@ public interface UserOtpService {
     ResponseEntity challengeEmail(String code);
     ResponseEntity peekOtp(String email, int type);
 
+    ResponseEntity verifyCardWhatsapp(Long cardId);
+    ResponseEntity verifyCardEmail(Long cardId);
+
+    ResponseEntity challengeCardWhatsapp(Long cardId, String code);
+    ResponseEntity challengeCardEmail(Long cardId, String code);
+    ResponseEntity peekCardOtp(Long cardId, int type) throws Exception;
+
 }

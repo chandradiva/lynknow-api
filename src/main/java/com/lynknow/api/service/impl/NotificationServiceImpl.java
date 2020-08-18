@@ -53,9 +53,6 @@ public class NotificationServiceImpl implements NotificationService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
-        } catch (Exception e) {
-            LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -89,9 +86,6 @@ public class NotificationServiceImpl implements NotificationService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
-        } catch (Exception e) {
-            LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -117,9 +111,6 @@ public class NotificationServiceImpl implements NotificationService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
-        } catch (Exception e) {
-            LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }
     }
 
@@ -143,9 +134,6 @@ public class NotificationServiceImpl implements NotificationService {
                 throw new NotFoundException("Notification ID: " + id);
             }
         } catch (InternalServerErrorException e) {
-            LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
-        } catch (Exception e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data" + e.getMessage());
         }

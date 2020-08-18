@@ -2,6 +2,7 @@ package com.lynknow.api.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lynknow.api.exception.BaseException;
+import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.pojo.response.BaseResponse;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -49,6 +50,9 @@ public class ErrorExceptionHandler implements AuthenticationEntryPoint {
             }
 
             status = exc.getStatus();
+        } else if (ex instanceof Exception) {
+//            ex.printStackTrace();
+            return new ResponseEntity<>(response, status);
         }
 
         return new ResponseEntity<>(response, status);

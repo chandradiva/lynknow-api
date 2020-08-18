@@ -1,8 +1,10 @@
 package com.lynknow.api.controller;
 
+import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.service.UserCardService;
 import com.lynknow.api.service.UserOtpService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +39,14 @@ public class PublicController {
             @RequestParam String email,
             @RequestParam(defaultValue = "1") int type) {
         return userOtpService.peekOtp(email, type);
+    }
+
+    @GetMapping("peek-card-otp")
+    public ResponseEntity peekCardOtp(
+            @RequestParam Long cardId,
+            @RequestParam(defaultValue = "1") int type
+    ) throws Exception {
+        return userOtpService.peekCardOtp(cardId, type);
     }
 
 }
