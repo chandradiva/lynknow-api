@@ -56,4 +56,14 @@ public class CardVerificationController {
         return cardVerificationService.verifyRequest(request);
     }
 
+    @GetMapping("generate-otp")
+    public ResponseEntity generateOtp(@RequestParam Long cardId) {
+        return cardVerificationService.generateOtpCompanyPhoneNumber(cardId);
+    }
+
+    @PatchMapping("challenge-phone")
+    public ResponseEntity challengeCompanyPhoneNumber(@RequestParam Long cardId, @RequestParam String code) {
+        return cardVerificationService.challengeCompanyPhoneNumber(cardId, code);
+    }
+
 }

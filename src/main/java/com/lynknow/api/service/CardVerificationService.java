@@ -19,4 +19,7 @@ public interface CardVerificationService {
     ResponseEntity getList(Long cardId);
     ResponseEntity verifyRequest(VerifyCardRequest request);
 
+    ResponseEntity generateOtpCompanyPhoneNumber(Long cardId);
+    ResponseEntity challengeCompanyPhoneNumber(Long cardId, String code);
+
 }

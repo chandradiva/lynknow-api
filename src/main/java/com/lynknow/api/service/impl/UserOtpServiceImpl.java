@@ -609,7 +609,7 @@ public class UserOtpServiceImpl implements UserOtpService {
     }
 
     @Override
-    public ResponseEntity peekCardOtp(Long cardId, int type) throws Exception {
+    public ResponseEntity peekCardOtp(Long cardId, int type) {
         try {
             UserCard card = userCardRepo.getDetail(cardId);
             if (card == null) {

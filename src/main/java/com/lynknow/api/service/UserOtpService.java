@@ -16,6 +16,6 @@ public interface UserOtpService {
 
     ResponseEntity challengeCardWhatsapp(Long cardId, String code);
     ResponseEntity challengeCardEmail(Long cardId, String code);
-    ResponseEntity peekCardOtp(Long cardId, int type) throws Exception;
+    ResponseEntity peekCardOtp(Long cardId, int type);
 
 }

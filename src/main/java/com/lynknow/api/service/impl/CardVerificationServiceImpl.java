@@ -4,23 +4,21 @@ import com.lynknow.api.exception.BadRequestException;
 import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.exception.NotFoundException;
 import com.lynknow.api.exception.UnprocessableEntityException;
-import com.lynknow.api.model.CardVerification;
-import com.lynknow.api.model.CardVerificationItem;
-import com.lynknow.api.model.UserCard;
-import com.lynknow.api.model.UserData;
+import com.lynknow.api.model.*;
 import com.lynknow.api.pojo.request.VerifyCardRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.pojo.response.CardVerificationResponse;
-import com.lynknow.api.repository.CardVerificationItemRepository;
-import com.lynknow.api.repository.CardVerificationRepository;
-import com.lynknow.api.repository.UserCardRepository;
-import com.lynknow.api.repository.UserDataRepository;
+import com.lynknow.api.repository.*;
 import com.lynknow.api.service.CardVerificationService;
 import com.lynknow.api.util.GenerateResponseUtil;
+import com.lynknow.api.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -56,6 +54,12 @@ public class CardVerificationServiceImpl implements CardVerificationService {
 
     @Autowired
     private UserDataRepository userDataRepo;
+
+    @Autowired
+    private UserOtpRepository userOtpRepo;
+
+    @Autowired
+    private OtpTypeRepository otpTypeRepo;
 
     @Value("${upload.dir.card.verification}")
     private String cardVerificationDir;
@@ -404,9 +408,8 @@ public class CardVerificationServiceImpl implements CardVerificationService {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
-            UserData userLogin = userDataRepo.getDetail(userSession.getId());
 
-            if (userLogin.getRoleData().getId() != 1) {
+            if (userSession.getRoleData().getId() != 1) {
                 LOGGER.error("Only Administrator Roles That Can Verify Request for Card Verification");
                 throw new BadRequestException("Only Administrator Roles That Can Verify Request for Card Verification");
             }
@@ -425,7 +428,7 @@ public class CardVerificationServiceImpl implements CardVerificationService {
 
                 if (request.getVerify() == 1) {
                     verification.setIsVerified(1);
-                    verification.setVerifiedBy(userLogin);
+                    verification.setVerifiedBy(userSession);
                     verification.setVerifiedDate(new Date());
 
                     this.adjustCardVerificationPoint(verification.getUserCard());
@@ -446,6 +449,144 @@ public class CardVerificationServiceImpl implements CardVerificationService {
             } else {
                 LOGGER.error("Card Verification with Card ID: " + request.getCardId() + " and Item ID: " + request.getItemId() + " is not found");
                 throw new NotFoundException("Card Verification with Card ID: " + request.getCardId() + " and Item ID: " + request.getItemId());
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity generateOtpCompanyPhoneNumber(Long cardId) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+
+            if (userSession.getRoleData().getId() != 1) {
+                LOGGER.error("Only Administrator that Can Generate OTP for Company Phone Number");
+                throw new UnprocessableEntityException("Only Administrator that Can Generate OTP for Company Phone Number");
+            }
+
+            CardVerification verification = cardVerificationRepo.getDetail(cardId, 5);
+            if (verification == null) {
+                LOGGER.error("Card Verification with Card ID: " + cardId + " and Item ID: 5 is not found");
+                throw new NotFoundException("Card Verification with Card ID: " + cardId + " and Item ID: 5");
+            }
+
+            if (verification.getIsRequested() == 0) {
+                LOGGER.error("Card Owner Not Yet Requested for Card Verification");
+                throw new UnprocessableEntityException("Card Owner Not Yet Requested for Card Verification");
+            }
+
+            UserCard card = userCardRepo.getDetail(cardId);
+            if (card == null) {
+                LOGGER.error("User Card ID: " + cardId + " is not found");
+                throw new NotFoundException("User Card ID: " + cardId);
+            }
+
+            OtpType type = otpTypeRepo.getDetail(3);
+            if (type == null) {
+                LOGGER.error("OTP Type ID: " + 2 + " is not found");
+                throw new NotFoundException("OTP Type ID: " + 3);
+            }
+
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.HOUR_OF_DAY, 72);
+
+            UserOtp otp;
+            Page<UserOtp> page = userOtpRepo.getDetailCardOtp(
+                    card.getId(),
+                    3, // company phone number
+                    PageRequest.of(0, 1, Sort.by("id").descending()));
+            if (page.getContent() != null && page.getContent().size() > 0) {
+                otp = page.getContent().get(0);
+                otp.setUpdatedDate(new Date());
+            } else {
+                otp = new UserOtp();
+            }
+
+            otp.setUserCard(card);
+            otp.setOtpType(type);
+            otp.setOtpCode(StringUtil.generateOtp());
+            otp.setSendTo(verification.getParam());
+            otp.setExpiredDate(cal.getTime());
+            otp.setCreatedDate(new Date());
+            otp.setIsActive(1);
+
+            userOtpRepo.save(otp);
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    otp.getOtpCode()), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity challengeCompanyPhoneNumber(Long cardId, String code) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+
+            Date today = new Date();
+            CardVerification verification = cardVerificationRepo.getDetail(cardId, 5);
+            if (verification != null) {
+                if (!verification.getUserCard().getUserData().getId().equals(userSession.getId())) {
+                    LOGGER.error("Invalid Request");
+                    throw new UnprocessableEntityException("Invalid Request");
+                }
+
+                if (verification.getIsRequested() == 0) {
+                    LOGGER.error("You Haven't Requested for Card Verification");
+                    throw new UnprocessableEntityException("You Haven't Requested for Card Verification");
+                }
+
+                Page<UserOtp> page = userOtpRepo.getDetailCardOtp(
+                        cardId,
+                        3, // company phone number
+                        code,
+                        PageRequest.of(0, 1, Sort.by("id").descending()));
+                if (page.getContent() != null && page.getContent().size() > 0) {
+                    UserOtp otp = page.getContent().get(0);
+                    if (today.before(otp.getExpiredDate())) {
+                        otp.setIsActive(0);
+                        otp.setUpdatedDate(new Date());
+
+                        userOtpRepo.save(otp);
+
+                        verification.setIsVerified(1);
+                        verification.setVerifiedDate(new Date());
+                        verification.setUpdatedDate(new Date());
+
+                        this.adjustCardVerificationPoint(verification.getUserCard());
+
+                        cardVerificationRepo.save(verification);
+
+                        return new ResponseEntity(new BaseResponse<>(
+                                true,
+                                200,
+                                "Success",
+                                generateRes.generateResponseCardVerification(verification)), HttpStatus.OK);
+                    } else {
+                        otp.setIsActive(0);
+                        otp.setUpdatedDate(new Date());
+
+                        userOtpRepo.save(otp);
+
+                        LOGGER.error("Your OTP Code is Already Expired");
+                        throw new BadRequestException("Your OTP Code is Already Expired");
+                    }
+                } else {
+                    LOGGER.error("OTP Code: " + code + " is invalid");
+                    throw new NotFoundException("OTP Code: " + code + " is invalid", 404);
+                }
+            } else {
+                LOGGER.error("Card Verification with Card ID: " + cardId + " and Item ID: 5 is not found");
+                throw new NotFoundException("Card Verification with Card ID: " + cardId + " and Item ID: 5");
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
