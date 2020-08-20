@@ -132,7 +132,7 @@ public class UserProfileServiceImpl implements UserProfileService {
                     generateRes.generateResponseProfile(profile)), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -158,7 +158,7 @@ public class UserProfileServiceImpl implements UserProfileService {
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -209,10 +209,10 @@ public class UserProfileServiceImpl implements UserProfileService {
                     generateRes.generateResponseProfile(profile)), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         } catch (IOException e) {
             LOGGER.error("Error processing data", e);
-            return null;
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -237,7 +237,7 @@ public class UserProfileServiceImpl implements UserProfileService {
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 

@@ -47,7 +47,7 @@ public class CountryServiceImpl implements CountryService {
                     datas), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -67,7 +67,7 @@ public class CountryServiceImpl implements CountryService {
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 

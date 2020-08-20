@@ -137,7 +137,7 @@ public class UserOtpServiceImpl implements UserOtpService {
                     null), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -199,7 +199,7 @@ public class UserOtpServiceImpl implements UserOtpService {
                     null), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -258,7 +258,7 @@ public class UserOtpServiceImpl implements UserOtpService {
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -317,7 +317,7 @@ public class UserOtpServiceImpl implements UserOtpService {
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -358,7 +358,7 @@ public class UserOtpServiceImpl implements UserOtpService {
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -431,7 +431,7 @@ public class UserOtpServiceImpl implements UserOtpService {
                     null), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -494,7 +494,7 @@ public class UserOtpServiceImpl implements UserOtpService {
                     null), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -549,7 +549,7 @@ public class UserOtpServiceImpl implements UserOtpService {
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -604,7 +604,7 @@ public class UserOtpServiceImpl implements UserOtpService {
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -636,7 +636,7 @@ public class UserOtpServiceImpl implements UserOtpService {
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 

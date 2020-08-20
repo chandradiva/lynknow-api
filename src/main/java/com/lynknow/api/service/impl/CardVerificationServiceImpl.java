@@ -253,7 +253,7 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                     null), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -299,10 +299,10 @@ public class CardVerificationServiceImpl implements CardVerificationService {
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         } catch (IOException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -333,7 +333,7 @@ public class CardVerificationServiceImpl implements CardVerificationService {
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -353,7 +353,7 @@ public class CardVerificationServiceImpl implements CardVerificationService {
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -373,10 +373,7 @@ public class CardVerificationServiceImpl implements CardVerificationService {
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
-        } catch (Exception e) {
-            LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -398,7 +395,7 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                     datas), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -421,10 +418,17 @@ public class CardVerificationServiceImpl implements CardVerificationService {
 
             CardVerification verification = cardVerificationRepo.getDetail(request.getCardId(), request.getItemId());
             if (verification != null) {
+                if (verification.getIsRequested() == 0) {
+                    LOGGER.error("Card Owner Not Yet Requested for Card Verification");
+                    throw new UnprocessableEntityException("Card Owner Not Yet Requested for Card Verification");
+                }
+
                 if (request.getVerify() == 1) {
                     verification.setIsVerified(1);
                     verification.setVerifiedBy(userLogin);
                     verification.setVerifiedDate(new Date());
+
+                    this.adjustCardVerificationPoint(verification.getUserCard());
                 } else {
                     verification.setIsVerified(0);
                     verification.setReason(request.getReason());
@@ -445,7 +449,57 @@ public class CardVerificationServiceImpl implements CardVerificationService {
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    private void adjustCardVerificationPoint(UserCard card) {
+        try {
+            int point = 0;
+            int i = 0;
+            List<CardVerification> verifications = cardVerificationRepo.getList(card.getId());
+            if (verifications != null) {
+                for (CardVerification item : verifications) {
+                    if (item.getIsVerified() == 1) {
+                        i++;
+                    }
+                }
+            }
+
+            if (card.getCardType().getId() == 1) {
+                // personal card
+                point = 100 / 2;
+
+                if (i == 2) {
+                    card.setVerificationPoint(100);
+                } else {
+                    card.setVerificationPoint(card.getVerificationPoint() + point);
+                }
+            } else if (card.getCardType().getId() == 2) {
+                // company card
+                point = 100 / 3;
+
+                if (i == 3) {
+                    card.setVerificationPoint(100);
+                } else {
+                    card.setVerificationPoint(card.getVerificationPoint() + point);
+                }
+            } else if (card.getCardType().getId() == 3) {
+                // employee card
+                point = 100 / 5;
+
+                if (i == 5) {
+                    card.setVerificationPoint(100);
+                } else {
+                    card.setVerificationPoint(card.getVerificationPoint() + point);
+                }
+            }
+
+            card.setUpdatedDate(new Date());
+
+            userCardRepo.save(card);
+        } catch (Exception e) {
+            LOGGER.error("Exception", e);
         }
     }
 

@@ -105,7 +105,7 @@ public class UserDataServiceImpl implements UserDataService {
                     generateRes.generateResponseUser(user)), HttpStatus.CREATED);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 
@@ -175,10 +175,10 @@ public class UserDataServiceImpl implements UserDataService {
                     token), HttpStatus.CREATED);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
-            throw new InternalServerErrorException("Error processing data" + e.getMessage());
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         } catch (HttpRequestMethodNotSupportedException e) {
             LOGGER.error("Failed to Get Auth Token", e);
-            throw new InternalServerErrorException("Failed to Get Auth Token" + e.getMessage());
+            throw new InternalServerErrorException("Failed to Get Auth Token: " + e.getMessage());
         }
     }
 
