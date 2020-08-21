@@ -113,7 +113,7 @@ public class UserCardServiceImpl implements UserCardService {
                     }
                 } else {
                     // premium
-                    if (countCard == 2) {
+                    if (countCard == 10) {
                         LOGGER.error("You have reached your card limit. User Premium can only have 10 cards");
                         throw new BadRequestException("You have reached your card limit. User Premium can only have 10 cards");
                     }
@@ -754,7 +754,7 @@ public class UserCardServiceImpl implements UserCardService {
                 }
             } else {
                 // premium
-                if (countCard == 2) {
+                if (countCard == 10) {
                     LOGGER.error("You have reached your card limit. User Premium can only have 10 cards");
                     throw new BadRequestException("You have reached your card limit. User Premium can only have 10 cards");
                 }
@@ -819,6 +819,7 @@ public class UserCardServiceImpl implements UserCardService {
     @Override
     public byte[] downloadContact(Long id, HttpServletResponse httpResponse) throws IOException {
         BufferedWriter writer = null;
+        FileInputStream fis = null;
 
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -845,7 +846,7 @@ public class UserCardServiceImpl implements UserCardService {
             }
 
             String filename = new Date().getTime() + "_" + UUID.randomUUID().toString() + ".vcf";
-            File contactFolder = new File( contactDir);
+            File contactFolder = new File(contactDir);
             if (!contactFolder.exists()) {
                 contactFolder.mkdirs();
             }
@@ -869,19 +870,22 @@ public class UserCardServiceImpl implements UserCardService {
             writer = new BufferedWriter(new FileWriter(contactFolder.getAbsoluteFile() + File.separator + filename));
             writer.write(data);
 
-            httpResponse.setContentType("text/vcard");
-            httpResponse.setHeader("Content-Disposition", "attachment; filename=" + filename);
-            httpResponse.setStatus(HttpServletResponse.SC_OK);
-            FileInputStream fis = new FileInputStream(new File(contactFolder + File.separator + filename));
+            if (writer != null) {
+                writer.close();
 
-            return IOUtils.toByteArray(fis);
+                httpResponse.setContentType("text/vcard");
+                httpResponse.setHeader("Content-Disposition", "attachment; filename=" + filename);
+                httpResponse.setStatus(HttpServletResponse.SC_OK);
+                fis = new FileInputStream(new File(contactFolder + File.separator + filename));
+
+                return IOUtils.toByteArray(fis);
+            } else {
+                LOGGER.error("Error Generate File Contact Card");
+                throw new InternalServerErrorException("Error Generate File Contact Card");
+            }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());
-        } finally {
-            if (writer != null) {
-                writer.close();
-            }
         }
     }
 
