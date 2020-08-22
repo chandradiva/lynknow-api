@@ -66,4 +66,9 @@ public class CardVerificationController {
         return cardVerificationService.challengeCompanyPhoneNumber(cardId, code);
     }
 
+    @GetMapping("check-credit")
+    public ResponseEntity checkCredit() {
+        return cardVerificationService.checkCredit();
+    }
+
 }

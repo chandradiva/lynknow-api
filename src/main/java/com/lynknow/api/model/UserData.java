@@ -63,6 +63,12 @@ public class UserData implements UserDetails, Serializable {
     @Column(name = "is_active")
     private int isActive = 1;
 
+    @Column(name = "max_verification_credit")
+    private int maxVerificationCredit = 0;
+
+    @Column(name = "current_verification_credit")
+    private int currentVerificationCredit = 0;
+
     @Override
     public boolean isAccountNonExpired() {
         return true;

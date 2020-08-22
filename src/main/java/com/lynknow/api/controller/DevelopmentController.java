@@ -24,4 +24,9 @@ public class DevelopmentController {
         return developmentService.setToBasic();
     }
 
+    @PostMapping("buy-verification-credit")
+    public ResponseEntity buyVerificationCredit() {
+        return developmentService.buyVerificationCredit();
+    }
+
 }

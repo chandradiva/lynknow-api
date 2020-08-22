@@ -2,6 +2,7 @@ package com.lynknow.api.service.impl;
 
 import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.exception.NotFoundException;
+import com.lynknow.api.exception.UnprocessableEntityException;
 import com.lynknow.api.model.SubscriptionPackage;
 import com.lynknow.api.model.UserData;
 import com.lynknow.api.pojo.response.BaseResponse;
@@ -12,6 +13,7 @@ import com.lynknow.api.util.GenerateResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -34,6 +36,12 @@ public class DevelopmentServiceImpl implements DevelopmentService {
     @Autowired
     private GenerateResponseUtil generateRes;
 
+    @Value("${verification.credit.default}")
+    private String defaultVerificationCredit;
+
+    @Value("${verification.credit.additional}")
+    private String additionalVerificationCredit;
+
     @Override
     public ResponseEntity setToPremium() {
         try {
@@ -49,6 +57,8 @@ public class DevelopmentServiceImpl implements DevelopmentService {
             }
 
             userLogin.setCurrentSubscriptionPackage(subs);
+            userLogin.setMaxVerificationCredit(Integer.parseInt(defaultVerificationCredit));
+            userLogin.setCurrentVerificationCredit(0);
             userLogin.setUpdatedDate(new Date());
 
             userDataRepo.save(userLogin);
@@ -79,6 +89,36 @@ public class DevelopmentServiceImpl implements DevelopmentService {
             }
 
             userLogin.setCurrentSubscriptionPackage(subs);
+            userLogin.setMaxVerificationCredit(0);
+            userLogin.setCurrentVerificationCredit(0);
+            userLogin.setUpdatedDate(new Date());
+
+            userDataRepo.save(userLogin);
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    generateRes.generateResponseUser(userLogin)), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity buyVerificationCredit() {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
+                LOGGER.error("Only Premium Users that Can Buy Verification Credit");
+                throw new UnprocessableEntityException("Only Premium Users that Can Buy Verification Credit");
+            }
+
+            userLogin.setMaxVerificationCredit(userLogin.getMaxVerificationCredit() + Integer.parseInt(additionalVerificationCredit));
             userLogin.setUpdatedDate(new Date());
 
             userDataRepo.save(userLogin);

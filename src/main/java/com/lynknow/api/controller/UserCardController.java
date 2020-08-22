@@ -160,4 +160,14 @@ public class UserCardController {
         return userCardService.getDetailLockedCard(id);
     }
 
+    @GetMapping("detail-own")
+    public ResponseEntity getDetailOwn(@RequestParam Long id) {
+        return userCardService.getDetailCheckSession(id);
+    }
+
+    @GetMapping("detail-own-by-code")
+    public ResponseEntity getDetailOwn(@RequestParam String code) {
+        return userCardService.getDetailCheckSession(code);
+    }
+
 }

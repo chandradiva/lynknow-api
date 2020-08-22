@@ -852,19 +852,17 @@ public class UserCardServiceImpl implements UserCardService {
             }
 
             String data = "BEGIN:VCARD\n" +
-                    "VERSION:4.0\n" +
-                    "N:Gump;Forrest;;Mr.;\n" +
-                    "FN:Forrest Gump\n" +
-                    "ORG:Bubba Gump Shrimp Co.\n" +
-                    "TITLE:Shrimp Man\n" +
-                    "PHOTO;MEDIATYPE=image/gif:http://www.example.com/dir_photos/my_photo.gif\n" +
-                    "TEL;TYPE=work,voice;VALUE=uri:tel:+1-111-555-1212\n" +
-                    "TEL;TYPE=home,voice;VALUE=uri:tel:+1-404-555-1212\n" +
-                    "ADR;TYPE=WORK;PREF=1;LABEL=\"100 Waters Edge\\nBaytown\\, LA 30314\\nUnited States of America\":;;100 Waters Edge;Baytown;LA;30314;United States of America\n" +
-                    "ADR;TYPE=HOME;LABEL=\"42 Plantation St.\\nBaytown\\, LA 30314\\nUnited States of America\":;;42 Plantation St.;Baytown;LA;30314;United States of America\n" +
-                    "EMAIL:forrestgump@example.com\n" +
+                    "VERSION:2.1\n" +
+                    "N:" + card.getLastName() + ";" + card.getFirstName() + ";;\n" +
+                    "FN:"+ card.getFirstName() + " " + card.getLastName() + "\n" +
+                    "ORG:"+ card.getCompany() + "\n" +
+                    "TITLE:\n" +
+                    "PHOTO;GIF:http://www.example.com/dir_photos/my_photo.gif\n" +
+                    "TEL;WORK;VOICE:" + card.getWhatsappNo() + "\n" +
+                    "TEL;HOME;VOICE:" + card.getMobileNo() + "\n" +
+                    "ADR;HOME:;;" + card.getAddress1() + ";" + card.getAddress2()+ ";" + card.getCity() + ";" + card.getPostalCode() + ";" + card.getCountry() + "\n" +
+                    "EMAIL:" + card.getEmail() + "\n" +
                     "REV:20080424T195243Z\n" +
-                    "x-qq:21588891\n" +
                     "END:VCARD";
 
             writer = new BufferedWriter(new FileWriter(contactFolder.getAbsoluteFile() + File.separator + filename));
@@ -920,6 +918,21 @@ public class UserCardServiceImpl implements UserCardService {
                 request.setIsActive(1);
 
                 cardRequestViewRepo.save(request);
+                // end of insert to table request to view card
+
+                // insert to table notification
+                NotificationType type = notificationTypeRepo.getDetail(9);
+                Notification notification = new Notification();
+
+                notification.setUserData(userLogin);
+                notification.setTargetUserData(card.getUserData());
+                notification.setNotificationType(type);
+                notification.setIsRead(0);
+                notification.setCreatedDate(new Date());
+                notification.setIsActive(1);
+
+                notificationRepo.save(notification);
+                // end of insert to table notification
 
                 return new ResponseEntity(new BaseResponse<>(
                         true,
@@ -1004,6 +1017,62 @@ public class UserCardServiceImpl implements UserCardService {
             } else {
                 LOGGER.error("User Card ID: " + id + " is not found");
                 throw new NotFoundException("User Card ID: " + id);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity getDetailCheckSession(Long id) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+
+            UserCard card = userCardRepo.getDetail(id);
+            if (card != null) {
+                if (card.getUserData().getId().equals(userSession.getId())) {
+                    return new ResponseEntity(new BaseResponse<>(
+                            true,
+                            200,
+                            "Success",
+                            generateRes.generateResponseUserCard(card)), HttpStatus.OK);
+                } else {
+                    LOGGER.error("This Card is not Yours");
+                    throw new UnprocessableEntityException("This Card is not Yours");
+                }
+            } else {
+                LOGGER.error("User Card ID: " + id + " is not found");
+                throw new NotFoundException("User Card ID: " + id);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity getDetailCheckSession(String code) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+
+            UserCard card = userCardRepo.getByUniqueCode(code);
+            if (card != null) {
+                if (card.getUserData().getId().equals(userSession.getId())) {
+                    return new ResponseEntity(new BaseResponse<>(
+                            true,
+                            200,
+                            "Success",
+                            generateRes.generateResponseUserCard(card)), HttpStatus.OK);
+                } else {
+                    LOGGER.error("This Card is not Yours");
+                    throw new UnprocessableEntityException("This Card is not Yours");
+                }
+            } else {
+                LOGGER.error("User Card Code: " + code + " is not found");
+                throw new NotFoundException("User Card Code: " + code);
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);

@@ -264,8 +264,28 @@ public class CardVerificationServiceImpl implements CardVerificationService {
     @Override
     public ResponseEntity requestToVerify(MultipartFile file, Long cardId, Integer itemId) {
         try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
+                // basic
+                LOGGER.error("Only Premium Users that can Verify their Card with Verification Credit");
+                throw new BadRequestException("Only Premium Users that can Verify their Card with Verification Credit");
+            }
+
+            if (userLogin.getMaxVerificationCredit() >= userLogin.getCurrentVerificationCredit()) {
+                LOGGER.error("You're Running Out of Verification Credit");
+                throw new BadRequestException("You're Running Out of Verification Credit");
+            }
+
             CardVerification verification = cardVerificationRepo.getDetail(cardId, itemId);
             if (verification != null) {
+                if (!verification.getUserCard().getUserData().getId().equals(userLogin.getId())) {
+                    LOGGER.error("You Can't Request to Verify Other User Card");
+                    throw new UnprocessableEntityException("You Can't Request to Verify Other User Card");
+                }
+
                 String fileName = StringUtils.cleanPath(file.getOriginalFilename());
                 fileName = fileName.replaceAll("\\s+", "_");
 
@@ -313,9 +333,29 @@ public class CardVerificationServiceImpl implements CardVerificationService {
     @Override
     public ResponseEntity requestToVerify(String officePhone, Long cardId) {
         try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
+                // basic
+                LOGGER.error("Only Premium Users that can Verify their Card with Verification Credit");
+                throw new BadRequestException("Only Premium Users that can Verify their Card with Verification Credit");
+            }
+
+            if (userLogin.getMaxVerificationCredit() >= userLogin.getCurrentVerificationCredit()) {
+                LOGGER.error("You're Running Out of Verification Credit");
+                throw new BadRequestException("You're Running Out of Verification Credit");
+            }
+
             // 5 = company contact
             CardVerification verification = cardVerificationRepo.getDetail(cardId, 5);
             if (verification != null) {
+                if (!verification.getUserCard().getUserData().getId().equals(userLogin.getId())) {
+                    LOGGER.error("You Can't Request to Verify Other User Card");
+                    throw new UnprocessableEntityException("You Can't Request to Verify Other User Card");
+                }
+
                 Calendar cal = Calendar.getInstance();
                 cal.add(Calendar.HOUR_OF_DAY, 3);
 
@@ -536,8 +576,8 @@ public class CardVerificationServiceImpl implements CardVerificationService {
             CardVerification verification = cardVerificationRepo.getDetail(cardId, 5);
             if (verification != null) {
                 if (!verification.getUserCard().getUserData().getId().equals(userSession.getId())) {
-                    LOGGER.error("Invalid Request");
-                    throw new UnprocessableEntityException("Invalid Request");
+                    LOGGER.error("You Can't Challenge OTP Other User Card");
+                    throw new UnprocessableEntityException("You Can't Challenge OTP Other User Card");
                 }
 
                 if (verification.getIsRequested() == 0) {
@@ -588,6 +628,35 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                 LOGGER.error("Card Verification with Card ID: " + cardId + " and Item ID: 5 is not found");
                 throw new NotFoundException("Card Verification with Card ID: " + cardId + " and Item ID: 5");
             }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity checkCredit() {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
+                // basic
+                LOGGER.error("Only Premium Users that can Verify their Card with Verification Credit");
+                throw new BadRequestException("Only Premium Users that can Verify their Card with Verification Credit");
+            }
+
+            if (userLogin.getMaxVerificationCredit() >= userLogin.getCurrentVerificationCredit()) {
+                LOGGER.error("You're Running Out of Verification Credit");
+                throw new BadRequestException("You're Running Out of Verification Credit");
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    null), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());

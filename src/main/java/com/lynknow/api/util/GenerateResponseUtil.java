@@ -145,6 +145,8 @@ public class GenerateResponseUtil {
         res.setJoinDate(user.getJoinDate());
         res.setCreatedDate(user.getCreatedDate());
         res.setUpdatedDate(user.getUpdatedDate());
+        res.setMaxVerificationCredit(user.getMaxVerificationCredit());
+        res.setCurrentVerificationCredit(user.getCurrentVerificationCredit());
 
         return res;
     }
@@ -167,6 +169,8 @@ public class GenerateResponseUtil {
         res.setJoinDate(user.getJoinDate());
         res.setCreatedDate(user.getCreatedDate());
         res.setUpdatedDate(user.getUpdatedDate());
+        res.setMaxVerificationCredit(user.getMaxVerificationCredit());
+        res.setCurrentVerificationCredit(user.getCurrentVerificationCredit());
 
         UserProfile profile = userProfileRepo.getDetailByUserId(user.getId());
         if (profile != null) {

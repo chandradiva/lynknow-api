@@ -22,4 +22,6 @@ public interface CardVerificationService {
     ResponseEntity generateOtpCompanyPhoneNumber(Long cardId);
     ResponseEntity challengeCompanyPhoneNumber(Long cardId, String code);
 
+    ResponseEntity checkCredit();
+
 }

@@ -7,4 +7,6 @@ public interface DevelopmentService {
     ResponseEntity setToPremium();
     ResponseEntity setToBasic();
 
+    ResponseEntity buyVerificationCredit();
+
 }

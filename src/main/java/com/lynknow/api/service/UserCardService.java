@@ -36,4 +36,7 @@ public interface UserCardService {
     ResponseEntity grantRequest(Long requestId, int flag);
     ResponseEntity getDetailLockedCard(Long id);
 
+    ResponseEntity getDetailCheckSession(Long id);
+    ResponseEntity getDetailCheckSession(String code);
+
 }
