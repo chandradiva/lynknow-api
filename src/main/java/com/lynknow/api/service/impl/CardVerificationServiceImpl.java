@@ -61,6 +61,9 @@ public class CardVerificationServiceImpl implements CardVerificationService {
     @Autowired
     private OtpTypeRepository otpTypeRepo;
 
+    @Autowired
+    private CardVerificationCreditUsageRepository usageRepo;
+
     @Value("${upload.dir.card.verification}")
     private String cardVerificationDir;
 
@@ -312,6 +315,22 @@ public class CardVerificationServiceImpl implements CardVerificationService {
 
                 cardVerificationRepo.save(verification);
 
+                // save credit usage
+                CardVerificationCreditUsage usage = new CardVerificationCreditUsage();
+
+                usage.setCardVerification(verification);
+                usage.setCreatedDate(new Date());
+
+                usageRepo.save(usage);
+                // end of save credit usage
+
+                // update current usage
+                userLogin.setCurrentVerificationCredit(userLogin.getCurrentVerificationCredit() + 1);
+                userLogin.setUpdatedDate(new Date());
+
+                userDataRepo.save(userLogin);
+                // end of update current usage
+
                 return new ResponseEntity(new BaseResponse<>(
                         true,
                         200,
@@ -365,6 +384,22 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                 verification.setExpiredDate(cal.getTime());
 
                 cardVerificationRepo.save(verification);
+
+                // save credit usage
+                CardVerificationCreditUsage usage = new CardVerificationCreditUsage();
+
+                usage.setCardVerification(verification);
+                usage.setCreatedDate(new Date());
+
+                usageRepo.save(usage);
+                // end of save credit usage
+
+                // update current usage
+                userLogin.setCurrentVerificationCredit(userLogin.getCurrentVerificationCredit() + 1);
+                userLogin.setUpdatedDate(new Date());
+
+                userDataRepo.save(userLogin);
+                // end of update current usage
 
                 return new ResponseEntity(new BaseResponse<>(
                         true,

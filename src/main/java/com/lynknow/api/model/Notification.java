@@ -27,6 +27,10 @@ public class Notification {
     private UserData targetUserData;
 
     @ManyToOne
+    @JoinColumn(name = "target_user_card_id")
+    private UserCard targetUserCard;
+
+    @ManyToOne
     @JoinColumn(name = "notification_type_id")
     private NotificationType notificationType;
 

@@ -2,9 +2,7 @@ package com.lynknow.api.util;
 
 import com.lynknow.api.model.*;
 import com.lynknow.api.pojo.response.*;
-import com.lynknow.api.repository.CardPhoneDetailRepository;
-import com.lynknow.api.repository.UserPhoneDetailRepository;
-import com.lynknow.api.repository.UserProfileRepository;
+import com.lynknow.api.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,6 +20,9 @@ public class GenerateResponseUtil {
 
     @Autowired
     private CardPhoneDetailRepository cardPhoneDetailRepo;
+
+    @Autowired
+    private CardRequestViewRepository cardRequestViewRepo;
 
     public RoleDataResponse generateResponseRole(RoleData role) {
         RoleDataResponse res = new RoleDataResponse();
@@ -284,6 +285,73 @@ public class GenerateResponseUtil {
         return res;
     }
 
+    public UserCardResponse generateResponseUserCardWithoutUser(UserCard card) {
+        UserCardResponse res = new UserCardResponse();
+
+        if (card == null) {
+            return null;
+        }
+
+        res.setId(card.getId());
+        res.setUserData(null);
+        res.setCardType(generateResponseCardType(card.getCardType()));
+        res.setFrontSide(card.getFrontSide());
+        res.setBackSide(card.getBackSide());
+        res.setProfilePhoto(card.getProfilePhoto());
+        res.setFirstName(card.getFirstName());
+        res.setLastName(card.getLastName());
+        res.setDesignation(card.getDesignation());
+        res.setCompany(card.getCompany());
+        res.setAddress1(card.getAddress1());
+        res.setAddress2(card.getAddress2());
+        res.setCity(card.getCity());
+        res.setPostalCode(card.getPostalCode());
+        res.setCountry(card.getCountry());
+        res.setEmail(card.getEmail());
+        res.setWebsite(card.getWebsite());
+        res.setFbEmail(card.getFbEmail());
+        res.setGoogleEmail(card.getGoogleEmail());
+        res.setIsPublished(card.getIsPublished());
+        res.setPublishedDate(card.getPublishedDate());
+        res.setUniqueCode(card.getUniqueCode());
+        res.setVerificationPoint(card.getVerificationPoint());
+        res.setIsCardLocked(card.getIsCardLocked());
+        res.setIsWhatsappNoVerified(card.getIsWhatsappNoVerified());
+        res.setIsEmailVerified(card.getIsEmailVerified());
+        res.setCreatedDate(card.getCreatedDate());
+        res.setUpdatedDate(card.getUpdatedDate());
+
+        Page<CardPhoneDetail> pageWa = cardPhoneDetailRepo.getDetail(card.getId(), 1, PageRequest.of(0, 1, Sort.by("id").descending()));
+        if (pageWa.getContent() != null && pageWa.getContent().size() > 0) {
+            CardPhoneDetail detail = pageWa.getContent().get(0);
+
+            PhoneDetailResponse resDetail = new PhoneDetailResponse();
+
+            resDetail.setId(detail.getId());
+            resDetail.setCountryCode(detail.getCountryCode());
+            resDetail.setDialCode(detail.getDialCode());
+            resDetail.setNumber(detail.getNumber());
+
+            res.setWhatsappNo(resDetail);
+        }
+
+        Page<CardPhoneDetail> pageMobile = cardPhoneDetailRepo.getDetail(card.getId(), 2, PageRequest.of(0, 1, Sort.by("id").descending()));
+        if (pageMobile.getContent() != null && pageMobile.getContent().size() > 0) {
+            CardPhoneDetail detail = pageMobile.getContent().get(0);
+
+            PhoneDetailResponse resDetail = new PhoneDetailResponse();
+
+            resDetail.setId(detail.getId());
+            resDetail.setCountryCode(detail.getCountryCode());
+            resDetail.setDialCode(detail.getDialCode());
+            resDetail.setNumber(detail.getNumber());
+
+            res.setMobileNo(resDetail);
+        }
+
+        return res;
+    }
+
     public UserCardPublicResponse generateResponseUserCardPublic(UserCard card) {
         UserCardPublicResponse res = new UserCardPublicResponse();
 
@@ -346,11 +414,23 @@ public class GenerateResponseUtil {
         res.setId(notification.getId());
         res.setUserData(generateResponseUser(notification.getUserData()));
         res.setTargetUserData(generateResponseUser(notification.getTargetUserData()));
+        res.setTargetUserCard(generateResponseUserCard(notification.getTargetUserCard()));
         res.setNotificationType(generateResponseNotificationType(notification.getNotificationType()));
         res.setRemarks(notification.getRemarks());
         res.setIsRead(notification.getIsRead());
         res.setCreatedDate(notification.getCreatedDate());
         res.setUpdatedDate(notification.getUpdatedDate());
+
+        if (notification.getNotificationType().getId() == 9) {
+            // request to view card
+            CardRequestView requestView = cardRequestViewRepo.getDetail(
+                    notification.getTargetUserCard().getId(),
+                    notification.getTargetUserData().getId());
+            if (requestView != null) {
+                CardRequestViewResponse requestViewRes = generateResponseCardRequestView(requestView);
+                res.setAdditionalData(requestViewRes);
+            }
+        }
 
         return res;
     }
@@ -396,6 +476,25 @@ public class GenerateResponseUtil {
         res.setCreatedDate(request.getCreatedDate());
         res.setUpdatedDate(request.getUpdatedDate());
         res.setIsActive(request.getIsActive());
+
+        return res;
+    }
+
+    public UserContactResponse generateResponseUserContact(UserContact contact) {
+        UserContactResponse res = new UserContactResponse();
+
+        if (contact == null) {
+            return null;
+        }
+
+        res.setId(contact.getId());
+        res.setUserData(generateResponseUser(contact.getUserData()));
+        res.setFromCard(generateResponseUserCardWithoutUser(contact.getFromCard()));
+        res.setExchangeCard(generateResponseUserCardWithoutUser(contact.getExchangeCard()));
+        res.setStatus(contact.getStatus());
+        res.setFlag(contact.getFlag());
+        res.setCreatedDate(contact.getCreatedDate());
+        res.setUpdatedDate(contact.getUpdatedDate());
 
         return res;
     }

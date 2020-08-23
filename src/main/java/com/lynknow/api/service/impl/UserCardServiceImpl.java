@@ -76,6 +76,9 @@ public class UserCardServiceImpl implements UserCardService {
     @Autowired
     private CardRequestViewRepository cardRequestViewRepo;
 
+    @Autowired
+    private UserContactRepository userContactRepo;
+
     @Value("${upload.dir.card.front-side}")
     private String frontSideDir;
 
@@ -786,20 +789,25 @@ public class UserCardServiceImpl implements UserCardService {
             // 6 = exchange card
             // 7 = view detail card
             // 8 = download contact
+            // 9 = request to view card
+            // 10 = view card
             UserCard card = userCardRepo.getDetail(id);
             if (card != null) {
+                // save notification data
                 NotificationType type = notificationTypeRepo.getDetail(typeId);
 
                 Notification notification = new Notification();
 
                 notification.setUserData(userLogin);
                 notification.setTargetUserData(card.getUserData());
+                notification.setTargetUserCard(card);
                 notification.setNotificationType(type);
                 notification.setIsRead(0);
                 notification.setCreatedDate(new Date());
                 notification.setIsActive(1);
 
                 notificationRepo.save(notification);
+                // end of save notification data
 
                 return new ResponseEntity(new BaseResponse<>(
                         true,
@@ -834,6 +842,7 @@ public class UserCardServiceImpl implements UserCardService {
 
                 notification.setUserData(userLogin);
                 notification.setTargetUserData(card.getUserData());
+                notification.setTargetUserCard(card);
                 notification.setNotificationType(type);
                 notification.setIsRead(0);
                 notification.setCreatedDate(new Date());
@@ -926,6 +935,7 @@ public class UserCardServiceImpl implements UserCardService {
 
                 notification.setUserData(userLogin);
                 notification.setTargetUserData(card.getUserData());
+                notification.setTargetUserCard(card);
                 notification.setNotificationType(type);
                 notification.setIsRead(0);
                 notification.setCreatedDate(new Date());
@@ -1074,6 +1084,88 @@ public class UserCardServiceImpl implements UserCardService {
                 LOGGER.error("User Card Code: " + code + " is not found");
                 throw new NotFoundException("User Card Code: " + code);
             }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity exchangeCard(Long fromCardId, Long exchangeCardId) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            UserCard fromCard = userCardRepo.getDetail(fromCardId);
+            if (fromCard == null) {
+                LOGGER.error("From User Card ID: " + fromCardId + " is not found");
+                throw new NotFoundException("From User Card ID: " + fromCardId);
+            }
+
+            UserCard exchangeCard = userCardRepo.getDetail(exchangeCardId);
+            if (exchangeCard == null) {
+                LOGGER.error("Exchange User Card ID: " + exchangeCardId + " is not found");
+                throw new NotFoundException("Exchange User Card ID: " + exchangeCardId);
+            }
+
+            // save request exchange card
+            Page<UserContact> pageContact = userContactRepo.getDetail(
+                    userLogin.getId(),
+                    fromCardId,
+                    exchangeCardId,
+                    PageRequest.of(0, 1, Sort.by("id").descending()));
+
+            if (pageContact.getContent() != null && pageContact.getContent().size() > 0) {
+                UserContact existingContact = pageContact.getContent().get(0);
+                if (existingContact.getStatus() == 2 || existingContact.getStatus() == 3) {
+                    // rejected or canceled
+                    existingContact.setStatus(0);
+                    existingContact.setUpdatedDate(new Date());
+
+                    userContactRepo.save(existingContact);
+                } else if (existingContact.getStatus() == 0) {
+                    LOGGER.error("You Already Requested for Exchange Card");
+                    throw new UnprocessableEntityException("You Already Requested for Exchange Card");
+                } else {
+                    LOGGER.error("Your Exchange Card Request Already Accepted");
+                    throw new UnprocessableEntityException("Your Exchange Card Request Already Accepted");
+                }
+            } else {
+                UserContact contact = new UserContact();
+
+                contact.setUserData(userLogin);
+                contact.setFromCard(fromCard);
+                contact.setExchangeCard(exchangeCard);
+                contact.setStatus(0); // requested
+                contact.setFlag(1); // flag request exchange
+                contact.setCreatedDate(new Date());
+
+                userContactRepo.save(contact);
+            }
+            // end of save request exchange card
+
+            // save notification data
+            NotificationType type = notificationTypeRepo.getDetail(6);
+
+            Notification notification = new Notification();
+
+            notification.setUserData(userLogin);
+            notification.setTargetUserData(exchangeCard.getUserData());
+            notification.setTargetUserCard(exchangeCard);
+            notification.setNotificationType(type);
+            notification.setIsRead(0);
+            notification.setCreatedDate(new Date());
+            notification.setIsActive(1);
+
+            notificationRepo.save(notification);
+            // end of save notification data
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    null), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());

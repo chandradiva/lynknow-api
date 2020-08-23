@@ -8,21 +8,19 @@ import java.util.Date;
 
 @Getter
 @Setter
-public class NotificationResponse {
+public class UserContactResponse {
 
     private Long id;
     private UserDataResponse userData;
-    private UserDataResponse targetUserData;
-    private UserCardResponse targetUserCard;
-    private NotificationTypeResponse notificationType;
-    private String remarks;
-    private int isRead = 0;
+    private UserCardResponse fromCard;
+    private UserCardResponse exchangeCard;
+    private int status = 0;
+    private int flag = 0;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss Z", timezone = "GMT+7")
     private Date createdDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss Z", timezone = "GMT+7")
     private Date updatedDate;
-    private Object additionalData;
 
 }

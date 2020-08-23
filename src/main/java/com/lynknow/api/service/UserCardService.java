@@ -39,4 +39,6 @@ public interface UserCardService {
     ResponseEntity getDetailCheckSession(Long id);
     ResponseEntity getDetailCheckSession(String code);
 
+    ResponseEntity exchangeCard(Long fromCardId, Long exchangeCardId);
+
 }

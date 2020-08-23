@@ -170,4 +170,12 @@ public class UserCardController {
         return userCardService.getDetailCheckSession(code);
     }
 
+    @PostMapping("exchange")
+    public ResponseEntity exchangeCard(
+            @RequestParam Long fromCardId,
+            @RequestParam Long exchangeCardId
+    ) {
+        return userCardService.exchangeCard(fromCardId, exchangeCardId);
+    }
+
 }
