@@ -682,7 +682,7 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                 throw new BadRequestException("Only Premium Users that can Verify their Card with Verification Credit");
             }
 
-            if (userLogin.getMaxVerificationCredit() >= userLogin.getCurrentVerificationCredit()) {
+            if (userLogin.getMaxVerificationCredit() == userLogin.getCurrentVerificationCredit()) {
                 LOGGER.error("You're Running Out of Verification Credit");
                 throw new BadRequestException("You're Running Out of Verification Credit");
             }
