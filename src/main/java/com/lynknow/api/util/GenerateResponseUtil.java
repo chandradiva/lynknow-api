@@ -499,4 +499,43 @@ public class GenerateResponseUtil {
         return res;
     }
 
+    public PersonalVerificationItemResponse generateResponsePersonalVerificationItem(PersonalVerificationItem item) {
+        PersonalVerificationItemResponse res = new PersonalVerificationItemResponse();
+
+        if (item == null) {
+            return null;
+        }
+
+        res.setId(item.getId());
+        res.setName(item.getName());
+        res.setDescription(item.getDescription());
+        res.setType(item.getType());
+
+        return res;
+    }
+
+    public PersonalVerificationResponse generateResponsePersonalVerification(PersonalVerification verification) {
+        PersonalVerificationResponse res = new PersonalVerificationResponse();
+
+        if (verification == null) {
+            return null;
+        }
+
+        res.setId(verification.getId());
+        res.setUserData(generateResponseUser(verification.getUserData()));
+        res.setPersonalVerificationItem(generateResponsePersonalVerificationItem(verification.getPersonalVerificationItem()));
+        res.setRemarks(verification.getRemarks());
+        res.setParam(verification.getParam());
+        res.setIsVerified(verification.getIsVerified());
+        res.setIsRequested(verification.getIsRequested());
+        res.setExpiredDate(verification.getExpiredDate());
+        res.setVerifiedBy(generateResponseUser(verification.getVerifiedBy()));
+        res.setVerifiedDate(verification.getVerifiedDate());
+        res.setReason(verification.getReason());
+        res.setCreatedDate(verification.getCreatedDate());
+        res.setUpdatedDate(verification.getUpdatedDate());
+
+        return res;
+    }
+
 }
