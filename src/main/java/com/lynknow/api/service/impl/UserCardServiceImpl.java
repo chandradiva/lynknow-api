@@ -660,8 +660,11 @@ public class UserCardServiceImpl implements UserCardService {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = null;
+            UserData userLogin = null;
+
             if (!(auth.getPrincipal() instanceof String) && !auth.getPrincipal().equals("anonymousUser")) {
                 userSession = (UserData) auth.getPrincipal();
+                userLogin = userDataRepo.getDetail(userSession.getId());
             }
 
             UserCard card = userCardRepo.getByUniqueCode(code);
@@ -669,7 +672,15 @@ public class UserCardServiceImpl implements UserCardService {
                 if (card.getUserData().getCurrentSubscriptionPackage().getId() == 2
                         && card.getIsCardLocked() == 1) {
                     // card locked
-                    if (userSession != null) {
+                    if (userSession != null && userLogin != null) {
+                        if (userLogin.getVerificationPoint() > 50) {
+                            return new ResponseEntity(new BaseResponse<>(
+                                    true,
+                                    200,
+                                    "Success",
+                                    generateRes.generateResponseUserCardPublic(card)), HttpStatus.OK);
+                        }
+
                         CardRequestView request = cardRequestViewRepo.getDetail(card.getId(), userSession.getId());
                         if (request.getIsGranted() == 1) {
                             return new ResponseEntity(new BaseResponse<>(
