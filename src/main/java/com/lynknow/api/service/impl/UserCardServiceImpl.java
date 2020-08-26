@@ -682,7 +682,7 @@ public class UserCardServiceImpl implements UserCardService {
                         }
 
                         CardRequestView request = cardRequestViewRepo.getDetail(card.getId(), userSession.getId());
-                        if (request.getIsGranted() == 1) {
+                        if (request != null && request.getIsGranted() == 1) {
                             return new ResponseEntity(new BaseResponse<>(
                                     true,
                                     200,
