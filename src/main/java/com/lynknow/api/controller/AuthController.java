@@ -4,10 +4,12 @@ import com.lynknow.api.exception.BadRequestException;
 import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.exception.NotFoundException;
 import com.lynknow.api.model.UserData;
+import com.lynknow.api.pojo.request.AuthFacebookRequest;
 import com.lynknow.api.pojo.request.LoginRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.repository.UserDataRepository;
 import com.lynknow.api.service.AuthService;
+import com.lynknow.api.service.UserDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,9 @@ public class AuthController {
 
     @Autowired
     private UserDataRepository userDataRepo;
+
+    @Autowired
+    private UserDataService userDataService;
 
     @PostMapping("login")
     public ResponseEntity<OAuth2AccessToken> login(@RequestBody LoginRequest request) {
@@ -67,6 +72,11 @@ public class AuthController {
     @GetMapping("get")
     public ResponseEntity getUserSession() {
         return authService.getUserSession();
+    }
+
+    @PostMapping("login-facebook")
+    public ResponseEntity loginFacebook(@RequestBody AuthFacebookRequest request) {
+        return userDataService.registerFacebook(request);
     }
 
 }

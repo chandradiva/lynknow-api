@@ -7,6 +7,7 @@ import com.lynknow.api.model.RoleData;
 import com.lynknow.api.model.SubscriptionPackage;
 import com.lynknow.api.model.UserData;
 import com.lynknow.api.model.UserProfile;
+import com.lynknow.api.pojo.request.AuthFacebookRequest;
 import com.lynknow.api.pojo.request.UserDataRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.repository.RoleDataRepository;
@@ -19,6 +20,7 @@ import com.lynknow.api.util.GenerateResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,6 +28,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.social.facebook.api.Facebook;
+import org.springframework.social.facebook.api.User;
+import org.springframework.social.facebook.api.impl.FacebookTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 
@@ -57,6 +62,9 @@ public class UserDataServiceImpl implements UserDataService {
 
     @Autowired
     private UserProfileRepository userProfileRepo;
+
+    @Value("${facebook.app.id}")
+    private String facebookAppId;
 
     @Override
     public ResponseEntity registerAdmin(UserDataRequest request) {
@@ -189,6 +197,99 @@ public class UserDataServiceImpl implements UserDataService {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    @Override
+    public ResponseEntity registerFacebook(AuthFacebookRequest request) {
+        try {
+            Facebook fb = new FacebookTemplate(request.getToken(), "", facebookAppId);
+            String[] fields = {"id", "email", "first_name", "last_name", "gender", "birthday"};
+            User userFb = fb.fetchObject("me", User.class, fields);
+
+            RoleData role = roleDataRepo.getDetail(2);
+            if (role == null) {
+                LOGGER.error("Role ID: " + 2 + " is not found");
+                throw new NotFoundException("Role ID: " + 2);
+            }
+
+            SubscriptionPackage subs = subscriptionPackageRepo.getDetail(1);
+            if (subs == null) {
+                LOGGER.error("Subscription Package ID: " + 1 + " is not found");
+                throw new NotFoundException("Subscription Package ID: " + 1);
+            }
+
+            UserData user;
+            Page<UserData> pageUser = userDataRepo.getByFbId(
+                    userFb.getId(),
+                    PageRequest.of(0, 1, Sort.by("id").descending()));
+            if (pageUser.getContent() != null && pageUser.getContent().size() > 0) {
+                user = pageUser.getContent().get(0);
+            } else {
+                user = new UserData();
+
+                user.setRoleData(role);
+                user.setCurrentSubscriptionPackage(subs);
+                user.setPassword(encoder.encode(request.getToken()));
+                user.setJoinDate(new Date());
+                user.setCreatedDate(new Date());
+
+                if (userFb.getEmail() == null) {
+                    user.setUsername(userFb.getId() + "@facebook.com");
+                    user.setEmail(userFb.getId() + "@facebook.com");
+                } else {
+                    user.setUsername(userFb.getEmail().toLowerCase());
+                    user.setEmail(userFb.getEmail().toLowerCase());
+                }
+
+                if (userFb.getName() == null) {
+                    user.setFirstName(userFb.getId() + "@facebook.com");
+                    user.setLastName("");
+                } else {
+                    user.setFirstName(userFb.getFirstName());
+                    user.setLastName(userFb.getLastName());
+                }
+
+                userDataRepo.save(user);
+
+                UserProfile profile = new UserProfile();
+
+                profile.setUserData(user);
+                profile.setIsWhatsappNoVerified(0);
+                profile.setIsEmailVerified(0);
+                profile.setCreatedDate(new Date());
+                profile.setIsActive(1);
+
+                if (userFb.getName() == null) {
+                    profile.setFirstName(userFb.getId() + "@facebook.com");
+                    profile.setLastName("");
+                } else {
+                    profile.setFirstName(userFb.getFirstName());
+                    profile.setLastName(userFb.getLastName());
+                }
+
+                userProfileRepo.save(profile);
+            }
+
+            // auto login after register
+            HashMap<String, String> maps = new HashMap<>();
+            maps.put("username", userFb.getEmail().toLowerCase());
+            maps.put("password", request.getToken());
+
+            HashMap<String, String> params = maps;
+            OAuth2AccessToken token = this.authService.getToken(params);
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    201,
+                    "Success",
+                    token), HttpStatus.CREATED);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        } catch (HttpRequestMethodNotSupportedException e) {
+            LOGGER.error("Failed to Get Auth Token", e);
+            throw new InternalServerErrorException("Failed to Get Auth Token: " + e.getMessage());
         }
     }
 

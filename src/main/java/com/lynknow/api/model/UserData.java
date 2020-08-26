@@ -69,6 +69,15 @@ public class UserData implements UserDetails, Serializable {
     @Column(name = "current_verification_credit")
     private int currentVerificationCredit = 0;
 
+    @Column(name = "fb_id")
+    private String fbId;
+
+    @Column(name = "fb_email")
+    private String fbEmail;
+
+    @Column(name = "fb_token")
+    private String fbToken;
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
