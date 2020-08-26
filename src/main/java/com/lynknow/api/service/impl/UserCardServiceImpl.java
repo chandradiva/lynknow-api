@@ -1046,6 +1046,41 @@ public class UserCardServiceImpl implements UserCardService {
     }
 
     @Override
+    public ResponseEntity getDetailLockedCard(String code) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            UserCard card = userCardRepo.getByUniqueCode(code);
+            if (card != null) {
+                CardRequestView request = cardRequestViewRepo.getDetail(card.getId(), userLogin.getId());
+                if (request != null) {
+                    if (request.getIsGranted() == 1) {
+                        return new ResponseEntity(new BaseResponse<>(
+                                true,
+                                200,
+                                "Success",
+                                generateRes.generateResponseUserCard(card)), HttpStatus.OK);
+                    } else {
+                        LOGGER.error("Your Request to View Card not yet Granted");
+                        throw new UnprocessableEntityException("Your Request to View Card not yet Granted");
+                    }
+                } else {
+                    LOGGER.error("You Haven't Request to View Card yet");
+                    throw new UnprocessableEntityException("You Haven't Request to View Card yet");
+                }
+            } else {
+                LOGGER.error("User Card Code: " + code + " is not found");
+                throw new NotFoundException("User Card Code: " + code);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
     public ResponseEntity getDetailCheckSession(Long id) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();

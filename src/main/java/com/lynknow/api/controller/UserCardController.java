@@ -160,6 +160,11 @@ public class UserCardController {
         return userCardService.getDetailLockedCard(id);
     }
 
+    @GetMapping("detail-locked-by-code")
+    public ResponseEntity getDetailLockedByCode(@RequestParam String code) {
+        return userCardService.getDetailLockedCard(code);
+    }
+
     @GetMapping("detail-own")
     public ResponseEntity getDetailOwn(@RequestParam Long id) {
         return userCardService.getDetailCheckSession(id);
