@@ -55,7 +55,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                         "/roles/**",
                         "/public/**",
                         "/users/admin-register",
-                        "/users/subs-register").permitAll()
+                        "/users/subs-register",
+                        "/auth/login-facebook").permitAll()
                 .and()
                 .authorizeRequests()
                 .anyRequest()
