@@ -28,4 +28,9 @@ public interface UserDataRepository extends JpaRepository<UserData, Long> {
             "AND ud.isActive = 1")
     Page<UserData> getByEmail(@Param("email") String email, Pageable pageable);
 
+    @Query("SELECT ud FROM UserData ud " +
+            "WHERE LOWER(ud.fbId) = :fbId " +
+            "AND ud.isActive = 1")
+    Page<UserData> getByFbId(@Param("fbId") String fbId, Pageable pageable);
+
 }
