@@ -225,17 +225,30 @@ public class UserDataServiceImpl implements UserDataService {
                     PageRequest.of(0, 1, Sort.by("id").descending()));
             if (pageUser.getContent() != null && pageUser.getContent().size() > 0) {
                 user = pageUser.getContent().get(0);
+
+                // auto login if facebook already registered
+                HashMap<String, String> maps = new HashMap<>();
+                maps.put("username", user.getEmail().toLowerCase());
+                maps.put("password", userFb.getId());
+
+                HashMap<String, String> params = maps;
+                OAuth2AccessToken token = this.authService.getToken(params);
+
+                return new ResponseEntity(new BaseResponse<>(
+                        true,
+                        201,
+                        "Success",
+                        token), HttpStatus.CREATED);
             } else {
                 user = new UserData();
 
                 user.setRoleData(role);
                 user.setCurrentSubscriptionPackage(subs);
-                user.setPassword(encoder.encode(request.getToken()));
+                user.setPassword(encoder.encode(userFb.getId()));
                 user.setJoinDate(new Date());
                 user.setCreatedDate(new Date());
                 user.setFbId(userFb.getId());
                 user.setFbEmail(userFb.getEmail());
-                user.setFbToken(request.getToken());
 
                 if (userFb.getEmail() == null) {
                     user.setUsername(userFb.getId() + "@facebook.com");
@@ -245,11 +258,7 @@ public class UserDataServiceImpl implements UserDataService {
                     user.setEmail(userFb.getEmail().toLowerCase());
                 }
 
-                LOGGER.error("UserFb Token: " + request.getToken());
-                LOGGER.error("UserFb Name: " + userFb.getName());
-                LOGGER.error("UserFb Firstname: " + userFb.getFirstName());
-                LOGGER.error("UserFb Lastname: " + userFb.getLastName());
-                if (userFb.getName() == null) {
+                if (userFb.getFirstName() == null) {
                     user.setFirstName(userFb.getId() + "@facebook.com");
                     user.setLastName("");
                 } else {
@@ -267,7 +276,7 @@ public class UserDataServiceImpl implements UserDataService {
                 profile.setCreatedDate(new Date());
                 profile.setIsActive(1);
 
-                if (userFb.getName() == null) {
+                if (userFb.getFirstName() == null) {
                     profile.setFirstName(userFb.getId() + "@facebook.com");
                     profile.setLastName("");
                 } else {
@@ -276,21 +285,21 @@ public class UserDataServiceImpl implements UserDataService {
                 }
 
                 userProfileRepo.save(profile);
+
+                // auto login after register
+                HashMap<String, String> maps = new HashMap<>();
+                maps.put("username", userFb.getEmail().toLowerCase());
+                maps.put("password", userFb.getId());
+
+                HashMap<String, String> params = maps;
+                OAuth2AccessToken token = this.authService.getToken(params);
+
+                return new ResponseEntity(new BaseResponse<>(
+                        true,
+                        201,
+                        "Success",
+                        token), HttpStatus.CREATED);
             }
-
-            // auto login after register
-            HashMap<String, String> maps = new HashMap<>();
-            maps.put("username", userFb.getEmail().toLowerCase());
-            maps.put("password", request.getToken());
-
-            HashMap<String, String> params = maps;
-            OAuth2AccessToken token = this.authService.getToken(params);
-
-            return new ResponseEntity(new BaseResponse<>(
-                    true,
-                    201,
-                    "Success",
-                    token), HttpStatus.CREATED);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());
