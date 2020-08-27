@@ -233,6 +233,9 @@ public class UserDataServiceImpl implements UserDataService {
                 user.setPassword(encoder.encode(request.getToken()));
                 user.setJoinDate(new Date());
                 user.setCreatedDate(new Date());
+                user.setFbId(userFb.getId());
+                user.setFbEmail(userFb.getEmail());
+                user.setFbToken(request.getToken());
 
                 if (userFb.getEmail() == null) {
                     user.setUsername(userFb.getId() + "@facebook.com");
