@@ -23,6 +23,8 @@ public class NotificationResponse {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss Z", timezone = "GMT+7")
     private Date updatedDate;
+
+    private Long paramId;
     private Object additionalData;
 
 }

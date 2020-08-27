@@ -420,12 +420,11 @@ public class GenerateResponseUtil {
         res.setIsRead(notification.getIsRead());
         res.setCreatedDate(notification.getCreatedDate());
         res.setUpdatedDate(notification.getUpdatedDate());
+        res.setParamId(notification.getParamId());
 
         if (notification.getNotificationType().getId() == 9) {
             // request to view card
-            CardRequestView requestView = cardRequestViewRepo.getDetail(
-                    notification.getTargetUserCard().getId(),
-                    notification.getTargetUserData().getId());
+            CardRequestView requestView = cardRequestViewRepo.getDetail(notification.getParamId());
             if (requestView != null) {
                 CardRequestViewResponse requestViewRes = generateResponseCardRequestView(requestView);
                 res.setAdditionalData(requestViewRes);

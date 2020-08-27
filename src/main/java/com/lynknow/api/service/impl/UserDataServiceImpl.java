@@ -242,6 +242,10 @@ public class UserDataServiceImpl implements UserDataService {
                     user.setEmail(userFb.getEmail().toLowerCase());
                 }
 
+                LOGGER.error("UserFb Token: " + request.getToken());
+                LOGGER.error("UserFb Name: " + userFb.getName());
+                LOGGER.error("UserFb Firstname: " + userFb.getFirstName());
+                LOGGER.error("UserFb Lastname: " + userFb.getLastName());
                 if (userFb.getName() == null) {
                     user.setFirstName(userFb.getId() + "@facebook.com");
                     user.setLastName("");

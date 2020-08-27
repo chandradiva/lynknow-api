@@ -951,6 +951,7 @@ public class UserCardServiceImpl implements UserCardService {
                 notification.setIsRead(0);
                 notification.setCreatedDate(new Date());
                 notification.setIsActive(1);
+                notification.setParamId(request.getId());
 
                 notificationRepo.save(notification);
                 // end of insert to table notification
@@ -1156,6 +1157,7 @@ public class UserCardServiceImpl implements UserCardService {
             }
 
             // save request exchange card
+            UserContact userContact = null;
             Page<UserContact> pageContact = userContactRepo.getDetail(
                     userLogin.getId(),
                     fromCardId,
@@ -1170,6 +1172,8 @@ public class UserCardServiceImpl implements UserCardService {
                     existingContact.setUpdatedDate(new Date());
 
                     userContactRepo.save(existingContact);
+
+                    userContact = existingContact;
                 } else if (existingContact.getStatus() == 0) {
                     LOGGER.error("You Already Requested for Exchange Card");
                     throw new UnprocessableEntityException("You Already Requested for Exchange Card");
@@ -1188,6 +1192,8 @@ public class UserCardServiceImpl implements UserCardService {
                 contact.setCreatedDate(new Date());
 
                 userContactRepo.save(contact);
+
+                userContact = contact;
             }
             // end of save request exchange card
 
@@ -1203,6 +1209,10 @@ public class UserCardServiceImpl implements UserCardService {
             notification.setIsRead(0);
             notification.setCreatedDate(new Date());
             notification.setIsActive(1);
+
+            if (userContact != null) {
+                notification.setParamId(userContact.getId());
+            }
 
             notificationRepo.save(notification);
             // end of save notification data

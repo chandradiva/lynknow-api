@@ -55,4 +55,7 @@ public class Notification {
     @Column(name = "is_active")
     private int isActive = 1;
 
+    @Column(name = "param_id")
+    private Long paramId;
+
 }
