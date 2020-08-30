@@ -673,6 +673,14 @@ public class UserCardServiceImpl implements UserCardService {
                         && card.getIsCardLocked() == 1) {
                     // card locked
                     if (userSession != null && userLogin != null) {
+                        if (userLogin.getId().equals(card.getUserData().getId())) {
+                            return new ResponseEntity(new BaseResponse<>(
+                                    true,
+                                    200,
+                                    "Success",
+                                    generateRes.generateResponseUserCardPublic(card)), HttpStatus.OK);
+                        }
+
                         if (userLogin.getVerificationPoint() > 50) {
                             return new ResponseEntity(new BaseResponse<>(
                                     true,
@@ -1055,6 +1063,15 @@ public class UserCardServiceImpl implements UserCardService {
 
             UserCard card = userCardRepo.getByUniqueCode(code);
             if (card != null) {
+                if (userLogin.getId().equals(card.getUserData().getId())) {
+                    // card owner
+                    return new ResponseEntity(new BaseResponse<>(
+                            true,
+                            200,
+                            "Success",
+                            generateRes.generateResponseUserCard(card)), HttpStatus.OK);
+                }
+
                 CardRequestView request = cardRequestViewRepo.getDetail(card.getId(), userLogin.getId());
                 if (request != null) {
                     if (request.getIsGranted() == 1) {

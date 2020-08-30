@@ -7,6 +7,7 @@ import com.lynknow.api.model.UserPhoneDetail;
 import com.lynknow.api.model.UserProfile;
 import com.lynknow.api.pojo.request.UserProfileRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
+import com.lynknow.api.repository.UserDataRepository;
 import com.lynknow.api.repository.UserPhoneDetailRepository;
 import com.lynknow.api.repository.UserProfileRepository;
 import com.lynknow.api.service.UserProfileService;
@@ -53,6 +54,9 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Autowired
     private UserPhoneDetailRepository userPhoneDetailRepo;
 
+    @Autowired
+    private UserDataRepository userDataRepo;
+
     @Value("${upload.dir.user.profile-pic}")
     private String profilePicDir;
 
@@ -84,6 +88,15 @@ public class UserProfileServiceImpl implements UserProfileService {
             profile.setMobileNo(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
 
             userProfileRepo.save(profile);
+
+            // update user data
+            UserData user = profile.getUserData();
+
+            user.setFirstName(request.getFirstName());
+            user.setLastName(request.getLastName());
+
+            userDataRepo.save(user);
+            // end of update user data
 
             UserPhoneDetail waDetail;
             UserPhoneDetail mobileDetail;
