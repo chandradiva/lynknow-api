@@ -996,7 +996,6 @@ public class UserCardServiceImpl implements UserCardService {
                     request.setIsGranted(1);
                 } else {
                     request.setIsGranted(0);
-                    request.setIsActive(0);
                 }
 
                 request.setExpiredRequestDate(null);
