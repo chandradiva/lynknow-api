@@ -53,9 +53,6 @@ public class UserCardServiceImpl implements UserCardService {
     private CardTypeRepository cardTypeRepo;
 
     @Autowired
-    private UserProfileRepository userProfileRepo;
-
-    @Autowired
     private UserDataRepository userDataRepo;
 
     @Autowired
@@ -218,8 +215,8 @@ public class UserCardServiceImpl implements UserCardService {
                     card.setCountry(request.getCountry());
                     card.setEmail(request.getEmail());
                     card.setWebsite(request.getWebsite());
-                    card.setWhatsappNo(request.getWhatsappNo().getNumber());
-                    card.setMobileNo(request.getMobileNo().getNumber());
+                    card.setWhatsappNo(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
+                    card.setMobileNo(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
                     card.setUpdatedDate(new Date());
 
                     userCardRepo.save(card);

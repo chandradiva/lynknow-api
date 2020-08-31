@@ -86,6 +86,8 @@ public class UserProfileServiceImpl implements UserProfileService {
             profile.setCountry(request.getCountry());
             profile.setWhatsappNo(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
             profile.setMobileNo(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
+            profile.setCity(request.getCity());
+            profile.setPostalCode(request.getPostalCode());
 
             userProfileRepo.save(profile);
 

@@ -19,7 +19,7 @@ public class StringUtil {
 
     public static String normalizePhoneNumber(String param) {
         if (param != null) {
-            return param.replaceAll("-", "");
+            return param.replaceAll("-", "").replaceAll("\\s+", "").trim();
         } else {
             return null;
         }

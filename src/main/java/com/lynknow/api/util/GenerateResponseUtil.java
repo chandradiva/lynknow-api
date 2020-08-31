@@ -76,6 +76,8 @@ public class GenerateResponseUtil {
         res.setProfilePhoto(profile.getProfilePhoto());
         res.setCreatedDate(profile.getCreatedDate());
         res.setUpdatedDate(profile.getUpdatedDate());
+        res.setCity(profile.getCity());
+        res.setPostalCode(profile.getPostalCode());
 
         Page<UserPhoneDetail> pageWa = userPhoneDetailRepo.getDetail(profile.getId(), 1, PageRequest.of(0, 1, Sort.by("id").descending()));
         if (pageWa.getContent() != null && pageWa.getContent().size() > 0) {
@@ -123,6 +125,8 @@ public class GenerateResponseUtil {
         res.setCountry(profile.getCountry());
         res.setCreatedDate(profile.getCreatedDate());
         res.setUpdatedDate(profile.getUpdatedDate());
+        res.setCity(profile.getCity());
+        res.setPostalCode(profile.getPostalCode());
 
         return res;
     }

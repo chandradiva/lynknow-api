@@ -27,6 +27,8 @@ public class UserProfileResponse {
     private int isWhatsappNoVerified = 0;
     private int isEmailVerified = 0;
     private String profilePhoto;
+    private String city;
+    private String postalCode;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss Z", timezone = "GMT+7")
     private Date createdDate;

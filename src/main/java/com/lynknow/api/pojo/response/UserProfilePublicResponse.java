@@ -16,6 +16,8 @@ public class UserProfilePublicResponse {
     private String address1;
     private String address2;
     private String country;
+    private String city;
+    private String postalCode;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss Z", timezone = "GMT+7")
     private Date createdDate;

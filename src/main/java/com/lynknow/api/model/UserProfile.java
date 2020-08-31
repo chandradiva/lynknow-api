@@ -85,4 +85,10 @@ public class UserProfile {
     @Column(name = "profile_photo")
     private String profilePhoto;
 
+    @Column(name = "city")
+    private String city;
+
+    @Column(name = "postal_code")
+    private String postalCode;
+
 }
