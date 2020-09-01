@@ -700,6 +700,7 @@ public class CardVerificationServiceImpl implements CardVerificationService {
 
     private void adjustCardVerificationPoint(UserCard card) {
         try {
+            int totalPoint = 80;
             int point = 0;
             int i = 0;
             List<CardVerification> verifications = cardVerificationRepo.getList(card.getId());
@@ -713,28 +714,28 @@ public class CardVerificationServiceImpl implements CardVerificationService {
 
             if (card.getCardType().getId() == 1) {
                 // personal card
-                point = 100 / 2;
+                point = totalPoint / 2;
 
                 if (i == 2) {
-                    card.setVerificationPoint(100);
+                    card.setVerificationPoint(totalPoint);
                 } else {
                     card.setVerificationPoint(card.getVerificationPoint() + point);
                 }
             } else if (card.getCardType().getId() == 2) {
                 // company card
-                point = 100 / 3;
+                point = totalPoint / 3;
 
                 if (i == 3) {
-                    card.setVerificationPoint(100);
+                    card.setVerificationPoint(totalPoint);
                 } else {
                     card.setVerificationPoint(card.getVerificationPoint() + point);
                 }
             } else if (card.getCardType().getId() == 3) {
                 // employee card
-                point = 100 / 5;
+                point = totalPoint / 5;
 
                 if (i == 5) {
-                    card.setVerificationPoint(100);
+                    card.setVerificationPoint(totalPoint);
                 } else {
                     card.setVerificationPoint(card.getVerificationPoint() + point);
                 }

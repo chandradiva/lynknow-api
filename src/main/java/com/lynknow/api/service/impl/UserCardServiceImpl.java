@@ -76,6 +76,9 @@ public class UserCardServiceImpl implements UserCardService {
     @Autowired
     private UserContactRepository userContactRepo;
 
+    @Autowired
+    private UserProfileRepository userProfileRepo;
+
     @Value("${upload.dir.card.front-side}")
     private String frontSideDir;
 
@@ -94,6 +97,12 @@ public class UserCardServiceImpl implements UserCardService {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
             UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            UserProfile profile = userProfileRepo.getDetailByUserId(userLogin.getId());
+            if (profile.getIsEmailVerified() == 0) {
+                LOGGER.error("Your Email has not been Verified");
+                throw new BadRequestException("Your Email has not been Verified");
+            }
 
             CardType type = cardTypeRepo.getDetail(request.getCardTypeId());
             if (type == null) {
@@ -120,6 +129,17 @@ public class UserCardServiceImpl implements UserCardService {
                 }
 
                 UserCard card = new UserCard();
+
+                if (request.getIsLock() == 1) {
+                    if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
+                        LOGGER.error("Only Premium Users that can Lock Their Cards");
+                        throw new BadRequestException("Only Premium Users that can Lock Their Cards");
+                    }
+
+                    card.setIsCardLocked(1);
+                } else {
+                    card.setIsCardLocked(0);
+                }
 
                 card.setUserData(userLogin);
                 card.setCardType(type);
@@ -200,6 +220,17 @@ public class UserCardServiceImpl implements UserCardService {
                 // update data
                 UserCard card = userCardRepo.getDetail(request.getId());
                 if (card != null) {
+                    if (request.getIsLock() == 1) {
+                        if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
+                            LOGGER.error("Only Premium Users that can Lock Their Cards");
+                            throw new BadRequestException("Only Premium Users that can Lock Their Cards");
+                        }
+
+                        card.setIsCardLocked(1);
+                    } else {
+                        card.setIsCardLocked(0);
+                    }
+
                     card.setCardType(type);
                     card.setFrontSide(request.getFrontSide());
                     card.setBackSide(request.getBackSide());
@@ -437,6 +468,13 @@ public class UserCardServiceImpl implements UserCardService {
             if (id != null || id != 0) {
                 UserCard card = userCardRepo.getDetail(id);
                 if (card != null) {
+//                    if (card.getFrontSide() != null) {
+//                        File existingImage = new File(frontSideDir + File.separator + card.getFrontSide());
+//                        if (existingImage.exists() && existingImage.isFile()) {
+//                            existingImage.delete();
+//                        }
+//                    }
+
                     card.setFrontSide(newFilename);
                     card.setUpdatedDate(new Date());
 
@@ -481,6 +519,13 @@ public class UserCardServiceImpl implements UserCardService {
             if (id != null || id != 0) {
                 UserCard card = userCardRepo.getDetail(id);
                 if (card != null) {
+//                    if (card.getBackSide() != null) {
+//                        File existingImage = new File(backSideDir + File.separator + card.getBackSide());
+//                        if (existingImage.exists() && existingImage.isFile()) {
+//                            existingImage.delete();
+//                        }
+//                    }
+
                     card.setBackSide(newFilename);
                     card.setUpdatedDate(new Date());
 
@@ -525,6 +570,13 @@ public class UserCardServiceImpl implements UserCardService {
             if (id != null || id != 0) {
                 UserCard card = userCardRepo.getDetail(id);
                 if (card != null) {
+//                    if (card.getProfilePhoto() != null) {
+//                        File existingImage = new File(profilePicDir + File.separator + card.getProfilePhoto());
+//                        if (existingImage.exists() && existingImage.isFile()) {
+//                            existingImage.delete();
+//                        }
+//                    }
+
                     card.setProfilePhoto(newFilename);
                     card.setUpdatedDate(new Date());
 
@@ -762,6 +814,12 @@ public class UserCardServiceImpl implements UserCardService {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
             UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            UserProfile profile = userProfileRepo.getDetailByUserId(userLogin.getId());
+            if (profile.getIsEmailVerified() == 0) {
+                LOGGER.error("Your Email has not been Verified");
+                throw new BadRequestException("Your Email has not been Verified");
+            }
 
             List<UserCard> cards = userCardRepo.getList(userLogin.getId(), null, null, Sort.by("id").ascending());
             int countCard = cards == null ? 0 : cards.size();

@@ -23,6 +23,7 @@ public class UserCardRequest {
     private String country;
     private String email;
     private String website;
+    private int isLock = 0;
     private PhoneDetailRequest whatsappNo;
     private PhoneDetailRequest mobileNo;
 

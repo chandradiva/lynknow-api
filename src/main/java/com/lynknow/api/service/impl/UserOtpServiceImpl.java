@@ -522,7 +522,7 @@ public class UserOtpServiceImpl implements UserOtpService {
                     userOtpRepo.save(otp);
 
                     // update verification point
-//                    card.setVerificationPoint(card.getVerificationPoint() + 20);
+                    card.setVerificationPoint(card.getVerificationPoint() + 10);
                     card.setIsWhatsappNoVerified(1);
                     card.setUpdatedDate(new Date());
 
@@ -577,7 +577,7 @@ public class UserOtpServiceImpl implements UserOtpService {
                     userOtpRepo.save(otp);
 
                     // update verification point
-//                    card.setVerificationPoint(card.getVerificationPoint() + 20);
+                    card.setVerificationPoint(card.getVerificationPoint() + 10);
                     card.setIsEmailVerified(1);
                     card.setUpdatedDate(new Date());
 
