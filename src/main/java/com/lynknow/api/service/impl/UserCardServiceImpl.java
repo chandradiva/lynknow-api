@@ -88,6 +88,9 @@ public class UserCardServiceImpl implements UserCardService {
     @Value("${upload.dir.card.profile-pic}")
     private String profilePicDir;
 
+    @Value("${upload.dir.user.profile-pic}")
+    private String userProfilePicDir;
+
     @Value("${contact.vcf.dir}")
     private String contactDir;
 
@@ -693,8 +696,18 @@ public class UserCardServiceImpl implements UserCardService {
 
                         return IOUtils.toByteArray(fis);
                     } else {
-                        LOGGER.error("Card Image with Filename: " + filename + " is not found");
-                        throw new NotFoundException("Card Image with Filename: " + filename);
+                        file = new File(userProfilePicDir + File.separator + filename);
+                        if (file.exists()) {
+                            httpResponse.setContentType("image/*");
+                            httpResponse.setHeader("Content-Disposition", "inline; filename=" + filename);
+                            httpResponse.setStatus(HttpServletResponse.SC_OK);
+                            FileInputStream fis = new FileInputStream(file);
+
+                            return IOUtils.toByteArray(fis);
+                        } else {
+                            LOGGER.error("Card Image with Filename: " + filename + " is not found");
+                            throw new NotFoundException("Card Image with Filename: " + filename);
+                        }
                     }
                 }
             }
