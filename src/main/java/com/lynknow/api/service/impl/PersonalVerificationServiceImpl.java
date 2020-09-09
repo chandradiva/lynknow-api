@@ -7,9 +7,11 @@ import com.lynknow.api.exception.UnprocessableEntityException;
 import com.lynknow.api.model.PersonalVerification;
 import com.lynknow.api.model.PersonalVerificationItem;
 import com.lynknow.api.model.UserData;
+import com.lynknow.api.pojo.PaginationModel;
 import com.lynknow.api.pojo.request.VerifyPersonalRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.pojo.response.PersonalVerificationResponse;
+import com.lynknow.api.pojo.response.UserDataResponse;
 import com.lynknow.api.repository.PersonalVerificationItemRepository;
 import com.lynknow.api.repository.PersonalVerificationRepository;
 import com.lynknow.api.repository.UserDataRepository;
@@ -19,6 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -258,6 +263,44 @@ public class PersonalVerificationServiceImpl implements PersonalVerificationServ
                     200,
                     "Success",
                     res), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity getListNeedToVerify(PaginationModel model) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            if (userLogin.getRoleData().getId() != 1) {
+                LOGGER.error("Only Administrator Roles That Can View Request for Personal Verification");
+                throw new BadRequestException("Only Administrator Roles That Can View Request for Personal Verification");
+            }
+
+            Page<UserDataResponse> page;
+            model.setSortBy("ud." + model.getSortBy());
+
+            if (model.getSort().equals("asc")) {
+                page = userDataRepo.getListNeedVerify(PageRequest.of(
+                        model.getPage(),
+                        model.getSize(),
+                        Sort.by(model.getSortBy()).ascending())).map(generateRes::generateResponseUser);
+            } else {
+                page = userDataRepo.getListNeedVerify(PageRequest.of(
+                        model.getPage(),
+                        model.getSize(),
+                        Sort.by(model.getSortBy()).descending())).map(generateRes::generateResponseUser);
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    page), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());

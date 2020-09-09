@@ -33,4 +33,10 @@ public interface UserDataRepository extends JpaRepository<UserData, Long> {
             "AND ud.isActive = 1")
     Page<UserData> getByFbId(@Param("fbId") String fbId, Pageable pageable);
 
+    @Query("SELECT ud " +
+            "FROM PersonalVerification pv " +
+            "JOIN pv.userData ud " +
+            "GROUP BY ud.id, ud.firstName, ud.lastName, ud.email")
+    Page<UserData> getListNeedVerify(Pageable pageable);
+
 }

@@ -1,5 +1,6 @@
 package com.lynknow.api.controller;
 
+import com.lynknow.api.pojo.PaginationModel;
 import com.lynknow.api.pojo.request.VerifyCardRequest;
 import com.lynknow.api.service.CardVerificationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,11 @@ public class CardVerificationController {
     @GetMapping("check-credit")
     public ResponseEntity checkCredit() {
         return cardVerificationService.checkCredit();
+    }
+
+    @GetMapping("need-verify")
+    public ResponseEntity getListCardNeedVerify(PaginationModel myPage) {
+        return cardVerificationService.getListNeedVerify(myPage);
     }
 
 }

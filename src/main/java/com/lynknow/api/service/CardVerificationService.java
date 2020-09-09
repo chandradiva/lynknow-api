@@ -1,6 +1,7 @@
 package com.lynknow.api.service;
 
 import com.lynknow.api.model.UserCard;
+import com.lynknow.api.pojo.PaginationModel;
 import com.lynknow.api.pojo.request.VerifyCardRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,5 +24,6 @@ public interface CardVerificationService {
     ResponseEntity challengeCompanyPhoneNumber(Long cardId, String code);
 
     ResponseEntity checkCredit();
+    ResponseEntity getListNeedVerify(PaginationModel model);
 
 }

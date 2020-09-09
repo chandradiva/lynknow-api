@@ -1,5 +1,6 @@
 package com.lynknow.api.controller;
 
+import com.lynknow.api.pojo.PaginationModel;
 import com.lynknow.api.pojo.request.VerifyPersonalRequest;
 import com.lynknow.api.service.PersonalVerificationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,11 @@ public class PersonalVerificationController {
     @GetMapping("list/{userId}")
     public ResponseEntity getList(@PathVariable Long userId) {
         return personalVerificationService.getList(userId);
+    }
+
+    @GetMapping("need-verify")
+    public ResponseEntity getListNeedVerify(PaginationModel myPage) {
+        return personalVerificationService.getListNeedToVerify(myPage);
     }
 
 }

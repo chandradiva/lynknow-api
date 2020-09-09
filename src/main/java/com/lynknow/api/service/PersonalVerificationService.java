@@ -1,6 +1,7 @@
 package com.lynknow.api.service;
 
 import com.lynknow.api.model.UserData;
+import com.lynknow.api.pojo.PaginationModel;
 import com.lynknow.api.pojo.request.VerifyPersonalRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,5 +15,6 @@ public interface PersonalVerificationService {
     ResponseEntity getDetail(Long id);
     ResponseEntity getDetail(Long userId, Integer itemId);
     ResponseEntity getList(Long userId);
+    ResponseEntity getListNeedToVerify(PaginationModel model);
 
 }

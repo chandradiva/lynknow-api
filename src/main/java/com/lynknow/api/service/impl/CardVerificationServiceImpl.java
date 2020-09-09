@@ -5,9 +5,11 @@ import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.exception.NotFoundException;
 import com.lynknow.api.exception.UnprocessableEntityException;
 import com.lynknow.api.model.*;
+import com.lynknow.api.pojo.PaginationModel;
 import com.lynknow.api.pojo.request.VerifyCardRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.pojo.response.CardVerificationResponse;
+import com.lynknow.api.pojo.response.UserCardResponse;
 import com.lynknow.api.repository.*;
 import com.lynknow.api.service.CardVerificationService;
 import com.lynknow.api.util.GenerateResponseUtil;
@@ -692,6 +694,44 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                     200,
                     "Success",
                     null), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity getListNeedVerify(PaginationModel model) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            if (userLogin.getRoleData().getId() != 1) {
+                LOGGER.error("Only Administrator Roles That Can View Request for Card Verification");
+                throw new BadRequestException("Only Administrator Roles That Can View Request for Card Verification");
+            }
+
+            Page<UserCardResponse> page;
+            model.setSortBy("uc." + model.getSortBy());
+
+            if (model.getSort().equals("asc")) {
+                page = userCardRepo.getListNeedVerify(PageRequest.of(
+                        model.getPage(),
+                        model.getSize(),
+                        Sort.by(model.getSortBy()).ascending())).map(generateRes::generateResponseUserCard);
+            } else {
+                page = userCardRepo.getListNeedVerify(PageRequest.of(
+                        model.getPage(),
+                        model.getSize(),
+                        Sort.by(model.getSortBy()).descending())).map(generateRes::generateResponseUserCard);
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    page), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());
