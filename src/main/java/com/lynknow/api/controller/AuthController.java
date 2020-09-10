@@ -4,7 +4,7 @@ import com.lynknow.api.exception.BadRequestException;
 import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.exception.NotFoundException;
 import com.lynknow.api.model.UserData;
-import com.lynknow.api.pojo.request.AuthFacebookRequest;
+import com.lynknow.api.pojo.request.AuthSocialRequest;
 import com.lynknow.api.pojo.request.LoginRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.repository.UserDataRepository;
@@ -75,8 +75,13 @@ public class AuthController {
     }
 
     @PostMapping("login-facebook")
-    public ResponseEntity loginFacebook(@RequestBody AuthFacebookRequest request) {
+    public ResponseEntity loginFacebook(@RequestBody AuthSocialRequest request) {
         return userDataService.registerFacebook(request);
+    }
+
+    @PostMapping("login-google")
+    public ResponseEntity loginGoogle(@RequestBody AuthSocialRequest request) {
+        return userDataService.registerGoogle(request);
     }
 
 }

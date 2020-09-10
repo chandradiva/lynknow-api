@@ -522,7 +522,7 @@ public class UserOtpServiceImpl implements UserOtpService {
                     userOtpRepo.save(otp);
 
                     // update verification point
-                    card.setVerificationPoint(card.getVerificationPoint() + 10);
+                    this.adjustCardVerificationPoint(card);
                     card.setIsWhatsappNoVerified(1);
                     card.setUpdatedDate(new Date());
 
@@ -577,7 +577,7 @@ public class UserOtpServiceImpl implements UserOtpService {
                     userOtpRepo.save(otp);
 
                     // update verification point
-                    card.setVerificationPoint(card.getVerificationPoint() + 10);
+                    this.adjustCardVerificationPoint(card);
                     card.setIsEmailVerified(1);
                     card.setUpdatedDate(new Date());
 
@@ -637,6 +637,39 @@ public class UserOtpServiceImpl implements UserOtpService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    private void adjustCardVerificationPoint(UserCard card) {
+        try {
+            int totalPoint = 0;
+            int point = 0;
+
+            if (card.getCardType().getId() == 1) {
+                // personal card
+                totalPoint = 50;
+                point = totalPoint / 2;
+
+                card.setVerificationPoint(card.getVerificationPoint() + point);
+            } else if (card.getCardType().getId() == 2) {
+                // company card
+                totalPoint = 40;
+                point = totalPoint / 2;
+
+                card.setVerificationPoint(card.getVerificationPoint() + point);
+            } else if (card.getCardType().getId() == 3) {
+                // employee card
+                totalPoint = 50;
+                point = totalPoint / 2;
+
+                card.setVerificationPoint(card.getVerificationPoint() + point);
+            }
+
+            card.setUpdatedDate(new Date());
+
+            userCardRepo.save(card);
+        } catch (Exception e) {
+            LOGGER.error("Exception", e);
         }
     }
 

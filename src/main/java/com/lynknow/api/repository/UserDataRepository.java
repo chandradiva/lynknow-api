@@ -39,4 +39,9 @@ public interface UserDataRepository extends JpaRepository<UserData, Long> {
             "GROUP BY ud.id, ud.firstName, ud.lastName, ud.email")
     Page<UserData> getListNeedVerify(Pageable pageable);
 
+    @Query("SELECT ud FROM UserData ud " +
+            "WHERE LOWER(ud.googleId) = :googleId " +
+            "AND ud.isActive = 1")
+    Page<UserData> getByGoogleId(@Param("googleId") String googleId, Pageable pageable);
+
 }

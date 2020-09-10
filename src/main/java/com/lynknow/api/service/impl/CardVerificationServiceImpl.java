@@ -740,45 +740,27 @@ public class CardVerificationServiceImpl implements CardVerificationService {
 
     private void adjustCardVerificationPoint(UserCard card) {
         try {
-            int totalPoint = 80;
+            int totalPoint = 0;
             int point = 0;
-            int i = 0;
-            List<CardVerification> verifications = cardVerificationRepo.getList(card.getId());
-            if (verifications != null) {
-                for (CardVerification item : verifications) {
-                    if (item.getIsVerified() == 1) {
-                        i++;
-                    }
-                }
-            }
 
             if (card.getCardType().getId() == 1) {
                 // personal card
+                totalPoint = 50;
                 point = totalPoint / 2;
 
-                if (i == 2) {
-                    card.setVerificationPoint(totalPoint);
-                } else {
-                    card.setVerificationPoint(card.getVerificationPoint() + point);
-                }
+                card.setVerificationPoint(card.getVerificationPoint() + point);
             } else if (card.getCardType().getId() == 2) {
                 // company card
+                totalPoint = 60;
                 point = totalPoint / 3;
 
-                if (i == 3) {
-                    card.setVerificationPoint(totalPoint);
-                } else {
-                    card.setVerificationPoint(card.getVerificationPoint() + point);
-                }
+                card.setVerificationPoint(card.getVerificationPoint() + point);
             } else if (card.getCardType().getId() == 3) {
                 // employee card
+                totalPoint = 50;
                 point = totalPoint / 5;
 
-                if (i == 5) {
-                    card.setVerificationPoint(totalPoint);
-                } else {
-                    card.setVerificationPoint(card.getVerificationPoint() + point);
-                }
+                card.setVerificationPoint(card.getVerificationPoint() + point);
             }
 
             card.setUpdatedDate(new Date());

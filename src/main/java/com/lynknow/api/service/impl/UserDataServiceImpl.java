@@ -1,5 +1,10 @@
 package com.lynknow.api.service.impl;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.lynknow.api.exception.ConflictException;
 import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.exception.NotFoundException;
@@ -7,7 +12,7 @@ import com.lynknow.api.model.RoleData;
 import com.lynknow.api.model.SubscriptionPackage;
 import com.lynknow.api.model.UserData;
 import com.lynknow.api.model.UserProfile;
-import com.lynknow.api.pojo.request.AuthFacebookRequest;
+import com.lynknow.api.pojo.request.AuthSocialRequest;
 import com.lynknow.api.pojo.request.UserDataRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.repository.RoleDataRepository;
@@ -34,6 +39,9 @@ import org.springframework.social.facebook.api.impl.FacebookTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -65,6 +73,9 @@ public class UserDataServiceImpl implements UserDataService {
 
     @Value("${facebook.app.id}")
     private String facebookAppId;
+
+    @Value("${google.client.id}")
+    private String googleClientId;
 
     @Override
     public ResponseEntity registerAdmin(UserDataRequest request) {
@@ -201,7 +212,7 @@ public class UserDataServiceImpl implements UserDataService {
     }
 
     @Override
-    public ResponseEntity registerFacebook(AuthFacebookRequest request) {
+    public ResponseEntity registerFacebook(AuthSocialRequest request) {
         try {
             Facebook fb = new FacebookTemplate(request.getToken(), "", facebookAppId);
             String[] fields = {"id", "email", "first_name", "last_name", "gender", "birthday"};
@@ -309,6 +320,114 @@ public class UserDataServiceImpl implements UserDataService {
         }
     }
 
+    @Override
+    public ResponseEntity registerGoogle(AuthSocialRequest request) {
+        try {
+            NetHttpTransport transport = new NetHttpTransport();
+            JsonFactory jsonFactory = new JacksonFactory();
+
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
+                    .setAudience(Collections.singletonList(googleClientId))
+                    .build();
+
+            GoogleIdToken idToken = verifier.verify(request.getToken());
+            if (idToken != null) {
+                GoogleIdToken.Payload payload = idToken.getPayload();
+
+                RoleData role = roleDataRepo.getDetail(2);
+                if (role == null) {
+                    LOGGER.error("Role ID: " + 2 + " is not found");
+                    throw new NotFoundException("Role ID: " + 2);
+                }
+
+                SubscriptionPackage subs = subscriptionPackageRepo.getDetail(1);
+                if (subs == null) {
+                    LOGGER.error("Subscription Package ID: " + 1 + " is not found");
+                    throw new NotFoundException("Subscription Package ID: " + 1);
+                }
+
+                UserData user;
+                Page<UserData> page = userDataRepo.getByGoogleId(
+                        payload.getSubject(),
+                        PageRequest.of(0, 1, Sort.by("id").descending()));
+                if (page.getContent() != null && page.getContent().size() > 0) {
+                    user = page.getContent().get(0);
+
+                    // auto login if google already registered
+                    HashMap<String, String> maps = new HashMap<>();
+                    maps.put("username", user.getEmail().toLowerCase());
+                    maps.put("password", payload.getSubject());
+
+                    HashMap<String, String> params = maps;
+                    OAuth2AccessToken token = this.authService.getToken(params);
+
+                    return new ResponseEntity(new BaseResponse<>(
+                            true,
+                            201,
+                            "Success",
+                            token), HttpStatus.CREATED);
+                } else {
+                    user = new UserData();
+
+                    user.setUsername(payload.getEmail());
+                    user.setEmail(payload.getEmail());
+                    user.setFirstName((String) payload.get("given_name"));
+                    user.setLastName((String) payload.get("family_name"));
+                    user.setRoleData(role);
+                    user.setCurrentSubscriptionPackage(subs);
+                    user.setPassword(encoder.encode(payload.getSubject()));
+                    user.setJoinDate(new Date());
+                    user.setCreatedDate(new Date());
+                    user.setGoogleId(payload.getSubject());
+                    user.setGoogleEmail(payload.getEmail());
+
+                    userDataRepo.save(user);
+
+                    UserProfile profile = new UserProfile();
+
+                    profile.setUserData(user);
+                    profile.setFirstName((String) payload.get("given_name"));
+                    profile.setLastName((String) payload.get("family_name"));
+                    profile.setIsWhatsappNoVerified(0);
+                    profile.setIsEmailVerified(0);
+                    profile.setCreatedDate(new Date());
+                    profile.setIsActive(1);
+
+                    userProfileRepo.save(profile);
+
+                    // auto login after register
+                    HashMap<String, String> maps = new HashMap<>();
+                    maps.put("username", payload.getEmail());
+                    maps.put("password", payload.getSubject());
+
+                    HashMap<String, String> params = maps;
+                    OAuth2AccessToken token = this.authService.getToken(params);
+
+                    return new ResponseEntity(new BaseResponse<>(
+                            true,
+                            201,
+                            "Success",
+                            token), HttpStatus.CREATED);
+                }
+            } else {
+                LOGGER.error("Invalid Token");
+                throw new InternalServerErrorException("Invalid Token");
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        } catch (GeneralSecurityException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        } catch (HttpRequestMethodNotSupportedException e) {
+            LOGGER.error("Failed to Get Auth Token", e);
+            throw new InternalServerErrorException("Failed to Get Auth Token: " + e.getMessage());
+        }
+    }
+
     private boolean checkByUsername(String username, Long id) {
         try {
             UserData chkByUsername = null;
@@ -330,7 +449,6 @@ public class UserDataServiceImpl implements UserDataService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
     }
@@ -356,8 +474,8 @@ public class UserDataServiceImpl implements UserDataService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
     }
+
 }

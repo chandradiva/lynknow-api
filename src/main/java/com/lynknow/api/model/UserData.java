@@ -75,8 +75,11 @@ public class UserData implements UserDetails, Serializable {
     @Column(name = "fb_email")
     private String fbEmail;
 
-    @Column(name = "fb_token")
-    private String fbToken;
+    @Column(name = "google_id")
+    private String googleId;
+
+    @Column(name = "google_email")
+    private String googleEmail;
 
     @Override
     public boolean isAccountNonExpired() {

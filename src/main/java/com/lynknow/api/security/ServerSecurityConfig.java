@@ -90,7 +90,8 @@ public class ServerSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/public/**",
                         "/users/admin-register",
                         "/users/subs-register",
-                        "/auth/login-facebook").permitAll()
+                        "/auth/login-facebook",
+                        "/auth/login-google").permitAll()
                 .anyRequest()
                 .access("isAuthenticated()");
     }

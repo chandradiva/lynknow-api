@@ -471,12 +471,12 @@ public class UserCardServiceImpl implements UserCardService {
             if (id != null || id != 0) {
                 UserCard card = userCardRepo.getDetail(id);
                 if (card != null) {
-//                    if (card.getFrontSide() != null) {
-//                        File existingImage = new File(frontSideDir + File.separator + card.getFrontSide());
-//                        if (existingImage.exists() && existingImage.isFile()) {
-//                            existingImage.delete();
-//                        }
-//                    }
+                    if (card.getFrontSide() != null) {
+                        File existingImage = new File(frontSideDir + File.separator + card.getFrontSide());
+                        if (existingImage.exists() && existingImage.isFile()) {
+                            existingImage.delete();
+                        }
+                    }
 
                     card.setFrontSide(newFilename);
                     card.setUpdatedDate(new Date());
@@ -522,12 +522,12 @@ public class UserCardServiceImpl implements UserCardService {
             if (id != null || id != 0) {
                 UserCard card = userCardRepo.getDetail(id);
                 if (card != null) {
-//                    if (card.getBackSide() != null) {
-//                        File existingImage = new File(backSideDir + File.separator + card.getBackSide());
-//                        if (existingImage.exists() && existingImage.isFile()) {
-//                            existingImage.delete();
-//                        }
-//                    }
+                    if (card.getBackSide() != null) {
+                        File existingImage = new File(backSideDir + File.separator + card.getBackSide());
+                        if (existingImage.exists() && existingImage.isFile()) {
+                            existingImage.delete();
+                        }
+                    }
 
                     card.setBackSide(newFilename);
                     card.setUpdatedDate(new Date());
@@ -573,12 +573,12 @@ public class UserCardServiceImpl implements UserCardService {
             if (id != null || id != 0) {
                 UserCard card = userCardRepo.getDetail(id);
                 if (card != null) {
-//                    if (card.getProfilePhoto() != null) {
-//                        File existingImage = new File(profilePicDir + File.separator + card.getProfilePhoto());
-//                        if (existingImage.exists() && existingImage.isFile()) {
-//                            existingImage.delete();
-//                        }
-//                    }
+                    if (card.getProfilePhoto() != null) {
+                        File existingImage = new File(profilePicDir + File.separator + card.getProfilePhoto());
+                        if (existingImage.exists() && existingImage.isFile()) {
+                            existingImage.delete();
+                        }
+                    }
 
                     card.setProfilePhoto(newFilename);
                     card.setUpdatedDate(new Date());
