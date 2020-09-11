@@ -8,11 +8,13 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.lynknow.api.exception.ConflictException;
 import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.exception.NotFoundException;
+import com.lynknow.api.exception.UnprocessableEntityException;
 import com.lynknow.api.model.RoleData;
 import com.lynknow.api.model.SubscriptionPackage;
 import com.lynknow.api.model.UserData;
 import com.lynknow.api.model.UserProfile;
 import com.lynknow.api.pojo.request.AuthSocialRequest;
+import com.lynknow.api.pojo.request.ResetPasswordRequest;
 import com.lynknow.api.pojo.request.UserDataRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.repository.RoleDataRepository;
@@ -21,6 +23,7 @@ import com.lynknow.api.repository.UserDataRepository;
 import com.lynknow.api.repository.UserProfileRepository;
 import com.lynknow.api.service.AuthService;
 import com.lynknow.api.service.UserDataService;
+import com.lynknow.api.util.EmailUtil;
 import com.lynknow.api.util.GenerateResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,9 +44,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 
 @Service
 public class UserDataServiceImpl implements UserDataService {
@@ -71,11 +72,17 @@ public class UserDataServiceImpl implements UserDataService {
     @Autowired
     private UserProfileRepository userProfileRepo;
 
+    @Autowired
+    private EmailUtil emailUtil;
+
     @Value("${facebook.app.id}")
     private String facebookAppId;
 
     @Value("${google.client.id}")
     private String googleClientId;
+
+    @Value("${fe.url.reset-password}")
+    private String resetPasswordUrl;
 
     @Override
     public ResponseEntity registerAdmin(UserDataRequest request) {
@@ -425,6 +432,127 @@ public class UserDataServiceImpl implements UserDataService {
         } catch (HttpRequestMethodNotSupportedException e) {
             LOGGER.error("Failed to Get Auth Token", e);
             throw new InternalServerErrorException("Failed to Get Auth Token: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity forgotPassword(String email) {
+        try {
+            Page<UserData> page = userDataRepo.getByEmail(
+                    email.toLowerCase(),
+                    PageRequest.of(0, 1, Sort.by("id").descending()));
+            if (page.getContent() != null && page.getContent().size() > 0) {
+                UserData user = page.getContent().get(0);
+
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.HOUR_OF_DAY, 3);
+
+                user.setAccessToken(UUID.randomUUID().toString());
+                user.setExpiredToken(cal.getTime());
+
+                userDataRepo.save(user);
+
+                // send email
+                String url = resetPasswordUrl + user.getAccessToken();
+                emailUtil.sendEmail(
+                        user.getEmail(),
+                        "Lynknow - Forgot Password",
+                        "Please click url below to Reset your Password: <br/><br/> <b><a href=\"" + url + "\">Reset Password</a></b>");
+                // end of send email
+
+                return new ResponseEntity(new BaseResponse<>(
+                        true,
+                        200,
+                        "Success",
+                        null), HttpStatus.OK);
+            } else {
+                LOGGER.error("Your Email Address: " + email + " is not found");
+                throw new NotFoundException("Your Email Address: " + email);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity checkToken(String token) {
+        try {
+            Page<UserData> pageUser = userDataRepo.getByAccessToken(
+                    token,
+                    PageRequest.of(0, 1, Sort.by("id").descending())
+            );
+
+            if (pageUser.getContent() != null && pageUser.getContent().size() > 0) {
+                UserData user = pageUser.getContent().get(0);
+
+                if (user.getExpiredToken().after(new Date())) {
+                    return new ResponseEntity(new BaseResponse<>(
+                            true,
+                            200,
+                            "Success",
+                            null), HttpStatus.OK);
+                } else {
+                    user.setAccessToken(null);
+                    user.setExpiredToken(null);
+                    user.setUpdatedDate(new Date());
+
+                    userDataRepo.save(user);
+
+                    LOGGER.error("Your Forgot Password Token is Expired");
+                    throw new UnprocessableEntityException("Your Forgot Password Token is Expired");
+                }
+            } else {
+                LOGGER.error("Invalid Access Token");
+                throw new UnprocessableEntityException("Invalid Access Token");
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity resetPassword(ResetPasswordRequest request) {
+        try {
+            Page<UserData> pageUser = userDataRepo.getByAccessToken(
+                    request.getAccessToken(),
+                    PageRequest.of(0, 1, Sort.by("id").descending())
+            );
+
+            if (pageUser.getContent() != null && pageUser.getContent().size() > 0) {
+                UserData user = pageUser.getContent().get(0);
+
+                if (user.getExpiredToken().after(new Date())) {
+                    user.setPassword(encoder.encode(request.getPassword()));
+                    user.setAccessToken(null);
+                    user.setExpiredToken(null);
+                    user.setUpdatedDate(new Date());
+
+                    userDataRepo.save(user);
+
+                    return new ResponseEntity(new BaseResponse<>(
+                            true,
+                            200,
+                            "Success",
+                            null), HttpStatus.OK);
+                } else {
+                    user.setAccessToken(null);
+                    user.setExpiredToken(null);
+                    user.setUpdatedDate(new Date());
+
+                    userDataRepo.save(user);
+
+                    LOGGER.error("Your Forgot Password Token is Expired");
+                    throw new UnprocessableEntityException("Your Forgot Password Token is Expired");
+                }
+            } else {
+                LOGGER.error("Invalid Access Token");
+                throw new UnprocessableEntityException("Invalid Access Token");
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
     }
 

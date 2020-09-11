@@ -131,6 +131,20 @@ public class UserCardServiceImpl implements UserCardService {
                     }
                 }
 
+                // generate unique code
+                int i = 0;
+                String uniqueCode = "";
+                do {
+                    if (i == 50) {
+                        LOGGER.error("Failed to Generate Unique Code Card, Please Try Again Later");
+                        throw new BadRequestException("Failed to Generate Unique Code Card, Please Try Again Later");
+                    }
+
+                    uniqueCode = StringUtil.generateUniqueCodeCard();
+                    i++;
+                } while (userCardRepo.getByUniqueCode(uniqueCode) != null);
+                // end of generate unique code
+
                 UserCard card = new UserCard();
 
                 if (request.getIsLock() == 1) {
@@ -163,7 +177,7 @@ public class UserCardServiceImpl implements UserCardService {
                 card.setWhatsappNo(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
                 card.setMobileNo(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
                 card.setIsPublished(0);
-                card.setUniqueCode(UUID.randomUUID().toString());
+                card.setUniqueCode(uniqueCode);
                 card.setVerificationPoint(0);
                 card.setCreatedDate(new Date());
                 card.setIsActive(1);

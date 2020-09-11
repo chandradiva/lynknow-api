@@ -44,4 +44,9 @@ public interface UserDataRepository extends JpaRepository<UserData, Long> {
             "AND ud.isActive = 1")
     Page<UserData> getByGoogleId(@Param("googleId") String googleId, Pageable pageable);
 
+    @Query("SELECT ud FROM UserData ud " +
+            "WHERE ud.accessToken = :token " +
+            "AND ud.isActive = 1")
+    Page<UserData> getByAccessToken(@Param("token") String token, Pageable pageable);
+
 }

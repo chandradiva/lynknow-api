@@ -2,6 +2,7 @@ package com.lynknow.api.service;
 
 import com.lynknow.api.model.UserData;
 import com.lynknow.api.pojo.request.AuthSocialRequest;
+import com.lynknow.api.pojo.request.ResetPasswordRequest;
 import com.lynknow.api.pojo.request.UserDataRequest;
 import org.springframework.http.ResponseEntity;
 
@@ -13,5 +14,9 @@ public interface UserDataService {
 
     ResponseEntity registerFacebook(AuthSocialRequest request);
     ResponseEntity registerGoogle(AuthSocialRequest request);
+
+    ResponseEntity forgotPassword(String email);
+    ResponseEntity checkToken(String token);
+    ResponseEntity resetPassword(ResetPasswordRequest request);
 
 }

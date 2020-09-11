@@ -2,6 +2,7 @@ package com.lynknow.api.controller;
 
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.repository.RoleDataRepository;
+import com.lynknow.api.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ public class TestController {
                 true,
                 200,
                 "Success",
-                null), HttpStatus.OK);
+                StringUtil.generateUniqueCodeCard()), HttpStatus.OK);
     }
 
     @GetMapping("check-db")

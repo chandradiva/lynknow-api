@@ -81,6 +81,12 @@ public class UserData implements UserDetails, Serializable {
     @Column(name = "google_email")
     private String googleEmail;
 
+    @Column(name = "access_token")
+    private String accessToken;
+
+    @Column(name = "expired_token")
+    private Date expiredToken;
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
