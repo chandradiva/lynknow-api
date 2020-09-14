@@ -1326,4 +1326,37 @@ public class UserCardServiceImpl implements UserCardService {
         }
     }
 
+    @Override
+    public ResponseEntity updateAllCode() {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            if (userLogin.getRoleData().getId() != 1) {
+                LOGGER.error("Administrator Only");
+                throw new BadRequestException("Administrator Only");
+            }
+
+            List<UserCard> cards = userCardRepo.getList();
+            if (cards != null) {
+                for (UserCard item : cards) {
+                    item.setUniqueCode(StringUtil.generateUniqueCodeCard());
+                    item.setUpdatedDate(new Date());
+
+                    userCardRepo.save(item);
+                }
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    null), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
 }

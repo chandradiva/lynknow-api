@@ -188,6 +188,7 @@ public class UserProfileServiceImpl implements UserProfileService {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
             UserProfile profile = userProfileRepo.getDetailByUserId(userSession.getId());
 
             String newFilename = UUID.randomUUID() + ext;
@@ -205,9 +206,9 @@ public class UserProfileServiceImpl implements UserProfileService {
             } else {
                 profile = new UserProfile();
 
-                profile.setUserData(userSession);
-                profile.setFirstName(userSession.getFirstName());
-                profile.setLastName(userSession.getLastName());
+                profile.setUserData(userLogin);
+                profile.setFirstName(userLogin.getFirstName());
+                profile.setLastName(userLogin.getLastName());
                 profile.setProfilePhoto(newFilename);
                 profile.setIsEmailVerified(0);
                 profile.setIsWhatsappNoVerified(0);

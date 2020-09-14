@@ -183,4 +183,9 @@ public class UserCardController {
         return userCardService.exchangeCard(fromCardId, exchangeCardId);
     }
 
+    @PatchMapping("update-all-code")
+    public ResponseEntity updateAllCode() {
+        return userCardService.updateAllCode();
+    }
+
 }

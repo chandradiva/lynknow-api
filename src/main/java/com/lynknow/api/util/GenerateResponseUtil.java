@@ -153,6 +153,15 @@ public class GenerateResponseUtil {
         res.setMaxVerificationCredit(user.getMaxVerificationCredit());
         res.setCurrentVerificationCredit(user.getCurrentVerificationCredit());
 
+        UserProfile profile = userProfileRepo.getDetailByUserId(user.getId());
+        if (user.getFirstName() == null) {
+            res.setFirstName(profile.getFirstName());
+        }
+
+        if (user.getLastName() == null) {
+            res.setLastName(profile.getLastName());
+        }
+
         return res;
     }
 
@@ -180,6 +189,14 @@ public class GenerateResponseUtil {
         UserProfile profile = userProfileRepo.getDetailByUserId(user.getId());
         if (profile != null) {
             res.setProfile(generateResponseProfile(profile));
+        }
+
+        if (user.getFirstName() == null) {
+            res.setFirstName(profile.getFirstName());
+        }
+
+        if (user.getLastName() == null) {
+            res.setLastName(profile.getLastName());
         }
 
         return res;

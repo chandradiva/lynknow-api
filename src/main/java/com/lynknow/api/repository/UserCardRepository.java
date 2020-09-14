@@ -50,4 +50,7 @@ public interface UserCardRepository extends JpaRepository<UserCard, Long> {
             "GROUP BY uc.id, uc.firstName, uc.lastName")
     Page<UserCard> getListNeedVerify(Pageable pageable);
 
+    @Query("FROM UserCard ORDER BY id ASC")
+    List<UserCard> getList();
+
 }
