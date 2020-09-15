@@ -154,12 +154,16 @@ public class GenerateResponseUtil {
         res.setCurrentVerificationCredit(user.getCurrentVerificationCredit());
 
         UserProfile profile = userProfileRepo.getDetailByUserId(user.getId());
-        if (user.getFirstName() == null) {
-            res.setFirstName(profile.getFirstName());
-        }
+        if (profile != null) {
+            res.setProfilePhoto(profile.getProfilePhoto());
 
-        if (user.getLastName() == null) {
-            res.setLastName(profile.getLastName());
+            if (user.getFirstName() == null) {
+                res.setFirstName(profile.getFirstName());
+            }
+
+            if (user.getLastName() == null) {
+                res.setLastName(profile.getLastName());
+            }
         }
 
         return res;
@@ -189,14 +193,15 @@ public class GenerateResponseUtil {
         UserProfile profile = userProfileRepo.getDetailByUserId(user.getId());
         if (profile != null) {
             res.setProfile(generateResponseProfile(profile));
-        }
+            res.setProfilePhoto(profile.getProfilePhoto());
 
-        if (user.getFirstName() == null) {
-            res.setFirstName(profile.getFirstName());
-        }
+            if (user.getFirstName() == null) {
+                res.setFirstName(profile.getFirstName());
+            }
 
-        if (user.getLastName() == null) {
-            res.setLastName(profile.getLastName());
+            if (user.getLastName() == null) {
+                res.setLastName(profile.getLastName());
+            }
         }
 
         return res;

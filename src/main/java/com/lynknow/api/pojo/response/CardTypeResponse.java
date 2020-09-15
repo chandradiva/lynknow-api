@@ -11,8 +11,4 @@ public class CardTypeResponse {
     private String name;
     private String description;
 
-    public Integer getId() {
-        return id;
-    }
-
 }
