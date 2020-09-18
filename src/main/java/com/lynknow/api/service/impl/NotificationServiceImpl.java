@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
@@ -133,6 +134,42 @@ public class NotificationServiceImpl implements NotificationService {
                 LOGGER.error("Notification ID: " + id + " is not found");
                 throw new NotFoundException("Notification ID: " + id);
             }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity markAsRead(List<Long> ids) {
+        try {
+            int result = notificationRepo.markAsRead(ids);
+            if (result == -1) {
+                LOGGER.error("Cannot Execute Query Update Data");
+                throw new InternalServerErrorException("Cannot Execute Query Update Data");
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    result), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity countUnread(Long userId) {
+        try {
+            long result = notificationRepo.countUnread(userId);
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    result), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());

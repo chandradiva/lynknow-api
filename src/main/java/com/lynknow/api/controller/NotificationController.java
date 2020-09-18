@@ -3,6 +3,7 @@ package com.lynknow.api.controller;
 import com.lynknow.api.model.UserData;
 import com.lynknow.api.pojo.PaginationModel;
 import com.lynknow.api.pojo.request.DeleteDataRequest;
+import com.lynknow.api.pojo.request.MarkAsReadBulkRequest;
 import com.lynknow.api.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +49,19 @@ public class NotificationController {
     @DeleteMapping("")
     public ResponseEntity deleteData(@RequestBody DeleteDataRequest request) {
         return notificationService.deleteData(request.getId());
+    }
+
+    @PatchMapping("read-bulk")
+    public ResponseEntity markAsRead(@RequestBody MarkAsReadBulkRequest request) {
+        return notificationService.markAsRead(request.getIds());
+    }
+
+    @GetMapping("count-unread")
+    public ResponseEntity countUnread() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserData userSession = (UserData) auth.getPrincipal();
+
+        return notificationService.countUnread(userSession.getId());
     }
 
 }

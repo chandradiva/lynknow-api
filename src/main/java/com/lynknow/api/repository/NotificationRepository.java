@@ -4,8 +4,12 @@ import com.lynknow.api.model.Notification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
@@ -24,5 +28,15 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             @Param("typeId") Integer typeId,
             @Param("isRead") Integer isRead,
             Pageable pageable);
+
+    @Transactional
+    @Modifying
+    @Query("UPDATE Notification SET isRead = 1 WHERE id IN (:ids)")
+    int markAsRead(@Param("ids") List<Long> ids);
+
+    @Query("SELECT COUNT(nf) FROM Notification nf " +
+            "WHERE nf.userData.id = :userId " +
+            "AND nf.isRead = 0")
+    long countUnread(@Param("userId") Long userId);
 
 }
