@@ -59,8 +59,15 @@ public class UserCardController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity getDetail(@PathVariable Long id) {
-        return userCardService.getDetail(id);
+    public ResponseEntity getDetail(
+            @PathVariable Long id,
+            @RequestParam(required = false, defaultValue = "0") Integer type
+    ) {
+        if (type == 0) {
+            return userCardService.getDetail(id);
+        } else {
+            return userCardService.getDetail(id, type);
+        }
     }
 
     @DeleteMapping("")
@@ -128,7 +135,7 @@ public class UserCardController {
     }
 
     @GetMapping("detail")
-    public ResponseEntity getDetail(
+    public ResponseEntity getDetailWithType(
             @RequestParam Long id,
             @RequestParam Integer type
     ) {

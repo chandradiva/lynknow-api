@@ -9,18 +9,12 @@ import com.lynknow.api.exception.ConflictException;
 import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.exception.NotFoundException;
 import com.lynknow.api.exception.UnprocessableEntityException;
-import com.lynknow.api.model.RoleData;
-import com.lynknow.api.model.SubscriptionPackage;
-import com.lynknow.api.model.UserData;
-import com.lynknow.api.model.UserProfile;
+import com.lynknow.api.model.*;
 import com.lynknow.api.pojo.request.AuthSocialRequest;
 import com.lynknow.api.pojo.request.ResetPasswordRequest;
 import com.lynknow.api.pojo.request.UserDataRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
-import com.lynknow.api.repository.RoleDataRepository;
-import com.lynknow.api.repository.SubscriptionPackageRepository;
-import com.lynknow.api.repository.UserDataRepository;
-import com.lynknow.api.repository.UserProfileRepository;
+import com.lynknow.api.repository.*;
 import com.lynknow.api.service.AuthService;
 import com.lynknow.api.service.UserDataService;
 import com.lynknow.api.util.EmailUtil;
@@ -74,6 +68,12 @@ public class UserDataServiceImpl implements UserDataService {
 
     @Autowired
     private EmailUtil emailUtil;
+
+    @Autowired
+    private UserCardRepository userCardRepo;
+
+    @Autowired
+    private UsedReferralCodeRepository usedReferralCodeRepo;
 
     @Value("${facebook.app.id}")
     private String facebookAppId;
@@ -194,6 +194,8 @@ public class UserDataServiceImpl implements UserDataService {
             HashMap<String, String> params = maps;
             OAuth2AccessToken token = this.authService.getToken(params);
 
+            this.addReferralCode(user, request.getReferralCode());
+
             return new ResponseEntity(new BaseResponse<>(
                     true,
                     201,
@@ -312,6 +314,8 @@ public class UserDataServiceImpl implements UserDataService {
                 HashMap<String, String> params = maps;
                 OAuth2AccessToken token = this.authService.getToken(params);
 
+                this.addReferralCode(user, request.getReferralCode());
+
                 return new ResponseEntity(new BaseResponse<>(
                         true,
                         201,
@@ -409,6 +413,8 @@ public class UserDataServiceImpl implements UserDataService {
 
                     HashMap<String, String> params = maps;
                     OAuth2AccessToken token = this.authService.getToken(params);
+
+                    this.addReferralCode(user, request.getReferralCode());
 
                     return new ResponseEntity(new BaseResponse<>(
                             true,
@@ -603,6 +609,41 @@ public class UserDataServiceImpl implements UserDataService {
             }
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    private void addReferralCode(UserData user, String referralCode) {
+        if (referralCode != null && !referralCode.equals("")) {
+            UserCard card = userCardRepo.getByUniqueCode(referralCode);
+            if (card == null) {
+                LOGGER.error("User Card Code: " + referralCode + " is not found");
+//                throw new NotFoundException("User Card Code: " + referralCode);
+            } else {
+                UsedReferralCode referral = usedReferralCodeRepo.getDetail(user.getId(), referralCode);
+                if (referral == null) {
+                    referral = new UsedReferralCode();
+
+                    referral.setUserData(user);
+                    referral.setReferralUserCard(card);
+                    referral.setReferralCode(referralCode);
+                    referral.setAdditionalView(500);
+                    referral.setCreatedDate(new Date());
+                    referral.setIsActive(1);
+
+                    usedReferralCodeRepo.save(referral);
+
+                    // update max total view
+                    UserData referralUser = card.getUserData();
+
+                    if (referralUser.getMaxTotalView() < 20000) {
+                        referralUser.setMaxTotalView(referralUser.getMaxTotalView() + 500);
+                        referralUser.setUpdatedDate(new Date());
+                    }
+
+                    userDataRepo.save(referralUser);
+                    // end of update max total view
+                }
+            }
         }
     }
 

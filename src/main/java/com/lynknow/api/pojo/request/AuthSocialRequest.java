@@ -8,5 +8,6 @@ import lombok.Setter;
 public class AuthSocialRequest {
 
     private String token;
+    private String referralCode;
     
 }

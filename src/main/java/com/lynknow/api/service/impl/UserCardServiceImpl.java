@@ -894,6 +894,15 @@ public class UserCardServiceImpl implements UserCardService {
             // 10 = view card
             UserCard card = userCardRepo.getDetail(id);
             if (card != null) {
+                // set used total view
+                UserData user = card.getUserData();
+
+                user.setUsedTotalView(user.getUsedTotalView() + 1);
+                user.setUpdatedDate(new Date());
+
+                userDataRepo.save(user);
+                // end of set used total view
+
                 // save notification data
                 NotificationType type = notificationTypeRepo.getDetail(typeId);
 

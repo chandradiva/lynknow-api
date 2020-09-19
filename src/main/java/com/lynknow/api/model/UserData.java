@@ -87,6 +87,12 @@ public class UserData implements UserDetails, Serializable {
     @Column(name = "expired_token")
     private Date expiredToken;
 
+    @Column(name = "max_total_view")
+    private int maxTotalView = 500;
+
+    @Column(name = "used_total_view")
+    private int usedTotalView = 0;
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
