@@ -35,7 +35,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     int markAsRead(@Param("ids") List<Long> ids);
 
     @Query("SELECT COUNT(nf) FROM Notification nf " +
-            "WHERE nf.userData.id = :userId " +
+            "WHERE nf.targetUserData.id = :userId " +
             "AND nf.isRead = 0")
     long countUnread(@Param("userId") Long userId);
 

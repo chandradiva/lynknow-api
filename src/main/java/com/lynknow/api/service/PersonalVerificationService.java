@@ -6,6 +6,9 @@ import com.lynknow.api.pojo.request.VerifyPersonalRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 public interface PersonalVerificationService {
 
     void initVerification(UserData user);
@@ -16,5 +19,7 @@ public interface PersonalVerificationService {
     ResponseEntity getDetail(Long userId, Integer itemId);
     ResponseEntity getList(Long userId);
     ResponseEntity getListNeedToVerify(PaginationModel model);
+
+    byte[] getData(String filename, HttpServletResponse httpResponse) throws IOException;
 
 }

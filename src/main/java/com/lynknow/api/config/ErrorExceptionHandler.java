@@ -51,7 +51,7 @@ public class ErrorExceptionHandler implements AuthenticationEntryPoint {
 
             status = exc.getStatus();
         } else if (ex instanceof Exception) {
-//            ex.printStackTrace();
+            ex.printStackTrace();
             return new ResponseEntity<>(response, status);
         }
 

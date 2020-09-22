@@ -17,6 +17,7 @@ import com.lynknow.api.repository.PersonalVerificationRepository;
 import com.lynknow.api.repository.UserDataRepository;
 import com.lynknow.api.service.PersonalVerificationService;
 import com.lynknow.api.util.GenerateResponseUtil;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -301,6 +304,27 @@ public class PersonalVerificationServiceImpl implements PersonalVerificationServ
                     200,
                     "Success",
                     page), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public byte[] getData(String filename, HttpServletResponse httpResponse) throws IOException {
+        try {
+            File file = new File(verificationDir + File.separator + filename);
+            if (file.exists()) {
+                httpResponse.setContentType("image/*");
+                httpResponse.setHeader("Content-Disposition", "inline; filename=" + filename);
+                httpResponse.setStatus(HttpServletResponse.SC_OK);
+                FileInputStream fis = new FileInputStream(file);
+
+                return IOUtils.toByteArray(fis);
+            } else {
+                LOGGER.error("Personal Verification Data with Filename: " + filename + " is not found");
+                throw new NotFoundException("Personal Verification Data with Filename: " + filename);
+            }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());

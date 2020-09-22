@@ -1,5 +1,7 @@
 package com.lynknow.api.controller;
 
+import com.lynknow.api.service.CardVerificationService;
+import com.lynknow.api.service.PersonalVerificationService;
 import com.lynknow.api.service.UserCardService;
 import com.lynknow.api.service.UserOtpService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,12 @@ public class PublicController {
     @Autowired
     private UserOtpService userOtpService;
 
+    @Autowired
+    private CardVerificationService cardVerificationService;
+
+    @Autowired
+    private PersonalVerificationService personalVerificationService;
+
     @GetMapping("get-card")
     public ResponseEntity getCard(@RequestParam String code) {
         return userCardService.getDetailByCode(code);
@@ -35,6 +43,16 @@ public class PublicController {
     @GetMapping(value = "get-image-2", produces = "image/*")
     public byte[] getImage2(@RequestParam String filename, HttpServletResponse httpResponse) throws IOException {
         return userCardService.getImageCard(filename, httpResponse);
+    }
+
+    @GetMapping(value = "get-data-card-verification", produces = {"image/*", "application/pdf"})
+    public byte[] getDataCardVerification(@RequestParam String filename, HttpServletResponse httpResponse) throws IOException {
+        return cardVerificationService.getData(filename, httpResponse);
+    }
+
+    @GetMapping(value = "get-data-personal-verification", produces = {"image/*", "application/pdf"})
+    public byte[] getDataPersonalVerification(@RequestParam String filename, HttpServletResponse httpResponse) throws IOException {
+        return personalVerificationService.getData(filename, httpResponse);
     }
 
     @GetMapping("peek-otp")

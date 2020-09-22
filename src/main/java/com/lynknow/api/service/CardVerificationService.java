@@ -6,6 +6,9 @@ import com.lynknow.api.pojo.request.VerifyCardRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 public interface CardVerificationService {
 
     void initCardVerification(UserCard card);
@@ -25,5 +28,7 @@ public interface CardVerificationService {
 
     ResponseEntity checkCredit();
     ResponseEntity getListNeedVerify(PaginationModel model);
+
+    byte[] getData(String filename, HttpServletResponse httpResponse) throws IOException;
 
 }

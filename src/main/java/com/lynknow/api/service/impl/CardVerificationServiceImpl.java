@@ -14,6 +14,7 @@ import com.lynknow.api.repository.*;
 import com.lynknow.api.service.CardVerificationService;
 import com.lynknow.api.util.GenerateResponseUtil;
 import com.lynknow.api.util.StringUtil;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -732,6 +735,27 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                     200,
                     "Success",
                     page), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public byte[] getData(String filename, HttpServletResponse httpResponse) throws IOException {
+        try {
+            File file = new File(cardVerificationDir + File.separator + filename);
+            if (file.exists()) {
+                httpResponse.setContentType("image/*");
+                httpResponse.setHeader("Content-Disposition", "inline; filename=" + filename);
+                httpResponse.setStatus(HttpServletResponse.SC_OK);
+                FileInputStream fis = new FileInputStream(file);
+
+                return IOUtils.toByteArray(fis);
+            } else {
+                LOGGER.error("Card Verification Data with Filename: " + filename + " is not found");
+                throw new NotFoundException("Card Verification Data with Filename: " + filename);
+            }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());

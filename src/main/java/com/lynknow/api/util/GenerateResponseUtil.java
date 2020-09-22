@@ -27,6 +27,10 @@ public class GenerateResponseUtil {
     public RoleDataResponse generateResponseRole(RoleData role) {
         RoleDataResponse res = new RoleDataResponse();
 
+        if (role == null) {
+            return null;
+        }
+
         res.setId(role.getId());
         res.setName(role.getName());
         res.setDescription(role.getDescription());
@@ -237,6 +241,10 @@ public class GenerateResponseUtil {
     public CardTypeResponse generateResponseCardType(CardType type) {
         CardTypeResponse res = new CardTypeResponse();
 
+        if (type == null) {
+            return null;
+        }
+
         res.setId(type.getId());
         res.setName(type.getName());
         res.setDescription(type.getDescription());
@@ -405,6 +413,10 @@ public class GenerateResponseUtil {
     public CountryResponse generateResponseCountry(Country country) {
         CountryResponse res = new CountryResponse();
 
+        if (country == null) {
+            return null;
+        }
+
         res.setId(country.getId());
         res.setIso(country.getIso());
         res.setName(country.getName());
@@ -419,6 +431,10 @@ public class GenerateResponseUtil {
     public OtpTypeResponse generateResponseOtpType(OtpType type) {
         OtpTypeResponse res = new OtpTypeResponse();
 
+        if (type == null) {
+            return null;
+        }
+
         res.setId(type.getId());
         res.setName(type.getName());
 
@@ -428,6 +444,10 @@ public class GenerateResponseUtil {
     public NotificationTypeResponse generateResponseNotificationType(NotificationType type) {
         NotificationTypeResponse res = new NotificationTypeResponse();
 
+        if (type == null) {
+            return null;
+        }
+
         res.setId(type.getId());
         res.setName(type.getName());
 
@@ -436,6 +456,10 @@ public class GenerateResponseUtil {
 
     public NotificationResponse generateResponseNotification(Notification notification) {
         NotificationResponse res = new NotificationResponse();
+
+        if (notification == null) {
+            return null;
+        }
 
         res.setId(notification.getId());
         res.setUserData(generateResponseUser(notification.getUserData()));
@@ -448,7 +472,8 @@ public class GenerateResponseUtil {
         res.setUpdatedDate(notification.getUpdatedDate());
         res.setParamId(notification.getParamId());
 
-        if (notification.getNotificationType().getId() == 9) {
+        if (notification.getNotificationType() != null
+                && notification.getNotificationType().getId() == 9) {
             // request to view card
             CardRequestView requestView = cardRequestViewRepo.getDetail(notification.getParamId());
             if (requestView != null) {
@@ -463,6 +488,10 @@ public class GenerateResponseUtil {
     public CardVerificationItemResponse generateResponseCardVerificationItem(CardVerificationItem item) {
         CardVerificationItemResponse res = new CardVerificationItemResponse();
 
+        if (item == null) {
+            return null;
+        }
+
         res.setId(item.getId());
         res.setName(item.getName());
         res.setDescription(item.getDescription());
@@ -473,6 +502,10 @@ public class GenerateResponseUtil {
 
     public CardVerificationResponse generateResponseCardVerification(CardVerification verification) {
         CardVerificationResponse res = new CardVerificationResponse();
+
+        if (verification == null) {
+            return null;
+        }
 
         res.setId(verification.getId());
         res.setUserCard(generateResponseUserCard(verification.getUserCard()));
@@ -492,6 +525,10 @@ public class GenerateResponseUtil {
 
     public CardRequestViewResponse generateResponseCardRequestView(CardRequestView request) {
         CardRequestViewResponse res = new CardRequestViewResponse();
+
+        if (request == null) {
+            return null;
+        }
 
         res.setId(request.getId());
         res.setUserCard(generateResponseUserCard(request.getUserCard()));

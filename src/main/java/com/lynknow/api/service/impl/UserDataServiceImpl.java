@@ -5,18 +5,17 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.lynknow.api.exception.ConflictException;
-import com.lynknow.api.exception.InternalServerErrorException;
-import com.lynknow.api.exception.NotFoundException;
-import com.lynknow.api.exception.UnprocessableEntityException;
+import com.lynknow.api.exception.*;
 import com.lynknow.api.model.*;
 import com.lynknow.api.pojo.request.AuthSocialRequest;
+import com.lynknow.api.pojo.request.ChangeEmailRequest;
 import com.lynknow.api.pojo.request.ResetPasswordRequest;
 import com.lynknow.api.pojo.request.UserDataRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.repository.*;
 import com.lynknow.api.service.AuthService;
 import com.lynknow.api.service.UserDataService;
+import com.lynknow.api.service.UserOtpService;
 import com.lynknow.api.util.EmailUtil;
 import com.lynknow.api.util.GenerateResponseUtil;
 import org.slf4j.Logger;
@@ -28,6 +27,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.social.facebook.api.Facebook;
@@ -75,6 +76,9 @@ public class UserDataServiceImpl implements UserDataService {
     @Autowired
     private UsedReferralCodeRepository usedReferralCodeRepo;
 
+    @Autowired
+    private UserOtpService userOtpService;
+
     @Value("${facebook.app.id}")
     private String facebookAppId;
 
@@ -83,6 +87,9 @@ public class UserDataServiceImpl implements UserDataService {
 
     @Value("${fe.url.reset-password}")
     private String resetPasswordUrl;
+
+    @Value("${fe.url.verify-change-email}")
+    private String verifyChangeEmailUrl;
 
     @Override
     public ResponseEntity registerAdmin(UserDataRequest request) {
@@ -555,6 +562,160 @@ public class UserDataServiceImpl implements UserDataService {
             } else {
                 LOGGER.error("Invalid Access Token");
                 throw new UnprocessableEntityException("Invalid Access Token");
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity checkIsEmailVerified() {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserProfile profile = userProfileRepo.getDetailByUserId(userSession.getId());
+
+            boolean verified = false;
+            if (profile.getIsEmailVerified() == 1) {
+                verified = true;
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    verified), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity changeEmail(ChangeEmailRequest request) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+            UserProfile profile = userProfileRepo.getDetailByUserId(userSession.getId());
+
+            if (!request.getOldEmail().equalsIgnoreCase(userLogin.getEmail())) {
+                LOGGER.error("Old Email: " + request.getOldEmail() + " does not match with your current email");
+                throw new BadRequestException("Old Email: " + request.getOldEmail() + " does not match with your current email");
+            }
+
+            if (!this.checkByUsername(request.getNewEmail(), null)) {
+                LOGGER.error("Email: " + request.getNewEmail() + " already exist");
+                throw new ConflictException("Email: " + request.getNewEmail() + " already exist");
+            }
+
+            if (profile.getIsEmailVerified() == 0) {
+                userLogin.setEmail(request.getNewEmail());
+                userLogin.setUsername(request.getNewEmail());
+                userLogin.setUpdatedDate(new Date());
+
+                userDataRepo.save(userLogin);
+                userOtpService.verifyEmail();
+            } else {
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.HOUR_OF_DAY, 3);
+
+                userLogin.setTempEmail(request.getNewEmail());
+                userLogin.setUpdatedDate(new Date());
+                userLogin.setAccessToken(UUID.randomUUID().toString());
+                userLogin.setExpiredToken(cal.getTime());
+
+                userDataRepo.save(userLogin);
+
+                // send email
+                String url = verifyChangeEmailUrl + userLogin.getAccessToken();
+                emailUtil.sendEmail(
+                        userLogin.getEmail(),
+                        "Lynknow - Verify Change Email",
+                        "Please click url below to Verify Change Email: <br/><br/> <b><a href=\"" + url + "\">Verify</a></b>");
+                // end of send email
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    null), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity verifyChangeEmail(String token) {
+        try {
+            Page<UserData> pageUser = userDataRepo.getByAccessToken(
+                    token,
+                    PageRequest.of(0, 1, Sort.by("id").descending())
+            );
+
+            if (pageUser.getContent() != null && pageUser.getContent().size() > 0) {
+                UserData user = pageUser.getContent().get(0);
+
+                user.setEmail(user.getTempEmail());
+                user.setUsername(user.getTempEmail());
+                user.setTempEmail(null);
+                user.setAccessToken(null);
+                user.setExpiredToken(null);
+                user.setVerificationPoint(user.getVerificationPoint() - 20);
+                user.setUpdatedDate(new Date());
+
+                userDataRepo.save(user);
+
+                UserProfile profile = userProfileRepo.getDetailByUserId(user.getId());
+
+                profile.setIsEmailVerified(0);
+                profile.setUpdatedDate(new Date());
+
+                userProfileRepo.save(profile);
+
+                userOtpService.verifyEmail();
+
+                return new ResponseEntity(new BaseResponse<>(
+                        true,
+                        200,
+                        "Success",
+                        null), HttpStatus.OK);
+            } else {
+                LOGGER.error("Invalid Access Token");
+                throw new UnprocessableEntityException("Invalid Access Token");
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity getDetail(Long id) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            if (userLogin.getRoleData().getId() != 1) {
+                LOGGER.error("This API is for Administrator Only");
+                throw new BadRequestException("This API is for Administrator Only");
+            }
+
+            UserData user = userDataRepo.getDetail(id);
+            if (user != null) {
+                return new ResponseEntity(new BaseResponse<>(
+                        true,
+                        200,
+                        "Success",
+                        generateRes.generateResponseUserComplete(user)), HttpStatus.OK);
+            } else {
+                LOGGER.error("User ID: " + id + " is not found");
+                throw new NotFoundException("User ID: " + id);
             }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
