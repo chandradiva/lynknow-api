@@ -1,5 +1,7 @@
 package com.lynknow.api.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lynknow.api.model.*;
 import com.lynknow.api.pojo.response.*;
 import com.lynknow.api.repository.*;
@@ -8,6 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class GenerateResponseUtil {
@@ -23,6 +29,9 @@ public class GenerateResponseUtil {
 
     @Autowired
     private CardRequestViewRepository cardRequestViewRepo;
+
+    @Autowired
+    private SubscriptionPackageDetailRepository subscriptionPackageDetailRepo;
 
     public RoleDataResponse generateResponseRole(RoleData role) {
         RoleDataResponse res = new RoleDataResponse();
@@ -49,9 +58,22 @@ public class GenerateResponseUtil {
         res.setName(subs.getName());
         res.setDescription(subs.getDescription());
         res.setPrice(subs.getPrice());
-        res.setRemarks(subs.getRemarks());
+        res.setCurrency(subs.getCurrency());
+        res.setPeriod(subs.getPeriod());
+        res.setInterval(subs.getInterval());
+        res.setImageUrl(subs.getImageUrl());
         res.setCreatedDate(subs.getCreatedDate());
         res.setUpdatedDate(subs.getUpdatedDate());
+
+        List<String> details = new ArrayList<>();
+        List<SubscriptionPackageDetail> packageDetails = subscriptionPackageDetailRepo.getList(subs.getId());
+        if (packageDetails != null) {
+            for (SubscriptionPackageDetail item : packageDetails) {
+                details.add(item.getDescription());
+            }
+        }
+
+        res.setDetails(details);
 
         return res;
     }
@@ -154,8 +176,20 @@ public class GenerateResponseUtil {
         res.setJoinDate(user.getJoinDate());
         res.setCreatedDate(user.getCreatedDate());
         res.setUpdatedDate(user.getUpdatedDate());
-        res.setMaxVerificationCredit(user.getMaxVerificationCredit());
-        res.setCurrentVerificationCredit(user.getCurrentVerificationCredit());
+        res.setMaxTotalView(user.getMaxTotalView());
+        res.setUsedTotalView(user.getUsedTotalView());
+
+        if (user.getCurrentSubscriptionPackage().getId() == 2) {
+            // premium
+            res.setMaxVerificationCredit(user.getMaxVerificationCredit());
+            res.setCurrentVerificationCredit(user.getCurrentVerificationCredit());
+            res.setExpiredPremiumDate(user.getExpiredPremiumDate());
+        } else {
+            // basic
+            res.setExpiredPremiumDate(null);
+            res.setMaxVerificationCredit(0);
+            res.setCurrentVerificationCredit(0);
+        }
 
         UserProfile profile = userProfileRepo.getDetailByUserId(user.getId());
         if (profile != null) {
@@ -191,8 +225,20 @@ public class GenerateResponseUtil {
         res.setJoinDate(user.getJoinDate());
         res.setCreatedDate(user.getCreatedDate());
         res.setUpdatedDate(user.getUpdatedDate());
-        res.setMaxVerificationCredit(user.getMaxVerificationCredit());
-        res.setCurrentVerificationCredit(user.getCurrentVerificationCredit());
+        res.setMaxTotalView(user.getMaxTotalView());
+        res.setUsedTotalView(user.getUsedTotalView());
+
+        if (user.getCurrentSubscriptionPackage().getId() == 2) {
+            // premium
+            res.setMaxVerificationCredit(user.getMaxVerificationCredit());
+            res.setCurrentVerificationCredit(user.getCurrentVerificationCredit());
+            res.setExpiredPremiumDate(user.getExpiredPremiumDate());
+        } else {
+            // basic
+            res.setExpiredPremiumDate(null);
+            res.setMaxVerificationCredit(0);
+            res.setCurrentVerificationCredit(0);
+        }
 
         UserProfile profile = userProfileRepo.getDetailByUserId(user.getId());
         if (profile != null) {
@@ -254,6 +300,7 @@ public class GenerateResponseUtil {
 
     public UserCardResponse generateResponseUserCard(UserCard card) {
         UserCardResponse res = new UserCardResponse();
+        ObjectMapper mapper = new ObjectMapper();
 
         if (card == null) {
             return null;
@@ -288,6 +335,14 @@ public class GenerateResponseUtil {
         res.setCreatedDate(card.getCreatedDate());
         res.setUpdatedDate(card.getUpdatedDate());
 
+        if (card.getOtherMobileNo() != null) {
+            try {
+                res.setOtherMobileNo(Arrays.asList(mapper.readValue(card.getOtherMobileNo(), PhoneDetailResponse[].class)));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+
         Page<CardPhoneDetail> pageWa = cardPhoneDetailRepo.getDetail(card.getId(), 1, PageRequest.of(0, 1, Sort.by("id").descending()));
         if (pageWa.getContent() != null && pageWa.getContent().size() > 0) {
             CardPhoneDetail detail = pageWa.getContent().get(0);
@@ -321,6 +376,7 @@ public class GenerateResponseUtil {
 
     public UserCardResponse generateResponseUserCardWithoutUser(UserCard card) {
         UserCardResponse res = new UserCardResponse();
+        ObjectMapper mapper = new ObjectMapper();
 
         if (card == null) {
             return null;
@@ -354,6 +410,14 @@ public class GenerateResponseUtil {
         res.setIsEmailVerified(card.getIsEmailVerified());
         res.setCreatedDate(card.getCreatedDate());
         res.setUpdatedDate(card.getUpdatedDate());
+
+        if (card.getOtherMobileNo() != null) {
+            try {
+                res.setOtherMobileNo(Arrays.asList(mapper.readValue(card.getOtherMobileNo(), PhoneDetailResponse[].class)));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
 
         Page<CardPhoneDetail> pageWa = cardPhoneDetailRepo.getDetail(card.getId(), 1, PageRequest.of(0, 1, Sort.by("id").descending()));
         if (pageWa.getContent() != null && pageWa.getContent().size() > 0) {

@@ -3,6 +3,8 @@ package com.lynknow.api.pojo.request;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class UserCardRequest {
@@ -26,5 +28,6 @@ public class UserCardRequest {
     private int isLock = 0;
     private PhoneDetailRequest whatsappNo;
     private PhoneDetailRequest mobileNo;
+    private List<PhoneDetailRequest> otherMobileNo;
 
 }

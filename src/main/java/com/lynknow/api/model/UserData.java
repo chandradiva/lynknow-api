@@ -96,6 +96,9 @@ public class UserData implements UserDetails, Serializable {
     @Column(name = "temp_email")
     private String tempEmail;
 
+    @Column(name = "expired_premium_date")
+    private Date expiredPremiumDate;
+
     @Override
     public boolean isAccountNonExpired() {
         return true;

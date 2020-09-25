@@ -117,4 +117,7 @@ public class UserCard {
     @Column(name = "is_email_verified")
     private int isEmailVerified = 0;
 
+    @Column(name = "other_mobile_no")
+    private String otherMobileNo;
+
 }

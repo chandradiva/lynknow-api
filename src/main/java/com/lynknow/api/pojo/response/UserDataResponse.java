@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import java.util.Date;
 
 @Getter
@@ -32,5 +33,8 @@ public class UserDataResponse {
     private int maxVerificationCredit = 0;
     private int currentVerificationCredit = 0;
     private String profilePhoto;
+    private int maxTotalView = 500;
+    private int usedTotalView = 0;
+    private Date expiredPremiumDate;
 
 }

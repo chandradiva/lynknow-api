@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -35,6 +36,7 @@ public class UserCardResponse {
     private int isCardLocked = 0;
     private int isWhatsappNoVerified = 0;
     private int isEmailVerified = 0;
+    private List<PhoneDetailResponse> otherMobileNo;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+8")
     private Date publishedDate;

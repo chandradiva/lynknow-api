@@ -7,10 +7,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.lynknow.api.exception.*;
 import com.lynknow.api.model.*;
-import com.lynknow.api.pojo.request.AuthSocialRequest;
-import com.lynknow.api.pojo.request.ChangeEmailRequest;
-import com.lynknow.api.pojo.request.ResetPasswordRequest;
-import com.lynknow.api.pojo.request.UserDataRequest;
+import com.lynknow.api.pojo.request.*;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.repository.*;
 import com.lynknow.api.service.AuthService;
@@ -597,9 +594,7 @@ public class UserDataServiceImpl implements UserDataService {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
-
             UserData userLogin = userDataRepo.getDetail(userSession.getId());
-            UserProfile profile = userProfileRepo.getDetailByUserId(userSession.getId());
 
             if (!request.getOldEmail().equalsIgnoreCase(userLogin.getEmail())) {
                 LOGGER.error("Old Email: " + request.getOldEmail() + " does not match with your current email");
@@ -611,32 +606,23 @@ public class UserDataServiceImpl implements UserDataService {
                 throw new ConflictException("Email: " + request.getNewEmail() + " already exist");
             }
 
-            if (profile.getIsEmailVerified() == 0) {
-                userLogin.setEmail(request.getNewEmail());
-                userLogin.setUsername(request.getNewEmail());
-                userLogin.setUpdatedDate(new Date());
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.HOUR_OF_DAY, 3);
 
-                userDataRepo.save(userLogin);
-                userOtpService.verifyEmail();
-            } else {
-                Calendar cal = Calendar.getInstance();
-                cal.add(Calendar.HOUR_OF_DAY, 3);
+            userLogin.setTempEmail(request.getNewEmail());
+            userLogin.setUpdatedDate(new Date());
+            userLogin.setAccessToken(UUID.randomUUID().toString());
+            userLogin.setExpiredToken(cal.getTime());
 
-                userLogin.setTempEmail(request.getNewEmail());
-                userLogin.setUpdatedDate(new Date());
-                userLogin.setAccessToken(UUID.randomUUID().toString());
-                userLogin.setExpiredToken(cal.getTime());
+            userDataRepo.save(userLogin);
 
-                userDataRepo.save(userLogin);
-
-                // send email
-                String url = verifyChangeEmailUrl + userLogin.getAccessToken();
-                emailUtil.sendEmail(
-                        userLogin.getEmail(),
-                        "Lynknow - Verify Change Email",
-                        "Please click url below to Verify Change Email: <br/><br/> <b><a href=\"" + url + "\">Verify</a></b>");
-                // end of send email
-            }
+            // send email
+            String url = verifyChangeEmailUrl + userLogin.getAccessToken();
+            emailUtil.sendEmail(
+                    userLogin.getEmail(),
+                    "Lynknow - Verify Change Email",
+                    "Please click url below to Verify Change Email: <br/><br/> <b><a href=\"" + url + "\">Verify</a></b>");
+            // end of send email
 
             return new ResponseEntity(new BaseResponse<>(
                     true,
@@ -677,7 +663,7 @@ public class UserDataServiceImpl implements UserDataService {
 
                 userProfileRepo.save(profile);
 
-                userOtpService.verifyEmail();
+//                userOtpService.verifyEmail();
 
                 return new ResponseEntity(new BaseResponse<>(
                         true,
@@ -717,6 +703,39 @@ public class UserDataServiceImpl implements UserDataService {
                 LOGGER.error("User ID: " + id + " is not found");
                 throw new NotFoundException("User ID: " + id);
             }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity changePassword(ChangePasswordRequest request) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            if (!encoder.matches(request.getOldPassword(), userLogin.getPassword())) {
+                LOGGER.error("Old Password does not match with your current Password");
+                throw new BadRequestException("Old Password does not match with your current Password");
+            }
+
+            if (!request.getNewPassword().equalsIgnoreCase(request.getConfirmNewPassword())) {
+                LOGGER.error("New Password does not match with New Confirm Password");
+                throw new BadRequestException("New Password does not match with New Confirm Password");
+            }
+
+            userLogin.setPassword(encoder.encode(request.getNewPassword()));
+            userLogin.setUpdatedDate(new Date());
+
+            userDataRepo.save(userLogin);
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    null), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());

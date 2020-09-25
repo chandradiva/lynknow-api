@@ -172,6 +172,11 @@ public class PersonalVerificationServiceImpl implements PersonalVerificationServ
             UserData userSession = (UserData) auth.getPrincipal();
             UserData userLogin = userDataRepo.getDetail(userSession.getId());
 
+            if (userLogin.getRoleData().getId() != 1) {
+                LOGGER.error("Only Administrator Roles That Can Verify Personal Verification");
+                throw new BadRequestException("Only Administrator Roles That Can Verify Personal Verification");
+            }
+
             PersonalVerification verification = personalVerificationRepo.getDetail(request.getUserId(), request.getItemId());
             if (verification != null) {
                 if (verification.getIsRequested() == 0) {

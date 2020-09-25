@@ -26,10 +26,7 @@ public class SubscriptionPackage implements Serializable {
     private String description;
 
     @Column(name = "price")
-    private Double price;
-
-    @Column(name = "remarks")
-    private String remarks;
+    private Integer price;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_date")
@@ -45,5 +42,20 @@ public class SubscriptionPackage implements Serializable {
 
     @Column(name = "is_active")
     private int isActive;
+
+    @Column(name = "currency")
+    private String currency;
+
+    @Column(name = "period")
+    private String period;
+
+    @Column(name = "interval")
+    private Integer interval;
+
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(name = "is_show")
+    private int isShow = 1;
 
 }

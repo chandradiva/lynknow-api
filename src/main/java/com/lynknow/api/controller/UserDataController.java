@@ -1,6 +1,7 @@
 package com.lynknow.api.controller;
 
 import com.lynknow.api.pojo.request.ChangeEmailRequest;
+import com.lynknow.api.pojo.request.ChangePasswordRequest;
 import com.lynknow.api.pojo.request.ResetPasswordRequest;
 import com.lynknow.api.pojo.request.UserDataRequest;
 import com.lynknow.api.service.UserDataService;
@@ -58,6 +59,11 @@ public class UserDataController {
     @GetMapping("{id}")
     public ResponseEntity getDetail(@PathVariable Long id) {
         return userDataService.getDetail(id);
+    }
+
+    @PostMapping("change-password")
+    public ResponseEntity changePassword(@RequestBody ChangePasswordRequest request) {
+        return userDataService.changePassword(request);
     }
 
 }

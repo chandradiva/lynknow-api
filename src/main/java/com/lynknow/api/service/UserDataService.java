@@ -1,10 +1,7 @@
 package com.lynknow.api.service;
 
 import com.lynknow.api.model.UserData;
-import com.lynknow.api.pojo.request.AuthSocialRequest;
-import com.lynknow.api.pojo.request.ChangeEmailRequest;
-import com.lynknow.api.pojo.request.ResetPasswordRequest;
-import com.lynknow.api.pojo.request.UserDataRequest;
+import com.lynknow.api.pojo.request.*;
 import org.springframework.http.ResponseEntity;
 
 public interface UserDataService {
@@ -24,5 +21,6 @@ public interface UserDataService {
     ResponseEntity changeEmail(ChangeEmailRequest request);
     ResponseEntity verifyChangeEmail(String token);
     ResponseEntity getDetail(Long id);
+    ResponseEntity changePassword(ChangePasswordRequest request);
 
 }

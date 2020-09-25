@@ -1,5 +1,7 @@
 package com.lynknow.api.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lynknow.api.exception.BadRequestException;
 import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.exception.NotFoundException;
@@ -101,6 +103,8 @@ public class UserCardServiceImpl implements UserCardService {
             UserData userSession = (UserData) auth.getPrincipal();
             UserData userLogin = userDataRepo.getDetail(userSession.getId());
 
+            ObjectMapper mapper = new ObjectMapper();
+
             UserProfile profile = userProfileRepo.getDetailByUserId(userLogin.getId());
             if (profile.getIsEmailVerified() == 0) {
                 LOGGER.error("Your Email has not been Verified");
@@ -181,6 +185,12 @@ public class UserCardServiceImpl implements UserCardService {
                 card.setVerificationPoint(0);
                 card.setCreatedDate(new Date());
                 card.setIsActive(1);
+
+                if (request.getOtherMobileNo() != null && request.getOtherMobileNo().size() > 0) {
+                    String phones = mapper.writeValueAsString(request.getOtherMobileNo());
+
+                    card.setOtherMobileNo(phones);
+                }
 
                 userCardRepo.save(card);
 
@@ -267,6 +277,12 @@ public class UserCardServiceImpl implements UserCardService {
                     card.setMobileNo(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
                     card.setUpdatedDate(new Date());
 
+                    if (request.getOtherMobileNo() != null && request.getOtherMobileNo().size() > 0) {
+                        String phones = mapper.writeValueAsString(request.getOtherMobileNo());
+
+                        card.setOtherMobileNo(phones);
+                    }
+
                     userCardRepo.save(card);
 
                     CardPhoneDetail waDetail;
@@ -319,7 +335,7 @@ public class UserCardServiceImpl implements UserCardService {
                     throw new NotFoundException("User Card ID: " + request.getId());
                 }
             }
-        } catch (InternalServerErrorException e) {
+        } catch (InternalServerErrorException | JsonProcessingException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
