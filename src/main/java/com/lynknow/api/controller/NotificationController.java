@@ -76,4 +76,15 @@ public class NotificationController {
         return statisticPageService.getStatistic(userSession.getId());
     }
 
+    @GetMapping("get-statistic-details")
+    public ResponseEntity getStatisticDetails(
+            PaginationModel myPage,
+            @RequestParam(name = "type", required = false, defaultValue = "0") Integer typeId
+    ) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserData userSession = (UserData) auth.getPrincipal();
+
+        return statisticPageService.getListDetail(userSession.getId(), typeId, myPage);
+    }
+
 }
