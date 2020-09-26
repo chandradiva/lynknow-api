@@ -5,6 +5,7 @@ import com.lynknow.api.pojo.PaginationModel;
 import com.lynknow.api.pojo.request.DeleteDataRequest;
 import com.lynknow.api.pojo.request.MarkAsReadBulkRequest;
 import com.lynknow.api.service.NotificationService;
+import com.lynknow.api.service.StatisticPageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,9 @@ public class NotificationController {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private StatisticPageService statisticPageService;
 
     @GetMapping("")
     public ResponseEntity getListPagination(
@@ -62,6 +66,14 @@ public class NotificationController {
         UserData userSession = (UserData) auth.getPrincipal();
 
         return notificationService.countUnread(userSession.getId());
+    }
+
+    @GetMapping("get-statistic")
+    public ResponseEntity getStatistic() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserData userSession = (UserData) auth.getPrincipal();
+
+        return statisticPageService.getStatistic(userSession.getId());
     }
 
 }

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
@@ -38,5 +39,16 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             "WHERE nf.targetUserData.id = :userId " +
             "AND nf.isRead = 0")
     long countUnread(@Param("userId") Long userId);
+
+    @Query(value = "SELECT nt.id, nt.\"name\", COUNT(nt.id) FROM notification_type nt " +
+            "LEFT JOIN notification n ON nt.id = n.notification_type_id " +
+            "WHERE n.target_user_data_id = :userId " +
+            "AND n.created_date BETWEEN :start AND :end " +
+            "GROUP BY nt.id " +
+            "ORDER BY nt.id", nativeQuery = true)
+    List<Object[]> getStatistic(
+            @Param("userId") Long userId,
+            @Param("start") Date start,
+            @Param("end") Date end);
 
 }
