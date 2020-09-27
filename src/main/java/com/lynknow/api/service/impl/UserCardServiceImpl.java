@@ -962,6 +962,15 @@ public class UserCardServiceImpl implements UserCardService {
 
             UserCard card = userCardRepo.getDetail(id);
             if (card != null) {
+                // set used total view
+                UserData user = card.getUserData();
+
+                user.setUsedTotalView(user.getUsedTotalView() + 1);
+                user.setUpdatedDate(new Date());
+
+                userDataRepo.save(user);
+                // end of set used total view
+
                 NotificationType type = notificationTypeRepo.getDetail(8);
 
                 Notification notification = new Notification();
@@ -1055,6 +1064,15 @@ public class UserCardServiceImpl implements UserCardService {
                 cardRequestViewRepo.save(request);
                 // end of insert to table request to view card
 
+                // set used total view
+                UserData user = card.getUserData();
+
+                user.setUsedTotalView(user.getUsedTotalView() + 1);
+                user.setUpdatedDate(new Date());
+
+                userDataRepo.save(user);
+                // end of set used total view
+
                 // insert to table notification
                 NotificationType type = notificationTypeRepo.getDetail(9);
                 Notification notification = new Notification();
@@ -1102,7 +1120,7 @@ public class UserCardServiceImpl implements UserCardService {
                 if (flag == 1) {
                     request.setIsGranted(1);
                 } else {
-                    request.setIsGranted(0);
+                    request.setIsGranted(2);
                 }
 
                 request.setExpiredRequestDate(null);
@@ -1319,6 +1337,15 @@ public class UserCardServiceImpl implements UserCardService {
                 userContact = contact;
             }
             // end of save request exchange card
+
+            // set used total view
+            UserData user = exchangeCard.getUserData();
+
+            user.setUsedTotalView(user.getUsedTotalView() + 1);
+            user.setUpdatedDate(new Date());
+
+            userDataRepo.save(user);
+            // end of set used total view
 
             // save notification data
             NotificationType type = notificationTypeRepo.getDetail(6);

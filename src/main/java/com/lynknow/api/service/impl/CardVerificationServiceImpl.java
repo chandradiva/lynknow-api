@@ -517,7 +517,7 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                     verification.setReason(request.getReason());
                 }
 
-                verification.setIsRequested(0);
+//                verification.setIsRequested(0);
                 verification.setUpdatedDate(new Date());
 
                 cardVerificationRepo.save(verification);
@@ -640,7 +640,7 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                         userOtpRepo.save(otp);
 
                         verification.setIsVerified(1);
-                        verification.setIsRequested(0);
+//                        verification.setIsRequested(0);
                         verification.setVerifiedDate(new Date());
                         verification.setUpdatedDate(new Date());
 

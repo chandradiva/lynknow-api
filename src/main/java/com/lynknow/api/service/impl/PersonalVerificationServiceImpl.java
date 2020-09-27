@@ -196,7 +196,7 @@ public class PersonalVerificationServiceImpl implements PersonalVerificationServ
                     verification.setReason(request.getReason());
                 }
 
-                verification.setIsRequested(0);
+//                verification.setIsRequested(0);
                 verification.setUpdatedDate(new Date());
 
                 personalVerificationRepo.save(verification);

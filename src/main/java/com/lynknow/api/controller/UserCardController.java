@@ -159,7 +159,7 @@ public class UserCardController {
 
     @PatchMapping("reject-request")
     public ResponseEntity rejectRequestToViewCard(@RequestParam Long requestId) {
-        return userCardService.grantRequest(requestId, 0);
+        return userCardService.grantRequest(requestId, 2);
     }
 
     @GetMapping("detail-locked")

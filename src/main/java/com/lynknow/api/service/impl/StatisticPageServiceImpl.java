@@ -1,5 +1,6 @@
 package com.lynknow.api.service.impl;
 
+import com.lynknow.api.exception.BadRequestException;
 import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.model.UserData;
 import com.lynknow.api.pojo.PaginationModel;
@@ -94,6 +95,30 @@ public class StatisticPageServiceImpl implements StatisticPageService {
     @Override
     public ResponseEntity getListDetail(Long userId, Integer typeId, PaginationModel model) {
         try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
+                LOGGER.error("Only Premium Users that can View Statistic Details");
+                throw new BadRequestException("Only Premium Users that can View Statistic Details");
+            }
+
+            Calendar calStart = Calendar.getInstance();
+            calStart.add(Calendar.YEAR, -1);
+            calStart.add(Calendar.DAY_OF_MONTH, 1);
+            calStart.set(Calendar.HOUR_OF_DAY, 0);
+            calStart.set(Calendar.MINUTE, 0);
+            calStart.set(Calendar.SECOND, 1);
+            Date start = calStart.getTime();
+
+            Calendar calEnd = Calendar.getInstance();
+            calEnd.set(Calendar.HOUR_OF_DAY, 23);
+            calEnd.set(Calendar.MINUTE, 59);
+            calEnd.set(Calendar.SECOND, 59);
+            Date end = calEnd.getTime();
+
+            // TODO
             Page<NotificationResponse> page = null;
             if (model.getSort().equals("asc")) {
                 page = notificationRepo.getListPagination(
