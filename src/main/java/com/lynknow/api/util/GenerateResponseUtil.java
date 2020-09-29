@@ -178,17 +178,20 @@ public class GenerateResponseUtil {
         res.setUpdatedDate(user.getUpdatedDate());
         res.setMaxTotalView(user.getMaxTotalView());
         res.setUsedTotalView(user.getUsedTotalView());
+        res.setExpiredTotalView(user.getExpiredTotalView());
 
-        if (user.getCurrentSubscriptionPackage().getId() == 2) {
-            // premium
-            res.setMaxVerificationCredit(user.getMaxVerificationCredit());
-            res.setCurrentVerificationCredit(user.getCurrentVerificationCredit());
-            res.setExpiredPremiumDate(user.getExpiredPremiumDate());
-        } else {
-            // basic
-            res.setExpiredPremiumDate(null);
-            res.setMaxVerificationCredit(0);
-            res.setCurrentVerificationCredit(0);
+        if (user.getCurrentSubscriptionPackage() != null) {
+            if (user.getCurrentSubscriptionPackage().getId() == 2) {
+                // premium
+                res.setMaxVerificationCredit(user.getMaxVerificationCredit());
+                res.setCurrentVerificationCredit(user.getCurrentVerificationCredit());
+                res.setExpiredPremiumDate(user.getExpiredPremiumDate());
+            } else {
+                // basic
+                res.setExpiredPremiumDate(null);
+                res.setMaxVerificationCredit(0);
+                res.setCurrentVerificationCredit(0);
+            }
         }
 
         UserProfile profile = userProfileRepo.getDetailByUserId(user.getId());
@@ -227,17 +230,20 @@ public class GenerateResponseUtil {
         res.setUpdatedDate(user.getUpdatedDate());
         res.setMaxTotalView(user.getMaxTotalView());
         res.setUsedTotalView(user.getUsedTotalView());
+        res.setExpiredTotalView(user.getExpiredTotalView());
 
-        if (user.getCurrentSubscriptionPackage().getId() == 2) {
-            // premium
-            res.setMaxVerificationCredit(user.getMaxVerificationCredit());
-            res.setCurrentVerificationCredit(user.getCurrentVerificationCredit());
-            res.setExpiredPremiumDate(user.getExpiredPremiumDate());
-        } else {
-            // basic
-            res.setExpiredPremiumDate(null);
-            res.setMaxVerificationCredit(0);
-            res.setCurrentVerificationCredit(0);
+        if (user.getCurrentSubscriptionPackage() != null) {
+            if (user.getCurrentSubscriptionPackage().getId() == 2) {
+                // premium
+                res.setMaxVerificationCredit(user.getMaxVerificationCredit());
+                res.setCurrentVerificationCredit(user.getCurrentVerificationCredit());
+                res.setExpiredPremiumDate(user.getExpiredPremiumDate());
+            } else {
+                // basic
+                res.setExpiredPremiumDate(null);
+                res.setMaxVerificationCredit(0);
+                res.setCurrentVerificationCredit(0);
+            }
         }
 
         UserProfile profile = userProfileRepo.getDetailByUserId(user.getId());

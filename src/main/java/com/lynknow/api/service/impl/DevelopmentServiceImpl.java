@@ -20,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Calendar;
 import java.util.Date;
 
 @Service
@@ -56,9 +57,13 @@ public class DevelopmentServiceImpl implements DevelopmentService {
                 throw new NotFoundException("Subscription Package ID: " + 2);
             }
 
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.YEAR, 1);
+
             userLogin.setCurrentSubscriptionPackage(subs);
             userLogin.setMaxVerificationCredit(Integer.parseInt(defaultVerificationCredit));
             userLogin.setCurrentVerificationCredit(0);
+            userLogin.setExpiredPremiumDate(cal.getTime());
             userLogin.setUpdatedDate(new Date());
 
             userDataRepo.save(userLogin);
@@ -91,6 +96,7 @@ public class DevelopmentServiceImpl implements DevelopmentService {
             userLogin.setCurrentSubscriptionPackage(subs);
             userLogin.setMaxVerificationCredit(0);
             userLogin.setCurrentVerificationCredit(0);
+            userLogin.setExpiredPremiumDate(null);
             userLogin.setUpdatedDate(new Date());
 
             userDataRepo.save(userLogin);

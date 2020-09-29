@@ -160,7 +160,7 @@ public class UserContactServiceImpl implements UserContactService {
                         true,
                         200,
                         "Success",
-                        null), HttpStatus.OK);
+                        generateRes.generateResponseUserContact(contact)), HttpStatus.OK);
             } else {
                 LOGGER.error("User Contact ID: " + id + " is not found");
                 throw new NotFoundException("User Contact ID: " + id);

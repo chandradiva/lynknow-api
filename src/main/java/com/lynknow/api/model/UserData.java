@@ -93,15 +93,14 @@ public class UserData implements UserDetails, Serializable {
     @Column(name = "used_total_view")
     private int usedTotalView = 0;
 
-    // TODO
-//    @Column(name = "expired_total_view")
-//    private Date expiredTotalView;
-
     @Column(name = "temp_email")
     private String tempEmail;
 
     @Column(name = "expired_premium_date")
     private Date expiredPremiumDate;
+
+    @Column(name = "expired_total_view")
+    private Date expiredTotalView;
 
     @Override
     public boolean isAccountNonExpired() {

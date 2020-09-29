@@ -21,11 +21,13 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             "WHERE nf.isActive = 1 " +
             "AND (:userId IS NULL OR nf.userData.id = :userId) " +
             "AND (:targetUserId IS NULL OR nf.targetUserData.id = :targetUserId) " +
+            "AND (:targetCardId IS NULL OR nf.targetUserCard.id = :targetCardId) " +
             "AND (:typeId IS NULL OR nf.notificationType.id = :typeId) " +
             "AND (:isRead IS NULL OR nf.isRead = :isRead)")
     Page<Notification> getListPagination(
             @Param("userId") Long userId,
             @Param("targetUserId") Long targetUserId,
+            @Param("targetCardId") Long targetCardId,
             @Param("typeId") Integer typeId,
             @Param("isRead") Integer isRead,
             Pageable pageable);
@@ -43,11 +45,13 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query(value = "SELECT nt.id, nt.\"name\", COUNT(nt.id) FROM notification_type nt " +
             "LEFT JOIN notification n ON nt.id = n.notification_type_id " +
             "WHERE n.target_user_data_id = :userId " +
+            "AND n.target_user_card_id = :cardId " +
             "AND n.created_date BETWEEN :start AND :end " +
             "GROUP BY nt.id " +
             "ORDER BY nt.id", nativeQuery = true)
     List<Object[]> getStatistic(
             @Param("userId") Long userId,
+            @Param("cardId") Long cardId,
             @Param("start") Date start,
             @Param("end") Date end);
 

@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface UserDataRepository extends JpaRepository<UserData, Long> {
 
     @Query("FROM UserData WHERE id = :id AND isActive = 1")
@@ -48,5 +50,8 @@ public interface UserDataRepository extends JpaRepository<UserData, Long> {
             "WHERE ud.accessToken = :token " +
             "AND ud.isActive = 1")
     Page<UserData> getByAccessToken(@Param("token") String token, Pageable pageable);
+
+    @Query("FROM UserData WHERE isActive = 1")
+    List<UserData> getListAll();
 
 }

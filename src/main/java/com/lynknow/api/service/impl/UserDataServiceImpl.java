@@ -742,6 +742,42 @@ public class UserDataServiceImpl implements UserDataService {
         }
     }
 
+    @Override
+    public ResponseEntity updateExpiredTotalView() {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            if (userLogin.getRoleData().getId() != 1) {
+                LOGGER.error("This API is for Administrator Only");
+                throw new BadRequestException("This API is for Administrator Only");
+            }
+
+            List<UserData> users = userDataRepo.getListAll();
+            if (users.size() > 0) {
+                for (UserData item : users) {
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(item.getJoinDate());
+                    cal.add(Calendar.YEAR, 1);
+
+                    item.setExpiredTotalView(cal.getTime());
+
+                    userDataRepo.save(item);
+                }
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    null), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
     private boolean checkByUsername(String username, Long id) {
         try {
             UserData chkByUsername = null;

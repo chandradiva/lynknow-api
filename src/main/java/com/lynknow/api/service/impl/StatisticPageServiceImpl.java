@@ -43,7 +43,7 @@ public class StatisticPageServiceImpl implements StatisticPageService {
     private GenerateResponseUtil generateRes;
 
     @Override
-    public ResponseEntity getStatistic(Long userId) {
+    public ResponseEntity getStatistic(Long userId, Long cardId) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
@@ -69,7 +69,7 @@ public class StatisticPageServiceImpl implements StatisticPageService {
             Date end = calEnd.getTime();
 
             List<StatisticPageResponse> stats = this.initStatistic();
-            List<Object[]> objects = notificationRepo.getStatistic(userId, start, end);
+            List<Object[]> objects = notificationRepo.getStatistic(userId, cardId, start, end);
             List<StatisticPageResponse> temp = this.convertFrom(objects);
 
             for (StatisticPageResponse stat : stats) {
@@ -93,7 +93,7 @@ public class StatisticPageServiceImpl implements StatisticPageService {
     }
 
     @Override
-    public ResponseEntity getListDetail(Long userId, Integer typeId, PaginationModel model) {
+    public ResponseEntity getListDetail(Long userId, Long cardId, Integer typeId, PaginationModel model) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
@@ -119,11 +119,12 @@ public class StatisticPageServiceImpl implements StatisticPageService {
             Date end = calEnd.getTime();
 
             // TODO
-            Page<NotificationResponse> page = null;
+            Page<NotificationResponse> page;
             if (model.getSort().equals("asc")) {
                 page = notificationRepo.getListPagination(
                         null,
                         userId,
+                        cardId,
                         typeId == 0 ? null : typeId,
                         null,
                         PageRequest.of(model.getPage(), model.getSize(), Sort.by(Sort.Direction.ASC, model.getSortBy()))
@@ -132,6 +133,7 @@ public class StatisticPageServiceImpl implements StatisticPageService {
                 page = notificationRepo.getListPagination(
                         null,
                         userId,
+                        cardId,
                         typeId == 0 ? null : typeId,
                         null,
                         PageRequest.of(model.getPage(), model.getSize(), Sort.by(Sort.Direction.DESC, model.getSortBy()))

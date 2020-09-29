@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 
 public interface StatisticPageService {
 
-    ResponseEntity getStatistic(Long userId);
-    ResponseEntity getListDetail(Long userId, Integer typeId, PaginationModel model);
+    ResponseEntity getStatistic(Long userId, Long cardId);
+    ResponseEntity getListDetail(Long userId, Long cardId, Integer typeId, PaginationModel model);
 
 }

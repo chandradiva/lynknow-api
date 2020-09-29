@@ -65,6 +65,7 @@ public class NotificationServiceImpl implements NotificationService {
                 page = notificationRepo.getListPagination(
                         userId,
                         targetUserId,
+                        null,
                         typeId == 0 ? null : typeId,
                         isRead == -1 ? null : isRead,
                         PageRequest.of(model.getPage(), model.getSize(), Sort.by(Sort.Direction.ASC, model.getSortBy()))
@@ -73,6 +74,7 @@ public class NotificationServiceImpl implements NotificationService {
                 page = notificationRepo.getListPagination(
                         userId,
                         targetUserId,
+                        null,
                         typeId == 0 ? null : typeId,
                         isRead == -1 ? null : isRead,
                         PageRequest.of(model.getPage(), model.getSize(), Sort.by(Sort.Direction.DESC, model.getSortBy()))

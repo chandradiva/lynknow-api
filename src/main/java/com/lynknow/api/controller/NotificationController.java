@@ -69,22 +69,23 @@ public class NotificationController {
     }
 
     @GetMapping("get-statistic")
-    public ResponseEntity getStatistic() {
+    public ResponseEntity getStatistic(@RequestParam Long cardId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserData userSession = (UserData) auth.getPrincipal();
 
-        return statisticPageService.getStatistic(userSession.getId());
+        return statisticPageService.getStatistic(userSession.getId(), cardId);
     }
 
     @GetMapping("get-statistic-details")
     public ResponseEntity getStatisticDetails(
             PaginationModel myPage,
+            @RequestParam Long cardId,
             @RequestParam(name = "type", required = false, defaultValue = "0") Integer typeId
     ) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserData userSession = (UserData) auth.getPrincipal();
 
-        return statisticPageService.getListDetail(userSession.getId(), typeId, myPage);
+        return statisticPageService.getListDetail(userSession.getId(), cardId, typeId, myPage);
     }
 
 }

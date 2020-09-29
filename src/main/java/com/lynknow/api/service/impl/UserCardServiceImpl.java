@@ -912,11 +912,12 @@ public class UserCardServiceImpl implements UserCardService {
             if (card != null) {
                 // set used total view
                 UserData user = card.getUserData();
+                if (!userLogin.getId().equals(user.getId())) {
+                    user.setUsedTotalView(user.getUsedTotalView() + 1);
+                    user.setUpdatedDate(new Date());
 
-                user.setUsedTotalView(user.getUsedTotalView() + 1);
-                user.setUpdatedDate(new Date());
-
-                userDataRepo.save(user);
+                    userDataRepo.save(user);
+                }
                 // end of set used total view
 
                 // save notification data
@@ -964,11 +965,12 @@ public class UserCardServiceImpl implements UserCardService {
             if (card != null) {
                 // set used total view
                 UserData user = card.getUserData();
+                if (!userLogin.getId().equals(user.getId())) {
+                    user.setUsedTotalView(user.getUsedTotalView() + 1);
+                    user.setUpdatedDate(new Date());
 
-                user.setUsedTotalView(user.getUsedTotalView() + 1);
-                user.setUpdatedDate(new Date());
-
-                userDataRepo.save(user);
+                    userDataRepo.save(user);
+                }
                 // end of set used total view
 
                 NotificationType type = notificationTypeRepo.getDetail(8);
@@ -1066,11 +1068,12 @@ public class UserCardServiceImpl implements UserCardService {
 
                 // set used total view
                 UserData user = card.getUserData();
+                if (!userLogin.getId().equals(user.getId())) {
+                    user.setUsedTotalView(user.getUsedTotalView() + 1);
+                    user.setUpdatedDate(new Date());
 
-                user.setUsedTotalView(user.getUsedTotalView() + 1);
-                user.setUpdatedDate(new Date());
-
-                userDataRepo.save(user);
+                    userDataRepo.save(user);
+                }
                 // end of set used total view
 
                 // insert to table notification
@@ -1340,11 +1343,12 @@ public class UserCardServiceImpl implements UserCardService {
 
             // set used total view
             UserData user = exchangeCard.getUserData();
+            if (!userLogin.getId().equals(user.getId())) {
+                user.setUsedTotalView(user.getUsedTotalView() + 1);
+                user.setUpdatedDate(new Date());
 
-            user.setUsedTotalView(user.getUsedTotalView() + 1);
-            user.setUpdatedDate(new Date());
-
-            userDataRepo.save(user);
+                userDataRepo.save(user);
+            }
             // end of set used total view
 
             // save notification data

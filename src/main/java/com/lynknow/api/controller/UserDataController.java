@@ -66,4 +66,9 @@ public class UserDataController {
         return userDataService.changePassword(request);
     }
 
+    @PatchMapping("update-expired-total-view")
+    public ResponseEntity updateExpiredTotalView() {
+        return userDataService.updateExpiredTotalView();
+    }
+
 }

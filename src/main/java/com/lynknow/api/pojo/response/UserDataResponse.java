@@ -36,5 +36,6 @@ public class UserDataResponse {
     private int maxTotalView = 500;
     private int usedTotalView = 0;
     private Date expiredPremiumDate;
+    private Date expiredTotalView;
 
 }

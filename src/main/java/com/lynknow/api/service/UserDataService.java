@@ -23,4 +23,6 @@ public interface UserDataService {
     ResponseEntity getDetail(Long id);
     ResponseEntity changePassword(ChangePasswordRequest request);
 
+    ResponseEntity updateExpiredTotalView();
+
 }
