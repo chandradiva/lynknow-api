@@ -158,19 +158,19 @@ public class StripeServiceImpl implements StripeService {
             if (type == 1) {
                 // monthly
                 cal.add(Calendar.MONTH, 1);
+                calView.add(Calendar.MONTH, 1);
 
                 user.setMaxTotalView(user.getMaxTotalView() + 500);
                 user.setMaxVerificationCredit(user.getMaxVerificationCredit() + 2);
             } else {
                 cal.add(Calendar.YEAR, 1);
+                calView.add(Calendar.YEAR, 1);
 
                 user.setMaxTotalView(user.getMaxTotalView() + 10000);
                 user.setMaxVerificationCredit(user.getMaxVerificationCredit() + 30);
             }
 
             user.setCurrentSubscriptionPackage(subs);
-            user.setMaxVerificationCredit(Integer.parseInt(defaultVerificationCredit));
-            user.setCurrentVerificationCredit(0);
             user.setExpiredPremiumDate(cal.getTime());
             user.setExpiredTotalView(calView.getTime());
             user.setUpdatedDate(new Date());

@@ -17,6 +17,7 @@ public class CardVerificationResponse {
     private String param;
     private String reason;
     private int isRequested = 0;
+    private int isOtpGenerated = 0;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+8")
     private Date createdDate;

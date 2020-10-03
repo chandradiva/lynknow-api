@@ -605,6 +605,7 @@ public class GenerateResponseUtil {
         res.setExpiredDate(verification.getExpiredDate());
         res.setVerifiedBy(generateResponseUser(verification.getVerifiedBy()));
         res.setVerifiedDate(verification.getVerifiedDate());
+        res.setIsOtpGenerated(verification.getIsOtpGenerated());
 
         return res;
     }
