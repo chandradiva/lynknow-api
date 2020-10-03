@@ -763,7 +763,8 @@ public class UserCardServiceImpl implements UserCardService {
 
             UserCard card = userCardRepo.getByUniqueCode(code);
             if (card != null) {
-                if (card.getUserData().getCurrentSubscriptionPackage().getId() == 2
+                if ((card.getUserData().getCurrentSubscriptionPackage().getId() == 2
+                        || card.getUserData().getCurrentSubscriptionPackage().getId() == 3)
                         && card.getIsCardLocked() == 1) {
                     // card locked
                     if (userSession != null && userLogin != null) {

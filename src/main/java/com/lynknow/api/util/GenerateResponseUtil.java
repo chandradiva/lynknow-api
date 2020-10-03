@@ -181,7 +181,7 @@ public class GenerateResponseUtil {
         res.setExpiredTotalView(user.getExpiredTotalView());
 
         if (user.getCurrentSubscriptionPackage() != null) {
-            if (user.getCurrentSubscriptionPackage().getId() == 2) {
+            if (user.getCurrentSubscriptionPackage().getId() == 2 || user.getCurrentSubscriptionPackage().getId() == 3) {
                 // premium
                 res.setMaxVerificationCredit(user.getMaxVerificationCredit());
                 res.setCurrentVerificationCredit(user.getCurrentVerificationCredit());
@@ -233,7 +233,7 @@ public class GenerateResponseUtil {
         res.setExpiredTotalView(user.getExpiredTotalView());
 
         if (user.getCurrentSubscriptionPackage() != null) {
-            if (user.getCurrentSubscriptionPackage().getId() == 2) {
+            if (user.getCurrentSubscriptionPackage().getId() == 2 || user.getCurrentSubscriptionPackage().getId() == 3) {
                 // premium
                 res.setMaxVerificationCredit(user.getMaxVerificationCredit());
                 res.setCurrentVerificationCredit(user.getCurrentVerificationCredit());
