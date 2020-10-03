@@ -22,7 +22,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -147,17 +146,33 @@ public class StripeServiceImpl implements StripeService {
     private void setToPremium(UserData user, SubscriptionPackage subs, int type) {
         try {
             Calendar cal = Calendar.getInstance();
+            if (user.getExpiredPremiumDate() != null) {
+                cal.setTime(user.getExpiredPremiumDate());
+            }
+
+            Calendar calView = Calendar.getInstance();
+            if (user.getExpiredTotalView() != null) {
+                calView.setTime(user.getExpiredTotalView());
+            }
+
             if (type == 1) {
-                // Yearly
+                // monthly
                 cal.add(Calendar.MONTH, 1);
+
+                user.setMaxTotalView(user.getMaxTotalView() + 500);
+                user.setMaxVerificationCredit(user.getMaxVerificationCredit() + 2);
             } else {
                 cal.add(Calendar.YEAR, 1);
+
+                user.setMaxTotalView(user.getMaxTotalView() + 10000);
+                user.setMaxVerificationCredit(user.getMaxVerificationCredit() + 30);
             }
 
             user.setCurrentSubscriptionPackage(subs);
             user.setMaxVerificationCredit(Integer.parseInt(defaultVerificationCredit));
             user.setCurrentVerificationCredit(0);
             user.setExpiredPremiumDate(cal.getTime());
+            user.setExpiredTotalView(calView.getTime());
             user.setUpdatedDate(new Date());
 
             userDataRepo.save(user);
@@ -169,6 +184,10 @@ public class StripeServiceImpl implements StripeService {
     private void addTotalView(UserData user) {
         try {
             Calendar cal = Calendar.getInstance();
+            if (user.getExpiredTotalView() != null) {
+                cal.setTime(user.getExpiredTotalView());
+            }
+
             cal.add(Calendar.YEAR, 1);
 
             if (user.getCurrentSubscriptionPackage().getId() == 1) {

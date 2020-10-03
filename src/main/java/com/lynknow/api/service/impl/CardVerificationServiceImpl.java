@@ -93,6 +93,7 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                     verification.setCreatedDate(new Date());
                     verification.setIsVerified(0);
                     verification.setIsRequested(0);
+                    verification.setIsOtpGenerated(0);
 
                     if (i == 1) {
                         verification.setCardVerificationItem(itemName);
@@ -115,6 +116,7 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                     verification.setCreatedDate(new Date());
                     verification.setIsVerified(0);
                     verification.setIsRequested(0);
+                    verification.setIsOtpGenerated(0);
 
                     if (i == 1) {
                         verification.setCardVerificationItem(itemComName);
@@ -141,6 +143,7 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                     verification.setCreatedDate(new Date());
                     verification.setIsVerified(0);
                     verification.setIsRequested(0);
+                    verification.setIsOtpGenerated(0);
 
                     if (i == 1) {
                         verification.setCardVerificationItem(itemName);
@@ -193,6 +196,7 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                     verification.setCreatedDate(new Date());
                     verification.setIsVerified(0);
                     verification.setIsRequested(0);
+                    verification.setIsOtpGenerated(0);
 
                     if (i == 1) {
                         verification.setCardVerificationItem(itemName);
@@ -215,6 +219,7 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                     verification.setCreatedDate(new Date());
                     verification.setIsVerified(0);
                     verification.setIsRequested(0);
+                    verification.setIsOtpGenerated(0);
 
                     if (i == 1) {
                         verification.setCardVerificationItem(itemComName);
@@ -241,6 +246,7 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                     verification.setCreatedDate(new Date());
                     verification.setIsVerified(0);
                     verification.setIsRequested(0);
+                    verification.setIsOtpGenerated(0);
 
                     if (i == 1) {
                         verification.setCardVerificationItem(itemName);
@@ -596,6 +602,14 @@ public class CardVerificationServiceImpl implements CardVerificationService {
 
             userOtpRepo.save(otp);
 
+            // update verification
+            verification.setIsOtpGenerated(1);
+            verification.setIsRequested(0);
+            verification.setUpdatedDate(new Date());
+
+            cardVerificationRepo.save(verification);
+            // end of update verification
+
             return new ResponseEntity(new BaseResponse<>(
                     true,
                     200,
@@ -621,9 +635,9 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                     throw new UnprocessableEntityException("You Can't Challenge OTP Other User Card");
                 }
 
-                if (verification.getIsRequested() == 0) {
-                    LOGGER.error("You Haven't Requested for Card Verification");
-                    throw new UnprocessableEntityException("You Haven't Requested for Card Verification");
+                if (verification.getIsOtpGenerated() == 0) {
+                    LOGGER.error("You Haven't Generate OTP Company Number for Card Verification");
+                    throw new UnprocessableEntityException("You Haven't Generate OTP Company Number for Card Verification");
                 }
 
                 Page<UserOtp> page = userOtpRepo.getDetailCardOtp(
@@ -641,6 +655,7 @@ public class CardVerificationServiceImpl implements CardVerificationService {
 
                         verification.setIsVerified(1);
                         verification.setIsRequested(0);
+                        verification.setIsOtpGenerated(0);
                         verification.setVerifiedDate(new Date());
                         verification.setUpdatedDate(new Date());
 

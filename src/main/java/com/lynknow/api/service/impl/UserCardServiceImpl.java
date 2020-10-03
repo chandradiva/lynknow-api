@@ -900,6 +900,11 @@ public class UserCardServiceImpl implements UserCardService {
             UserData userSession = (UserData) auth.getPrincipal();
             UserData userLogin = userDataRepo.getDetail(userSession.getId());
 
+            if (userLogin.getMaxTotalView() == userLogin.getUsedTotalView()) {
+                LOGGER.error("Your Total Action & View is running out. Please purchase more to continue.");
+                throw new UnprocessableEntityException("Your Total Action & View is running out. Please purchase more to continue.");
+            }
+
             // 1 = profile pic
             // 2 = mobile number
             // 3 = sms
@@ -963,6 +968,11 @@ public class UserCardServiceImpl implements UserCardService {
             UserData userSession = (UserData) auth.getPrincipal();
             UserData userLogin = userDataRepo.getDetail(userSession.getId());
 
+            if (userLogin.getMaxTotalView() == userLogin.getUsedTotalView()) {
+                LOGGER.error("Your Total Action & View is running out. Please purchase more to continue.");
+                throw new UnprocessableEntityException("Your Total Action & View is running out. Please purchase more to continue.");
+            }
+
             UserCard card = userCardRepo.getDetail(id);
             if (card != null) {
                 // set used total view
@@ -976,7 +986,6 @@ public class UserCardServiceImpl implements UserCardService {
                 // end of set used total view
 
                 NotificationType type = notificationTypeRepo.getDetail(8);
-
                 Notification notification = new Notification();
 
                 notification.setUserData(userLogin);
@@ -1289,6 +1298,11 @@ public class UserCardServiceImpl implements UserCardService {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
             UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            if (userLogin.getMaxTotalView() == userLogin.getUsedTotalView()) {
+                LOGGER.error("Your Total Action & View is running out. Please purchase more to continue.");
+                throw new UnprocessableEntityException("Your Total Action & View is running out. Please purchase more to continue.");
+            }
 
             UserCard fromCard = userCardRepo.getDetail(fromCardId);
             if (fromCard == null) {

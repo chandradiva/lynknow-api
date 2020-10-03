@@ -57,4 +57,7 @@ public class CardVerification {
     @Column(name = "verified_date")
     private Date verifiedDate;
 
+    @Column(name = "is_otp_generated")
+    private int isOtpGenerated = 0;
+
 }
