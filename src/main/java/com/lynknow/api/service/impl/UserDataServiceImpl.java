@@ -778,6 +778,34 @@ public class UserDataServiceImpl implements UserDataService {
         }
     }
 
+    @Override
+    public void resetToBasic(UserData user) {
+        try {
+            SubscriptionPackage subs = subscriptionPackageRepo.getDetail(1); // basic plan
+
+            user.setCurrentSubscriptionPackage(subs);
+            user.setMaxVerificationCredit(0);
+            user.setCurrentVerificationCredit(0);
+            user.setExpiredPremiumDate(null);
+            user.setUpdatedDate(new Date());
+
+            userDataRepo.save(user);
+
+            // reset locked card
+            List<UserCard> cards = userCardRepo.getList(user.getId(), null, null, Sort.unsorted());
+            if (cards != null) {
+                for (UserCard item : cards) {
+                    item.setIsCardLocked(0);
+                    item.setUpdatedDate(new Date());
+
+                    userCardRepo.save(item);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private boolean checkByUsername(String username, Long id) {
         try {
             UserData chkByUsername = null;

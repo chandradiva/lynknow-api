@@ -86,7 +86,7 @@ public class SubscriptionPackageServiceImpl implements SubscriptionPackageServic
 
                     subscriptionPackageRepo.save(subs);
 
-                    subscriptionPackageDetailRepo.delete(request.getId());
+                    subscriptionPackageDetailRepo.deleteData(request.getId());
                     for (String item : request.getDetails()) {
                         SubscriptionPackageDetail detail = new SubscriptionPackageDetail();
 

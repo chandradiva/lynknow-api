@@ -20,6 +20,6 @@ public interface SubscriptionPackageDetailRepository extends JpaRepository<Subsc
     @Transactional
     @Modifying
     @Query("DELETE FROM SubscriptionPackageDetail WHERE subscriptionPackage.id = :packageId")
-    int delete(@Param("packageId") Integer packageId);
+    int deleteData(@Param("packageId") Integer packageId);
 
 }

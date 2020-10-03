@@ -50,4 +50,6 @@ public class UserCardResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+8")
     private Date updatedDate;
 
+    private List<CardSocialResponse> socials;
+
 }

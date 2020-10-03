@@ -29,5 +29,6 @@ public class UserCardRequest {
     private PhoneDetailRequest whatsappNo;
     private PhoneDetailRequest mobileNo;
     private List<PhoneDetailRequest> otherMobileNo;
+    private List<CardSocialRequest> socials;
 
 }

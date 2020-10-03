@@ -120,4 +120,7 @@ public class UserCard {
     @Column(name = "other_mobile_no")
     private String otherMobileNo;
 
+    @Column(name = "socials")
+    private String socials;
+
 }

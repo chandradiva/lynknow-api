@@ -341,6 +341,14 @@ public class GenerateResponseUtil {
         res.setCreatedDate(card.getCreatedDate());
         res.setUpdatedDate(card.getUpdatedDate());
 
+        if (card.getSocials() != null) {
+            try {
+                res.setSocials(Arrays.asList(mapper.readValue(card.getSocials(), CardSocialResponse[].class)));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+
         if (card.getOtherMobileNo() != null) {
             try {
                 res.setOtherMobileNo(Arrays.asList(mapper.readValue(card.getOtherMobileNo(), PhoneDetailResponse[].class)));
@@ -416,6 +424,14 @@ public class GenerateResponseUtil {
         res.setIsEmailVerified(card.getIsEmailVerified());
         res.setCreatedDate(card.getCreatedDate());
         res.setUpdatedDate(card.getUpdatedDate());
+
+        if (card.getSocials() != null) {
+            try {
+                res.setSocials(Arrays.asList(mapper.readValue(card.getSocials(), CardSocialResponse[].class)));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
 
         if (card.getOtherMobileNo() != null) {
             try {

@@ -38,6 +38,7 @@ public interface UserDataRepository extends JpaRepository<UserData, Long> {
     @Query("SELECT ud " +
             "FROM PersonalVerification pv " +
             "JOIN pv.userData ud " +
+            "WHERE pv.isRequested = 1 " +
             "GROUP BY ud.id, ud.firstName, ud.lastName, ud.email")
     Page<UserData> getListNeedVerify(Pageable pageable);
 

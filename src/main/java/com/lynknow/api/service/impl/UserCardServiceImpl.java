@@ -185,6 +185,7 @@ public class UserCardServiceImpl implements UserCardService {
                 card.setVerificationPoint(0);
                 card.setCreatedDate(new Date());
                 card.setIsActive(1);
+                card.setSocials(mapper.writeValueAsString(request.getSocials()));
 
                 if (request.getOtherMobileNo() != null && request.getOtherMobileNo().size() > 0) {
                     String phones = mapper.writeValueAsString(request.getOtherMobileNo());
@@ -275,6 +276,7 @@ public class UserCardServiceImpl implements UserCardService {
                     card.setWebsite(request.getWebsite());
                     card.setWhatsappNo(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
                     card.setMobileNo(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
+                    card.setSocials(mapper.writeValueAsString(request.getSocials()));
                     card.setUpdatedDate(new Date());
 
                     if (request.getOtherMobileNo() != null && request.getOtherMobileNo().size() > 0) {

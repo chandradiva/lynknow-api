@@ -47,6 +47,7 @@ public interface UserCardRepository extends JpaRepository<UserCard, Long> {
     @Query("SELECT uc " +
             "FROM CardVerification cv " +
             "JOIN cv.userCard uc " +
+            "WHERE cv.isRequested = 1 " +
             "GROUP BY uc.id, uc.firstName, uc.lastName")
     Page<UserCard> getListNeedVerify(Pageable pageable);
 
