@@ -164,6 +164,9 @@ public class UserDataServiceImpl implements UserDataService {
                 throw new ConflictException("Email: " + request.getEmail() + " already exist");
             }
 
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.MONTH, 1);
+
             UserData user = new UserData();
 
             user.setRoleData(role);
@@ -175,6 +178,7 @@ public class UserDataServiceImpl implements UserDataService {
             user.setLastName(request.getLastName());
             user.setJoinDate(new Date());
             user.setCreatedDate(new Date());
+            user.setExpiredTotalView(cal.getTime());
 
             userDataRepo.save(user);
 
@@ -264,6 +268,9 @@ public class UserDataServiceImpl implements UserDataService {
                         "Success",
                         token), HttpStatus.CREATED);
             } else {
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.MONTH, 1);
+
                 user = new UserData();
 
                 user.setRoleData(role);
@@ -273,6 +280,7 @@ public class UserDataServiceImpl implements UserDataService {
                 user.setCreatedDate(new Date());
                 user.setFbId(userFb.getId());
                 user.setFbEmail(userFb.getEmail());
+                user.setExpiredTotalView(cal.getTime());
 
                 if (userFb.getEmail() == null) {
                     user.setUsername(userFb.getId() + "@facebook.com");
@@ -382,6 +390,9 @@ public class UserDataServiceImpl implements UserDataService {
                             "Success",
                             token), HttpStatus.CREATED);
                 } else {
+                    Calendar cal = Calendar.getInstance();
+                    cal.add(Calendar.MONTH, 1);
+
                     user = new UserData();
 
                     user.setUsername(payload.getEmail());
@@ -395,6 +406,7 @@ public class UserDataServiceImpl implements UserDataService {
                     user.setCreatedDate(new Date());
                     user.setGoogleId(payload.getSubject());
                     user.setGoogleEmail(payload.getEmail());
+                    user.setExpiredTotalView(cal.getTime());
 
                     userDataRepo.save(user);
 
