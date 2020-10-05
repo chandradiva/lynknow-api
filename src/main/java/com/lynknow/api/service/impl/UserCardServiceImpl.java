@@ -130,8 +130,8 @@ public class UserCardServiceImpl implements UserCardService {
                 } else {
                     // premium
                     if (countCard == 10) {
-                        LOGGER.error("You have reached your card limit. User Premium can only have 10 cards");
-                        throw new BadRequestException("You have reached your card limit. User Premium can only have 10 cards");
+                        LOGGER.error("You have reached your card limit. User Pro can only have 10 cards");
+                        throw new BadRequestException("You have reached your card limit. User Pro can only have 10 cards");
                     }
                 }
 
@@ -153,8 +153,8 @@ public class UserCardServiceImpl implements UserCardService {
 
                 if (request.getIsLock() == 1) {
                     if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
-                        LOGGER.error("Only Premium Users that can Lock Their Cards");
-                        throw new BadRequestException("Only Premium Users that can Lock Their Cards");
+                        LOGGER.error("Only Pro Users that can Lock Their Cards");
+                        throw new BadRequestException("Only Pro Users that can Lock Their Cards");
                     }
 
                     card.setIsCardLocked(1);
@@ -250,8 +250,8 @@ public class UserCardServiceImpl implements UserCardService {
                 if (card != null) {
                     if (request.getIsLock() == 1) {
                         if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
-                            LOGGER.error("Only Premium Users that can Lock Their Cards");
-                            throw new BadRequestException("Only Premium Users that can Lock Their Cards");
+                            LOGGER.error("Only Pro Users that can Lock Their Cards");
+                            throw new BadRequestException("Only Pro Users that can Lock Their Cards");
                         }
 
                         card.setIsCardLocked(1);
@@ -821,8 +821,8 @@ public class UserCardServiceImpl implements UserCardService {
             UserData userLogin = userDataRepo.getDetail(userSession.getId());
 
             if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
-                LOGGER.error("Only Premium Users that can Lock Their Cards");
-                throw new BadRequestException("Only Premium Users that can Lock Their Cards");
+                LOGGER.error("Only Pro Users that can Lock Their Cards");
+                throw new BadRequestException("Only Pro Users that can Lock Their Cards");
             }
 
             UserCard card = userCardRepo.getDetail(id);
@@ -878,8 +878,8 @@ public class UserCardServiceImpl implements UserCardService {
             } else {
                 // premium
                 if (countCard == 10) {
-                    LOGGER.error("You have reached your card limit. User Premium can only have 10 cards");
-                    throw new BadRequestException("You have reached your card limit. User Premium can only have 10 cards");
+                    LOGGER.error("You have reached your card limit. User Pro can only have 10 cards");
+                    throw new BadRequestException("You have reached your card limit. User Pro can only have 10 cards");
                 }
             }
 

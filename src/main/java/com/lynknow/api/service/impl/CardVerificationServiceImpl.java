@@ -284,8 +284,8 @@ public class CardVerificationServiceImpl implements CardVerificationService {
 
             if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
                 // basic
-                LOGGER.error("Only Premium Users that can Verify their Card with Verification Credit");
-                throw new BadRequestException("Only Premium Users that can Verify their Card with Verification Credit");
+                LOGGER.error("Only Pro Users that can Verify their Card with Verification Credit");
+                throw new BadRequestException("Only Pro Users that can Verify their Card with Verification Credit");
             }
 
             if (userLogin.getMaxVerificationCredit() == userLogin.getCurrentVerificationCredit()) {
@@ -369,8 +369,8 @@ public class CardVerificationServiceImpl implements CardVerificationService {
 
             if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
                 // basic
-                LOGGER.error("Only Premium Users that can Verify their Card with Verification Credit");
-                throw new BadRequestException("Only Premium Users that can Verify their Card with Verification Credit");
+                LOGGER.error("Only Pro Users that can Verify their Card with Verification Credit");
+                throw new BadRequestException("Only Pro Users that can Verify their Card with Verification Credit");
             }
 
             if (userLogin.getMaxVerificationCredit() == userLogin.getCurrentVerificationCredit()) {
@@ -700,8 +700,8 @@ public class CardVerificationServiceImpl implements CardVerificationService {
 
             if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
                 // basic
-                LOGGER.error("Only Premium Users that can Verify their Card with Verification Credit");
-                throw new BadRequestException("Only Premium Users that can Verify their Card with Verification Credit");
+                LOGGER.error("Only Pro Users that can Verify their Card with Verification Credit");
+                throw new BadRequestException("Only Pro Users that can Verify their Card with Verification Credit");
             }
 
             if (userLogin.getMaxVerificationCredit() == userLogin.getCurrentVerificationCredit()) {

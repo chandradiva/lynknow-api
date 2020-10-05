@@ -115,8 +115,8 @@ public class DevelopmentServiceImpl implements DevelopmentService {
             UserData userLogin = userDataRepo.getDetail(userSession.getId());
 
             if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
-                LOGGER.error("Only Premium Users that Can Buy Verification Credit");
-                throw new UnprocessableEntityException("Only Premium Users that Can Buy Verification Credit");
+                LOGGER.error("Only Pro Users that Can Buy Verification Credit");
+                throw new UnprocessableEntityException("Only Pro Users that Can Buy Verification Credit");
             }
 
             userLogin.setMaxVerificationCredit(userLogin.getMaxVerificationCredit() + Integer.parseInt(additionalVerificationCredit));

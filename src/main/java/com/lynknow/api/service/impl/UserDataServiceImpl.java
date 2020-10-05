@@ -860,6 +860,23 @@ public class UserDataServiceImpl implements UserDataService {
                 }
             }
             // end of reset card verification
+
+            // unpublish other card
+            List<UserCard> allCards = userCardRepo.getList(user.getId(), null, null, Sort.by("createdDate").ascending());
+            if (allCards != null) {
+                int idx = 0;
+                for (UserCard item : allCards) {
+                    if (idx > 1) {
+                        item.setIsPublished(0);
+                        item.setUpdatedDate(new Date());
+
+                        userCardRepo.save(item);
+                    }
+
+                    idx++;
+                }
+            }
+            // end of unpublish other card
         } catch (Exception e) {
             e.printStackTrace();
         }

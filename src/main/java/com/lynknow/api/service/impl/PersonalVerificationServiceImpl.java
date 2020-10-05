@@ -106,8 +106,8 @@ public class PersonalVerificationServiceImpl implements PersonalVerificationServ
 
             if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
                 // basic
-                LOGGER.error("Only Premium Users that can Verify Their Personal Data");
-                throw new BadRequestException("Only Premium Users that can Verify Their Personal Data");
+                LOGGER.error("Only Pro Users that can Verify Their Personal Data");
+                throw new BadRequestException("Only Pro Users that can Verify Their Personal Data");
             }
 
             // init verification

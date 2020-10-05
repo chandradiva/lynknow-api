@@ -92,8 +92,8 @@ public class StripeServiceImpl implements StripeService {
             } else if (request.getPackageId() == 5) {
                 // additional verification credit
                 if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
-                    LOGGER.error("Only Premium Users that Can Buy Verification Credit");
-                    throw new UnprocessableEntityException("Only Premium Users that Can Buy Verification Credit");
+                    LOGGER.error("Only Pro Users that Can Buy Verification Credit");
+                    throw new UnprocessableEntityException("Only Pro Users that Can Buy Verification Credit");
                 }
 
                 this.addVerificationCredit(userLogin);
