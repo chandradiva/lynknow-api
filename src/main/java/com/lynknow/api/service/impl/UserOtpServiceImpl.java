@@ -232,7 +232,8 @@ public class UserOtpServiceImpl implements UserOtpService {
                     userProfileRepo.save(profile);
 
                     // update verification point
-                    userLogin.setVerificationPoint(userLogin.getVerificationPoint() + 20);
+                    // changed from 20% to 25% for whatsapp
+                    userLogin.setVerificationPoint(userLogin.getVerificationPoint() + 25);
                     userLogin.setUpdatedDate(new Date());
 
                     userDataRepo.save(userLogin);
@@ -291,7 +292,8 @@ public class UserOtpServiceImpl implements UserOtpService {
                     userProfileRepo.save(profile);
 
                     // update verification point
-                    userLogin.setVerificationPoint(userLogin.getVerificationPoint() + 20);
+                    // changed from 20% to 25% for email
+                    userLogin.setVerificationPoint(userLogin.getVerificationPoint() + 25);
                     userLogin.setUpdatedDate(new Date());
 
                     userDataRepo.save(userLogin);

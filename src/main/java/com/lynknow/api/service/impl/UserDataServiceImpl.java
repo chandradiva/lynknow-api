@@ -76,6 +76,12 @@ public class UserDataServiceImpl implements UserDataService {
     @Autowired
     private UserOtpService userOtpService;
 
+    @Autowired
+    private PersonalVerificationRepository personalVerificationRepo;
+
+    @Autowired
+    private CardVerificationRepository cardVerificationRepo;
+
     @Value("${facebook.app.id}")
     private String facebookAppId;
 
@@ -813,6 +819,47 @@ public class UserDataServiceImpl implements UserDataService {
                     userCardRepo.save(item);
                 }
             }
+            // end of reset locked card
+
+            // reset personal verification
+            List<PersonalVerification> personalVerifications = personalVerificationRepo.getList(user.getId());
+            if (personalVerifications != null) {
+                for (PersonalVerification item : personalVerifications) {
+                    if (item.getIsVerified() == 1) {
+                        user.setVerificationPoint(user.getVerificationPoint() - 15);
+
+                        userDataRepo.save(user);
+                    }
+                }
+            }
+            // end of reset personal verification
+
+            // reset card verification
+            if (cards != null) {
+                for (UserCard card : cards) {
+                    List<CardVerification> cardVerifications = cardVerificationRepo.getList(card.getId());
+                    if (cardVerifications != null) {
+                        for (CardVerification item : cardVerifications) {
+                            if (item.getIsVerified() == 1) {
+                                if (card.getCardType().getId() == 1) {
+                                    // personal card
+                                    card.setVerificationPoint(card.getVerificationPoint() - 25);
+                                } else if (card.getCardType().getId() == 2) {
+                                    // company card
+                                    card.setVerificationPoint(card.getVerificationPoint() - 20);
+                                } else if (card.getCardType().getId() == 3) {
+                                    // employee card
+                                    card.setVerificationPoint(card.getVerificationPoint() - 10);
+                                }
+
+                                card.setUpdatedDate(new Date());
+                                userCardRepo.save(card);
+                            }
+                        }
+                    }
+                }
+            }
+            // end of reset card verification
         } catch (Exception e) {
             e.printStackTrace();
         }

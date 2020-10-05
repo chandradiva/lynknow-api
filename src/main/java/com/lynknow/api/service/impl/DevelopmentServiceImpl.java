@@ -4,19 +4,18 @@ import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.exception.NotFoundException;
 import com.lynknow.api.exception.UnprocessableEntityException;
 import com.lynknow.api.model.SubscriptionPackage;
-import com.lynknow.api.model.UserCard;
 import com.lynknow.api.model.UserData;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.repository.SubscriptionPackageRepository;
 import com.lynknow.api.repository.UserCardRepository;
 import com.lynknow.api.repository.UserDataRepository;
 import com.lynknow.api.service.DevelopmentService;
+import com.lynknow.api.service.UserDataService;
 import com.lynknow.api.util.GenerateResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 @Service
 public class DevelopmentServiceImpl implements DevelopmentService {
@@ -43,6 +41,9 @@ public class DevelopmentServiceImpl implements DevelopmentService {
 
     @Autowired
     private UserCardRepository userCardRepo;
+
+    @Autowired
+    private UserDataService userDataService;
 
     @Value("${verification.credit.default}")
     private String defaultVerificationCredit;
@@ -93,31 +94,7 @@ public class DevelopmentServiceImpl implements DevelopmentService {
             UserData userSession = (UserData) auth.getPrincipal();
             UserData userLogin = userDataRepo.getDetail(userSession.getId());
 
-            // 1 = basic
-            SubscriptionPackage subs = subscriptionPackageRepo.getDetail(1);
-            if (subs == null) {
-                LOGGER.error("Subscription Package ID: " + 1 + " is not found");
-                throw new NotFoundException("Subscription Package ID: " + 1);
-            }
-
-            userLogin.setCurrentSubscriptionPackage(subs);
-            userLogin.setMaxVerificationCredit(0);
-            userLogin.setCurrentVerificationCredit(0);
-            userLogin.setExpiredPremiumDate(null);
-            userLogin.setUpdatedDate(new Date());
-
-            userDataRepo.save(userLogin);
-
-            // reset locked card
-            List<UserCard> cards = userCardRepo.getList(userLogin.getId(), null, null, Sort.unsorted());
-            if (cards != null) {
-                for (UserCard item : cards) {
-                    item.setIsCardLocked(0);
-                    item.setUpdatedDate(new Date());
-
-                    userCardRepo.save(item);
-                }
-            }
+            userDataService.resetToBasic(userLogin);
 
             return new ResponseEntity(new BaseResponse<>(
                     true,

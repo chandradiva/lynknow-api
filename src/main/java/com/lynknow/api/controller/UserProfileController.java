@@ -1,5 +1,6 @@
 package com.lynknow.api.controller;
 
+import com.lynknow.api.pojo.request.AuthSocialRequest;
 import com.lynknow.api.pojo.request.UserProfileRequest;
 import com.lynknow.api.service.UserProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,16 @@ public class UserProfileController {
     @GetMapping("get-pic")
     public byte[] getProfilePic(HttpServletResponse httpRes) throws IOException {
         return userProfileService.getProfilePhoto(httpRes);
+    }
+
+    @PostMapping("connect-facebook")
+    public ResponseEntity connectFacebook(@RequestBody AuthSocialRequest request) {
+        return userProfileService.connectFacebook(request);
+    }
+
+    @PostMapping("connect-google")
+    public ResponseEntity connectGoogle(@RequestBody AuthSocialRequest request) {
+        return userProfileService.connectGoogle(request);
     }
 
 }

@@ -1,10 +1,16 @@
 package com.lynknow.api.service.impl;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.exception.NotFoundException;
 import com.lynknow.api.model.UserData;
 import com.lynknow.api.model.UserPhoneDetail;
 import com.lynknow.api.model.UserProfile;
+import com.lynknow.api.pojo.request.AuthSocialRequest;
 import com.lynknow.api.pojo.request.UserProfileRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.repository.UserDataRepository;
@@ -25,6 +31,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.social.facebook.api.Facebook;
+import org.springframework.social.facebook.api.User;
+import org.springframework.social.facebook.api.impl.FacebookTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,6 +46,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
 
@@ -59,6 +70,12 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     @Value("${upload.dir.user.profile-pic}")
     private String profilePicDir;
+
+    @Value("${facebook.app.id}")
+    private String facebookAppId;
+
+    @Value("${google.client.id}")
+    private String googleClientId;
 
     @Override
     public ResponseEntity updateProfile(UserProfileRequest request) {
@@ -252,6 +269,103 @@ public class UserProfileServiceImpl implements UserProfileService {
                 throw new NotFoundException("Profile Picture with Filename: " + profile.getProfilePhoto());
             }
         } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity connectFacebook(AuthSocialRequest request) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserProfile profile = userProfileRepo.getDetailByUserId(userSession.getId());
+
+            Facebook fb = new FacebookTemplate(request.getToken(), "", facebookAppId);
+            String[] fields = {"id", "email", "first_name", "last_name", "gender", "birthday"};
+            User userFb = fb.fetchObject("me", User.class, fields);
+
+            // update profile
+            profile.setFbId(userFb.getId());
+            profile.setUpdatedDate(new Date());
+
+            userProfileRepo.save(profile);
+            // end of update profile
+
+            // update verification point user
+            UserData user = profile.getUserData();
+
+            if (profile.getGoogleId() == null) {
+                user.setVerificationPoint(user.getVerificationPoint() + 20);
+                user.setUpdatedDate(new Date());
+
+                userDataRepo.save(user);
+            }
+            // end of update verification point user
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    generateRes.generateResponseProfile(profile)), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity connectGoogle(AuthSocialRequest request) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserProfile profile = userProfileRepo.getDetailByUserId(userSession.getId());
+
+            NetHttpTransport transport = new NetHttpTransport();
+            JsonFactory jsonFactory = new JacksonFactory();
+
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
+                    .setAudience(Collections.singletonList(googleClientId))
+                    .build();
+
+            GoogleIdToken idToken = verifier.verify(request.getToken());
+            if (idToken != null) {
+                GoogleIdToken.Payload payload = idToken.getPayload();
+
+                // update profile
+                profile.setGoogleId(payload.getSubject());
+                profile.setUpdatedDate(new Date());
+
+                userProfileRepo.save(profile);
+                // end of update profile
+
+                // update verification point user
+                UserData user = profile.getUserData();
+
+                if (profile.getFbId() == null) {
+                    user.setVerificationPoint(user.getVerificationPoint() + 20);
+                    user.setUpdatedDate(new Date());
+
+                    userDataRepo.save(user);
+                }
+                // end of update verification point user
+
+                return new ResponseEntity(new BaseResponse<>(
+                        true,
+                        200,
+                        "Success",
+                        generateRes.generateResponseProfile(profile)), HttpStatus.OK);
+            } else {
+                LOGGER.error("Failed to Get Detail User");
+                throw new NotFoundException("Failed to Get Detail User", 404);
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        } catch (GeneralSecurityException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        } catch (IOException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
