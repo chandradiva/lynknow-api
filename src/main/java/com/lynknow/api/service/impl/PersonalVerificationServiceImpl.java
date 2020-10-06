@@ -189,9 +189,15 @@ public class PersonalVerificationServiceImpl implements PersonalVerificationServ
                     verification.setVerifiedBy(userLogin);
                     verification.setVerifiedDate(new Date());
 
+                    // add verification point
                     // changed from 20% to 15% each pro personal verification
-                    userLogin.setVerificationPoint(userLogin.getVerificationPoint() + 15);
-                    userDataRepo.save(userLogin);
+                    UserData user = verification.getUserData();
+
+                    user.setVerificationPoint(user.getVerificationPoint() + 15);
+                    user.setUpdatedDate(new Date());
+
+                    userDataRepo.save(user);
+                    // end of add verification point
                 } else {
                     verification.setIsVerified(0);
                     verification.setReason(request.getReason());

@@ -293,6 +293,16 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                 throw new BadRequestException("You're Running Out of Verification Credit");
             }
 
+            UserCard card = userCardRepo.getDetail(cardId);
+            if (card == null) {
+                LOGGER.error("User Card ID: " + cardId + " is not found");
+                throw new NotFoundException("User Card ID: " + cardId + " is not found");
+            }
+
+            // init card verification
+            initCardVerification(card);
+            // end of init card verification
+
             CardVerification verification = cardVerificationRepo.getDetail(cardId, itemId);
             if (verification != null) {
                 if (!verification.getUserCard().getUserData().getId().equals(userLogin.getId())) {
@@ -377,6 +387,16 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                 LOGGER.error("You're Running Out of Verification Credit");
                 throw new BadRequestException("You're Running Out of Verification Credit");
             }
+
+            UserCard card = userCardRepo.getDetail(cardId);
+            if (card == null) {
+                LOGGER.error("User Card ID: " + cardId + " is not found");
+                throw new NotFoundException("User Card ID: " + cardId + " is not found");
+            }
+
+            // init card verification
+            initCardVerification(card);
+            // end of init card verification
 
             // 5 = company contact
             CardVerification verification = cardVerificationRepo.getDetail(cardId, 5);

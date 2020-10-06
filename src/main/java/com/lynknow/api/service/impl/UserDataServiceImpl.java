@@ -830,6 +830,8 @@ public class UserDataServiceImpl implements UserDataService {
 
                         userDataRepo.save(user);
                     }
+
+                    personalVerificationRepo.delete(item);
                 }
             }
             // end of reset personal verification
@@ -855,6 +857,8 @@ public class UserDataServiceImpl implements UserDataService {
                                 card.setUpdatedDate(new Date());
                                 userCardRepo.save(card);
                             }
+
+                            cardVerificationRepo.delete(item);
                         }
                     }
                 }
