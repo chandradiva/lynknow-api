@@ -11,6 +11,7 @@ import com.lynknow.api.pojo.request.*;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.repository.*;
 import com.lynknow.api.service.AuthService;
+import com.lynknow.api.service.CardVerificationService;
 import com.lynknow.api.service.UserDataService;
 import com.lynknow.api.service.UserOtpService;
 import com.lynknow.api.util.EmailUtil;
@@ -84,6 +85,9 @@ public class UserDataServiceImpl implements UserDataService {
 
     @Autowired
     private CardVerificationCreditUsageRepository creditUsageRepo;
+
+    @Autowired
+    private CardVerificationService cardVerificationService;
 
     @Value("${facebook.app.id}")
     private String facebookAppId;
@@ -875,6 +879,10 @@ public class UserDataServiceImpl implements UserDataService {
                             // end of delete verification
                         }
                     }
+
+                    // re-init card verification
+                    cardVerificationService.initCardVerification(card);
+                    // end of re-init card verification
                 }
             }
             // end of reset card verification
