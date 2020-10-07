@@ -283,6 +283,8 @@ public class UserCardServiceImpl implements UserCardService {
                         String phones = mapper.writeValueAsString(request.getOtherMobileNo());
 
                         card.setOtherMobileNo(phones);
+                    } else {
+                        card.setOtherMobileNo(null);
                     }
 
                     userCardRepo.save(card);

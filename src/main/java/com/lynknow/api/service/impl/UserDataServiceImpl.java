@@ -82,6 +82,9 @@ public class UserDataServiceImpl implements UserDataService {
     @Autowired
     private CardVerificationRepository cardVerificationRepo;
 
+    @Autowired
+    private CardVerificationCreditUsageRepository creditUsageRepo;
+
     @Value("${facebook.app.id}")
     private String facebookAppId;
 
@@ -858,7 +861,18 @@ public class UserDataServiceImpl implements UserDataService {
                                 userCardRepo.save(card);
                             }
 
+                            // delete credit usage
+                            List<CardVerificationCreditUsage> credits = creditUsageRepo.getList(item.getId());
+                            if (credits != null) {
+                                for (CardVerificationCreditUsage credit : credits) {
+                                    creditUsageRepo.delete(credit);
+                                }
+                            }
+                            // end of delete credit usage
+
+                            // delete verification
                             cardVerificationRepo.delete(item);
+                            // end of delete verification
                         }
                     }
                 }
