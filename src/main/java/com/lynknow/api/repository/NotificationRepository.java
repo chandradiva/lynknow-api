@@ -34,12 +34,12 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     @Transactional
     @Modifying
-    @Query("UPDATE Notification SET isRead = 1 WHERE id IN (:ids)")
+    @Query("UPDATE Notification SET isRead = 1 WHERE isRead = 0 AND id IN (:ids)")
     int markAsRead(@Param("ids") List<Long> ids);
 
     @Transactional
     @Modifying
-    @Query("UPDATE Notification SET isRead = 1 WHERE targetUserData.id = :userId")
+    @Query("UPDATE Notification SET isRead = 1 WHERE targetUserData.id = :userId AND isRead = 0")
     int markAsReadByUser(@Param("userId") Long userId);
 
     @Query("SELECT COUNT(nf) FROM Notification nf " +
