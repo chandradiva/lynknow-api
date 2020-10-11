@@ -88,4 +88,12 @@ public class NotificationController {
         return statisticPageService.getListDetail(userSession.getId(), cardId, typeId, myPage);
     }
 
+    @PatchMapping("read-all")
+    public ResponseEntity markAsReadByUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserData userSession = (UserData) auth.getPrincipal();
+
+        return notificationService.markAsReadByUser(userSession.getId());
+    }
+
 }

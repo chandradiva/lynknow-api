@@ -1,10 +1,13 @@
 package com.lynknow.api.controller;
 
+import com.lynknow.api.model.UserData;
 import com.lynknow.api.pojo.PaginationModel;
 import com.lynknow.api.pojo.request.VerifyPersonalRequest;
 import com.lynknow.api.service.PersonalVerificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,6 +53,14 @@ public class PersonalVerificationController {
     @GetMapping("need-verify")
     public ResponseEntity getListNeedVerify(PaginationModel myPage) {
         return personalVerificationService.getListNeedToVerify(myPage);
+    }
+
+    @PatchMapping("check-point")
+    public ResponseEntity checkPointVerification() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserData userSession = (UserData) auth.getPrincipal();
+
+        return personalVerificationService.checkPointVerification(userSession.getId());
     }
 
 }

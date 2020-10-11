@@ -77,4 +77,9 @@ public class CardVerificationController {
         return cardVerificationService.getListNeedVerify(myPage);
     }
 
+    @PatchMapping("check-point")
+    public ResponseEntity checkPointVerification(@RequestParam Long cardId) {
+        return cardVerificationService.checkPointCardVerification(cardId);
+    }
+
 }

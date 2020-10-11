@@ -21,5 +21,8 @@ public interface PersonalVerificationService {
     ResponseEntity getListNeedToVerify(PaginationModel model);
 
     byte[] getData(String filename, HttpServletResponse httpResponse) throws IOException;
+    void resetVerification(UserData user);
+    void checkPointVerification(UserData user);
+    ResponseEntity checkPointVerification(Long userId);
 
 }

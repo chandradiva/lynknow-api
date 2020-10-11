@@ -10,10 +10,7 @@ import com.lynknow.api.model.*;
 import com.lynknow.api.pojo.request.*;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.repository.*;
-import com.lynknow.api.service.AuthService;
-import com.lynknow.api.service.CardVerificationService;
-import com.lynknow.api.service.UserDataService;
-import com.lynknow.api.service.UserOtpService;
+import com.lynknow.api.service.*;
 import com.lynknow.api.util.EmailUtil;
 import com.lynknow.api.util.GenerateResponseUtil;
 import org.slf4j.Logger;
@@ -88,6 +85,9 @@ public class UserDataServiceImpl implements UserDataService {
 
     @Autowired
     private CardVerificationService cardVerificationService;
+
+    @Autowired
+    private PersonalVerificationService personalVerificationService;
 
     @Value("${facebook.app.id}")
     private String facebookAppId;
@@ -676,7 +676,7 @@ public class UserDataServiceImpl implements UserDataService {
                 user.setTempEmail(null);
                 user.setAccessToken(null);
                 user.setExpiredToken(null);
-                user.setVerificationPoint(user.getVerificationPoint() - 20);
+                user.setVerificationPoint(user.getVerificationPoint() - 25);
                 user.setUpdatedDate(new Date());
 
                 userDataRepo.save(user);
@@ -837,10 +837,11 @@ public class UserDataServiceImpl implements UserDataService {
 
                         userDataRepo.save(user);
                     }
-
-                    personalVerificationRepo.delete(item);
                 }
             }
+
+            personalVerificationService.resetVerification(user);
+            personalVerificationService.checkPointVerification(user);
             // end of reset personal verification
 
             // reset card verification
@@ -873,16 +874,16 @@ public class UserDataServiceImpl implements UserDataService {
                                 }
                             }
                             // end of delete credit usage
-
-                            // delete verification
-                            cardVerificationRepo.delete(item);
-                            // end of delete verification
                         }
                     }
 
-                    // re-init card verification
-                    cardVerificationService.initCardVerification(card);
-                    // end of re-init card verification
+                    // reset card verification
+                    cardVerificationService.resetCardVerification(card);
+                    // end of reset card verification
+
+                    // check point verification
+                    cardVerificationService.checkPointCardVerification(card);
+                    // end of check point verification
                 }
             }
             // end of reset card verification
@@ -905,6 +906,7 @@ public class UserDataServiceImpl implements UserDataService {
             // end of unpublish other card
         } catch (Exception e) {
             e.printStackTrace();
+            LOGGER.error("Error processing data", e);
         }
     }
 

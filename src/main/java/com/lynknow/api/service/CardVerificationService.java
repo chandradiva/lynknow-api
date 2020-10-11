@@ -30,5 +30,8 @@ public interface CardVerificationService {
     ResponseEntity getListNeedVerify(PaginationModel model);
 
     byte[] getData(String filename, HttpServletResponse httpResponse) throws IOException;
+    void resetCardVerification(UserCard card);
+    void checkPointCardVerification(UserCard card);
+    ResponseEntity checkPointCardVerification(Long cardId);
 
 }

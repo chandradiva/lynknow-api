@@ -14,5 +14,6 @@ public interface NotificationService {
 
     ResponseEntity markAsRead(List<Long> ids);
     ResponseEntity countUnread(Long userId);
+    ResponseEntity markAsReadByUser(Long userId);
 
 }

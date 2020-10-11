@@ -7,6 +7,7 @@ import com.lynknow.api.exception.UnprocessableEntityException;
 import com.lynknow.api.model.PersonalVerification;
 import com.lynknow.api.model.PersonalVerificationItem;
 import com.lynknow.api.model.UserData;
+import com.lynknow.api.model.UserProfile;
 import com.lynknow.api.pojo.PaginationModel;
 import com.lynknow.api.pojo.request.VerifyPersonalRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
@@ -15,6 +16,7 @@ import com.lynknow.api.pojo.response.UserDataResponse;
 import com.lynknow.api.repository.PersonalVerificationItemRepository;
 import com.lynknow.api.repository.PersonalVerificationRepository;
 import com.lynknow.api.repository.UserDataRepository;
+import com.lynknow.api.repository.UserProfileRepository;
 import com.lynknow.api.service.PersonalVerificationService;
 import com.lynknow.api.util.GenerateResponseUtil;
 import org.apache.commons.io.IOUtils;
@@ -56,6 +58,9 @@ public class PersonalVerificationServiceImpl implements PersonalVerificationServ
 
     @Autowired
     private UserDataRepository userDataRepo;
+
+    @Autowired
+    private UserProfileRepository userProfileRepo;
 
     @Autowired
     private GenerateResponseUtil generateRes;
@@ -193,10 +198,12 @@ public class PersonalVerificationServiceImpl implements PersonalVerificationServ
                     // changed from 20% to 15% each pro personal verification
                     UserData user = verification.getUserData();
 
-                    user.setVerificationPoint(user.getVerificationPoint() + 15);
-                    user.setUpdatedDate(new Date());
+                    checkPointVerification(user);
 
-                    userDataRepo.save(user);
+//                    user.setVerificationPoint(user.getVerificationPoint() + 15);
+//                    user.setUpdatedDate(new Date());
+//
+//                    userDataRepo.save(user);
                     // end of add verification point
                 } else {
                     verification.setIsVerified(0);
@@ -338,6 +345,85 @@ public class PersonalVerificationServiceImpl implements PersonalVerificationServ
                 LOGGER.error("Personal Verification Data with Filename: " + filename + " is not found");
                 throw new NotFoundException("Personal Verification Data with Filename: " + filename);
             }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void resetVerification(UserData user) {
+        try {
+            List<PersonalVerification> verifications = personalVerificationRepo.getList(user.getId());
+            if (verifications != null) {
+                for (PersonalVerification item : verifications) {
+                    item.setIsVerified(0);
+                    item.setIsRequested(0);
+                    item.setExpiredDate(null);
+                    item.setVerifiedBy(null);
+                    item.setVerifiedDate(null);
+                    item.setReason(null);
+                    item.setUpdatedDate(new Date());
+
+                    personalVerificationRepo.save(item);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("Error processing data", e);
+        }
+    }
+
+    @Override
+    public void checkPointVerification(UserData user) {
+        try {
+            int point = 0;
+
+            UserProfile profile = userProfileRepo.getDetailByUserId(user.getId());
+            if (profile != null) {
+                if (profile.getIsWhatsappNoVerified() == 1) {
+                    point = point + 25;
+                }
+
+                if (profile.getIsEmailVerified() == 1) {
+                    point = point + 25;
+                }
+
+                if (profile.getFbId() != null || profile.getGoogleId() != null) {
+                    point = point + 20;
+                }
+            }
+
+            List<PersonalVerification> verifications = personalVerificationRepo.getList(user.getId());
+            if (verifications != null) {
+                for (PersonalVerification item : verifications) {
+                    if (item.getIsVerified() == 1) {
+                        point = point + 15;
+                    }
+                }
+            }
+
+            user.setVerificationPoint(point);
+            user.setUpdatedDate(new Date());
+
+            userDataRepo.save(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("Error processing data", e);
+        }
+    }
+
+    @Override
+    public ResponseEntity checkPointVerification(Long userId) {
+        try {
+            UserData user = userDataRepo.getDetail(userId);
+            checkPointVerification(user);
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    null), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());

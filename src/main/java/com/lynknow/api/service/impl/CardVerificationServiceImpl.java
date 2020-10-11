@@ -537,7 +537,8 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                     verification.setVerifiedBy(userSession);
                     verification.setVerifiedDate(new Date());
 
-                    this.adjustCardVerificationPoint(verification.getUserCard());
+//                    this.adjustCardVerificationPoint(verification.getUserCard());
+                    checkPointCardVerification(verification.getUserCard());
                 } else {
                     verification.setIsVerified(0);
                     verification.setReason(request.getReason());
@@ -679,7 +680,8 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                         verification.setVerifiedDate(new Date());
                         verification.setUpdatedDate(new Date());
 
-                        this.adjustCardVerificationPoint(verification.getUserCard());
+//                        this.adjustCardVerificationPoint(verification.getUserCard());
+                        checkPointCardVerification(verification.getUserCard());
 
                         cardVerificationRepo.save(verification);
 
@@ -793,6 +795,132 @@ public class CardVerificationServiceImpl implements CardVerificationService {
                 LOGGER.error("Card Verification Data with Filename: " + filename + " is not found");
                 throw new NotFoundException("Card Verification Data with Filename: " + filename);
             }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void resetCardVerification(UserCard card) {
+        try {
+            List<CardVerification> verifications = cardVerificationRepo.getList(card.getId());
+            if (verifications != null) {
+                for (CardVerification item : verifications) {
+                    item.setIsVerified(0);
+                    item.setIsRequested(0);
+                    item.setIsOtpGenerated(0);
+                    item.setVerifiedBy(null);
+                    item.setVerifiedDate(null);
+                    item.setReason(null);
+                    item.setExpiredDate(null);
+                    item.setParam(null);
+                    item.setUpdatedDate(new Date());
+
+                    cardVerificationRepo.save(item);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("Error processing data", e);
+        }
+    }
+
+    @Override
+    public void checkPointCardVerification(UserCard card) {
+        try {
+            List<CardVerification> verifications = cardVerificationRepo.getList(card.getId());
+            if (verifications != null) {
+                if (card.getCardType().getId() == 1) {
+                    // personal card
+                    int point = 0;
+
+                    if (card.getIsWhatsappNoVerified() == 1) {
+                        point = point + 25;
+                    }
+
+                    if (card.getIsEmailVerified() == 1) {
+                        point = point + 25;
+                    }
+
+                    for (CardVerification item : verifications) {
+                        if (item.getIsVerified() == 1) {
+                            point = point + 25;
+                        }
+                    }
+
+                    card.setVerificationPoint(point);
+                    card.setUpdatedDate(new Date());
+
+                    userCardRepo.save(card);
+                } else if (card.getCardType().getId() == 2) {
+                    // company card
+                    int point = 0;
+
+                    if (card.getIsWhatsappNoVerified() == 1) {
+                        point = point + 20;
+                    }
+
+                    if (card.getIsEmailVerified() == 1) {
+                        point = point + 20;
+                    }
+
+                    for (CardVerification item : verifications) {
+                        if (item.getIsVerified() == 1) {
+                            point = point + 20;
+                        }
+                    }
+
+                    card.setVerificationPoint(point);
+                    card.setUpdatedDate(new Date());
+
+                    userCardRepo.save(card);
+                } else if (card.getCardType().getId() == 3){
+                    // employee card
+                    int point = 0;
+
+                    if (card.getIsWhatsappNoVerified() == 1) {
+                        point = point + 25;
+                    }
+
+                    if (card.getIsEmailVerified() == 1) {
+                        point = point + 25;
+                    }
+
+                    for (CardVerification item : verifications) {
+                        if (item.getIsVerified() == 1) {
+                            point = point + 10;
+                        }
+                    }
+
+                    card.setVerificationPoint(point);
+                    card.setUpdatedDate(new Date());
+
+                    userCardRepo.save(card);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("Error processing data", e);
+        }
+    }
+
+    @Override
+    public ResponseEntity checkPointCardVerification(Long cardId) {
+        try {
+            UserCard card = userCardRepo.getDetail(cardId);
+            if (card == null) {
+                LOGGER.error("User Card ID: " + cardId + " is not found");
+                throw new NotFoundException("User Card ID: " + cardId);
+            }
+
+            checkPointCardVerification(card);
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    null), HttpStatus.OK);
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());

@@ -178,4 +178,24 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
+    @Override
+    public ResponseEntity markAsReadByUser(Long userId) {
+        try {
+            int result = notificationRepo.markAsReadByUser(userId);
+            if (result == -1) {
+                LOGGER.error("Cannot Execute Query Update Data");
+                throw new InternalServerErrorException("Cannot Execute Query Update Data");
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    result), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
 }
