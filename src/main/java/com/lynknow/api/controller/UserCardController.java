@@ -102,7 +102,7 @@ public class UserCardController {
         }
     }
 
-    @GetMapping("get-image")
+    @GetMapping(value = "get-image", produces = {"image/png", "image/jpg"})
     public byte[] getImage(
             @RequestParam String filename,
             @RequestParam(name = "type", defaultValue = "1") Integer type,

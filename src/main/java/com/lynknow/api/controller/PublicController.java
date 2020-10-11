@@ -40,7 +40,7 @@ public class PublicController {
         return userCardService.getImageCard(filename, httpResponse);
     }
 
-    @GetMapping(value = "get-image-2", produces = "image/*")
+    @GetMapping(value = "get-image-2", produces = {"image/png", "image/jpg"})
     public byte[] getImage2(@RequestParam String filename, HttpServletResponse httpResponse) throws IOException {
         return userCardService.getImageCard(filename, httpResponse);
     }
