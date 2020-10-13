@@ -770,6 +770,32 @@ public class UserCardServiceImpl implements UserCardService {
                         && card.getIsCardLocked() == 1) {
                     // card locked
                     if (userSession != null && userLogin != null) {
+                        // set used total view
+                        UserData user = card.getUserData();
+                        if (!userLogin.getId().equals(user.getId())) {
+                            user.setUsedTotalView(user.getUsedTotalView() + 1);
+                            user.setUpdatedDate(new Date());
+
+                            userDataRepo.save(user);
+                        }
+                        // end of set used total view
+
+                        // save notification data
+                        NotificationType type = notificationTypeRepo.getDetail(10); // view card
+
+                        Notification notification = new Notification();
+
+                        notification.setUserData(userLogin);
+                        notification.setTargetUserData(card.getUserData());
+                        notification.setTargetUserCard(card);
+                        notification.setNotificationType(type);
+                        notification.setIsRead(0);
+                        notification.setCreatedDate(new Date());
+                        notification.setIsActive(1);
+
+                        notificationRepo.save(notification);
+                        // end of save notification data
+
                         if (userLogin.getId().equals(card.getUserData().getId())) {
                             return new ResponseEntity(new BaseResponse<>(
                                     true,
@@ -1005,21 +1031,41 @@ public class UserCardServiceImpl implements UserCardService {
                 throw new NotFoundException("User Card ID: " + id);
             }
 
+            String dialCodeWa = "";
+            CardPhoneDetail phoneWa = cardPhoneDetailRepo.getDetail(card.getId(), 1);
+            if (phoneWa != null) {
+                dialCodeWa = phoneWa.getDialCode();
+            }
+
+            String dialCodeMobile = "";
+            CardPhoneDetail phoneMobile = cardPhoneDetailRepo.getDetail(card.getId(), 2);
+            if (phoneMobile != null) {
+                dialCodeMobile = phoneMobile.getDialCode();
+            }
+
             String filename = new Date().getTime() + "_" + UUID.randomUUID().toString() + ".vcf";
             File contactFolder = new File(contactDir);
             if (!contactFolder.exists()) {
                 contactFolder.mkdirs();
             }
 
+            String firstName = card.getFirstName();
+            String lastName = card.getLastName();
+            if (card.getCardType().getId() == 2) {
+                // company card
+                firstName = card.getCompany();
+                lastName = "";
+            }
+
             String data = "BEGIN:VCARD\n" +
                     "VERSION:2.1\n" +
-                    "N:" + card.getLastName() + ";" + card.getFirstName() + ";;\n" +
-                    "FN:"+ card.getFirstName() + " " + card.getLastName() + "\n" +
+                    "N:" + lastName + ";" + firstName + ";;\n" +
+                    "FN:"+ firstName + " " + lastName + "\n" +
                     "ORG:"+ card.getCompany() + "\n" +
                     "TITLE:\n" +
                     "PHOTO;GIF:http://www.example.com/dir_photos/my_photo.gif\n" +
-                    "TEL;WORK;VOICE:" + card.getWhatsappNo() + "\n" +
-                    "TEL;HOME;VOICE:" + card.getMobileNo() + "\n" +
+                    "TEL;WORK;VOICE:" + dialCodeWa + card.getWhatsappNo() + "\n" +
+                    "TEL;HOME;VOICE:" + dialCodeMobile + card.getMobileNo() + "\n" +
                     "ADR;HOME:;;" + card.getAddress1() + ";" + card.getAddress2()+ ";" + card.getCity() + ";" + card.getPostalCode() + ";" + card.getCountry() + "\n" +
                     "EMAIL:" + card.getEmail() + "\n" +
                     "REV:20080424T195243Z\n" +
@@ -1371,7 +1417,7 @@ public class UserCardServiceImpl implements UserCardService {
             // end of set used total view
 
             // save notification data
-            NotificationType type = notificationTypeRepo.getDetail(6);
+            NotificationType type = notificationTypeRepo.getDetail(6); // exchange card
 
             Notification notification = new Notification();
 
