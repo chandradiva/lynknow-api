@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Date;
 import java.util.List;
 
 public interface UserDataRepository extends JpaRepository<UserData, Long> {
@@ -54,5 +55,15 @@ public interface UserDataRepository extends JpaRepository<UserData, Long> {
 
     @Query("FROM UserData WHERE isActive = 1")
     List<UserData> getListAll();
+
+    @Query("FROM UserData " +
+            "WHERE (currentSubscriptionPackage.id = 2 " +
+            "OR currentSubscriptionPackage.id = 3) " +
+            "AND expiredPremiumDate < :today " +
+            "AND isActive = 1")
+    List<UserData> getExpiredUser(@Param("today") Date today);
+
+    @Query("FROM UserData WHERE expiredTotalView < :today AND isActive = 1")
+    List<UserData> getExpiredTotalView(@Param("today") Date today);
 
 }

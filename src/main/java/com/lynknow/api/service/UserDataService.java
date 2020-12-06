@@ -26,5 +26,6 @@ public interface UserDataService {
     ResponseEntity updateExpiredTotalView();
 
     void resetToBasic(UserData user);
+    void resetTotalView(UserData user);
 
 }

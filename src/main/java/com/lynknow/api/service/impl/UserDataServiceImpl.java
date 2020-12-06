@@ -910,6 +910,25 @@ public class UserDataServiceImpl implements UserDataService {
         }
     }
 
+    @Override
+    public void resetTotalView(UserData user) {
+        try {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(new Date());
+            cal.add(Calendar.MONTH, 1);
+
+            user.setMaxTotalView(500);
+            user.setUsedTotalView(0); // tbd
+            user.setExpiredTotalView(cal.getTime());
+            user.setUpdatedDate(new Date());
+
+            userDataRepo.save(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("Error processing data", e);
+        }
+    }
+
     private boolean checkByUsername(String username, Long id) {
         try {
             UserData chkByUsername = null;
