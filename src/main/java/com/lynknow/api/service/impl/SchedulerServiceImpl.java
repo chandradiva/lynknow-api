@@ -56,8 +56,8 @@ public class SchedulerServiceImpl implements SchedulerService {
         }
     }
 
-//    @Scheduled(cron = "0 10 0 * * ?") // running on 00:10:00
-    @Scheduled(cron = "*/45 * * * * *") // every 45 seconds - for testing only
+    @Scheduled(cron = "0 10 0 * * ?") // running on 00:10:00
+//    @Scheduled(cron = "*/45 * * * * *") // every 45 seconds - for testing only
     @Override
     public void checkExpiredTotalViewUser() {
         try {
