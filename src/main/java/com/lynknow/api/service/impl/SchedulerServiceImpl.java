@@ -71,7 +71,7 @@ public class SchedulerServiceImpl implements SchedulerService {
             cal.set(Calendar.SECOND, 59);
 
             today = cal.getTime();
-            List<UserData> expiredUsers = userDataRepo.getExpiredUser(today);
+            List<UserData> expiredUsers = userDataRepo.getExpiredTotalView(today);
             if (expiredUsers != null) {
                 for (UserData item : expiredUsers) {
                     userDataService.resetTotalView(item);
