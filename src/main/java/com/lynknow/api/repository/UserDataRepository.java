@@ -60,10 +60,14 @@ public interface UserDataRepository extends JpaRepository<UserData, Long> {
             "WHERE (currentSubscriptionPackage.id = 2 " +
             "OR currentSubscriptionPackage.id = 3) " +
             "AND expiredPremiumDate < :today " +
-            "AND isActive = 1")
+            "AND isActive = 1 " +
+            "AND roleData.id = 2")
     List<UserData> getExpiredUser(@Param("today") Date today);
 
-    @Query("FROM UserData WHERE expiredTotalView < :today AND isActive = 1")
+    @Query("FROM UserData " +
+            "WHERE expiredTotalView < :today " +
+            "AND isActive = 1 " +
+            "AND roleData.id = 2")
     List<UserData> getExpiredTotalView(@Param("today") Date today);
 
 }
