@@ -91,4 +91,8 @@ public class UserProfile {
     @Column(name = "postal_code")
     private String postalCode;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "next_sent_email_otp")
+    private Date nextSentEmailOtp;
+
 }
