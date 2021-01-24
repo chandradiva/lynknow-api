@@ -154,6 +154,18 @@ public class UserOtpServiceImpl implements UserOtpService {
                 throw new ConflictException("Your Email is Already Verified");
             }
 
+            // check next sent email otp
+            if (profile.getNextSentEmailOtp() != null) {
+                if (new Date().before(profile.getNextSentEmailOtp())) {
+                    return new ResponseEntity(new BaseResponse<>(
+                            true,
+                            200,
+                            "Success",
+                            null), HttpStatus.OK);
+                }
+            }
+            // end of check next sent email otp
+
             OtpType type = otpTypeRepo.getDetail(2);
             if (type == null) {
                 LOGGER.error("OTP Type ID: " + 2 + " is not found");
@@ -191,6 +203,16 @@ public class UserOtpServiceImpl implements UserOtpService {
                     subjectEmailOtp,
                     "Your OTP Code is: " + otp.getOtpCode());
             // end of send email
+
+            // set next sent email otp
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MINUTE, 5);
+
+            profile.setNextSentEmailOtp(calendar.getTime());
+            profile.setUpdatedDate(new Date());
+
+            userProfileRepo.save(profile);
+            // end of set next sent email otp
 
             return new ResponseEntity(new BaseResponse<>(
                     true,
