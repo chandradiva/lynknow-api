@@ -777,24 +777,24 @@ public class UserCardServiceImpl implements UserCardService {
                             user.setUpdatedDate(new Date());
 
                             userDataRepo.save(user);
+
+                            // save notification data
+                            NotificationType type = notificationTypeRepo.getDetail(10); // view card
+
+                            Notification notification = new Notification();
+
+                            notification.setUserData(userLogin);
+                            notification.setTargetUserData(card.getUserData());
+                            notification.setTargetUserCard(card);
+                            notification.setNotificationType(type);
+                            notification.setIsRead(0);
+                            notification.setCreatedDate(new Date());
+                            notification.setIsActive(1);
+
+                            notificationRepo.save(notification);
+                            // end of save notification data
                         }
                         // end of set used total view
-
-                        // save notification data
-                        NotificationType type = notificationTypeRepo.getDetail(10); // view card
-
-                        Notification notification = new Notification();
-
-                        notification.setUserData(userLogin);
-                        notification.setTargetUserData(card.getUserData());
-                        notification.setTargetUserCard(card);
-                        notification.setNotificationType(type);
-                        notification.setIsRead(0);
-                        notification.setCreatedDate(new Date());
-                        notification.setIsActive(1);
-
-                        notificationRepo.save(notification);
-                        // end of save notification data
 
                         if (userLogin.getId().equals(card.getUserData().getId())) {
                             return new ResponseEntity(new BaseResponse<>(
@@ -953,24 +953,24 @@ public class UserCardServiceImpl implements UserCardService {
                     user.setUpdatedDate(new Date());
 
                     userDataRepo.save(user);
+
+                    // save notification data
+                    NotificationType type = notificationTypeRepo.getDetail(typeId);
+
+                    Notification notification = new Notification();
+
+                    notification.setUserData(userLogin);
+                    notification.setTargetUserData(card.getUserData());
+                    notification.setTargetUserCard(card);
+                    notification.setNotificationType(type);
+                    notification.setIsRead(0);
+                    notification.setCreatedDate(new Date());
+                    notification.setIsActive(1);
+
+                    notificationRepo.save(notification);
+                    // end of save notification data
                 }
                 // end of set used total view
-
-                // save notification data
-                NotificationType type = notificationTypeRepo.getDetail(typeId);
-
-                Notification notification = new Notification();
-
-                notification.setUserData(userLogin);
-                notification.setTargetUserData(card.getUserData());
-                notification.setTargetUserCard(card);
-                notification.setNotificationType(type);
-                notification.setIsRead(0);
-                notification.setCreatedDate(new Date());
-                notification.setIsActive(1);
-
-                notificationRepo.save(notification);
-                // end of save notification data
 
                 return new ResponseEntity(new BaseResponse<>(
                         true,
@@ -1011,21 +1011,21 @@ public class UserCardServiceImpl implements UserCardService {
                     user.setUpdatedDate(new Date());
 
                     userDataRepo.save(user);
+
+                    NotificationType type = notificationTypeRepo.getDetail(8);
+                    Notification notification = new Notification();
+
+                    notification.setUserData(userLogin);
+                    notification.setTargetUserData(card.getUserData());
+                    notification.setTargetUserCard(card);
+                    notification.setNotificationType(type);
+                    notification.setIsRead(0);
+                    notification.setCreatedDate(new Date());
+                    notification.setIsActive(1);
+
+                    notificationRepo.save(notification);
                 }
                 // end of set used total view
-
-                NotificationType type = notificationTypeRepo.getDetail(8);
-                Notification notification = new Notification();
-
-                notification.setUserData(userLogin);
-                notification.setTargetUserData(card.getUserData());
-                notification.setTargetUserCard(card);
-                notification.setNotificationType(type);
-                notification.setIsRead(0);
-                notification.setCreatedDate(new Date());
-                notification.setIsActive(1);
-
-                notificationRepo.save(notification);
             } else {
                 LOGGER.error("User Card ID: " + id + " is not found");
                 throw new NotFoundException("User Card ID: " + id);
@@ -1133,24 +1133,24 @@ public class UserCardServiceImpl implements UserCardService {
                     user.setUpdatedDate(new Date());
 
                     userDataRepo.save(user);
+
+                    // insert to table notification
+                    NotificationType type = notificationTypeRepo.getDetail(9);
+                    Notification notification = new Notification();
+
+                    notification.setUserData(userLogin);
+                    notification.setTargetUserData(card.getUserData());
+                    notification.setTargetUserCard(card);
+                    notification.setNotificationType(type);
+                    notification.setIsRead(0);
+                    notification.setCreatedDate(new Date());
+                    notification.setIsActive(1);
+                    notification.setParamId(request.getId());
+
+                    notificationRepo.save(notification);
+                    // end of insert to table notification
                 }
                 // end of set used total view
-
-                // insert to table notification
-                NotificationType type = notificationTypeRepo.getDetail(9);
-                Notification notification = new Notification();
-
-                notification.setUserData(userLogin);
-                notification.setTargetUserData(card.getUserData());
-                notification.setTargetUserCard(card);
-                notification.setNotificationType(type);
-                notification.setIsRead(0);
-                notification.setCreatedDate(new Date());
-                notification.setIsActive(1);
-                notification.setParamId(request.getId());
-
-                notificationRepo.save(notification);
-                // end of insert to table notification
 
                 return new ResponseEntity(new BaseResponse<>(
                         true,
@@ -1413,28 +1413,28 @@ public class UserCardServiceImpl implements UserCardService {
                 user.setUpdatedDate(new Date());
 
                 userDataRepo.save(user);
+
+                // save notification data
+                NotificationType type = notificationTypeRepo.getDetail(6); // exchange card
+
+                Notification notification = new Notification();
+
+                notification.setUserData(userLogin);
+                notification.setTargetUserData(exchangeCard.getUserData());
+                notification.setTargetUserCard(exchangeCard);
+                notification.setNotificationType(type);
+                notification.setIsRead(0);
+                notification.setCreatedDate(new Date());
+                notification.setIsActive(1);
+
+                if (userContact != null) {
+                    notification.setParamId(userContact.getId());
+                }
+
+                notificationRepo.save(notification);
+                // end of save notification data
             }
             // end of set used total view
-
-            // save notification data
-            NotificationType type = notificationTypeRepo.getDetail(6); // exchange card
-
-            Notification notification = new Notification();
-
-            notification.setUserData(userLogin);
-            notification.setTargetUserData(exchangeCard.getUserData());
-            notification.setTargetUserCard(exchangeCard);
-            notification.setNotificationType(type);
-            notification.setIsRead(0);
-            notification.setCreatedDate(new Date());
-            notification.setIsActive(1);
-
-            if (userContact != null) {
-                notification.setParamId(userContact.getId());
-            }
-
-            notificationRepo.save(notification);
-            // end of save notification data
 
             return new ResponseEntity(new BaseResponse<>(
                     true,
