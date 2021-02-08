@@ -408,7 +408,15 @@ public class UserCardServiceImpl implements UserCardService {
     @Override
     public ResponseEntity getDetail(Long id) {
         try {
+//            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//            UserData userSession = (UserData) auth.getPrincipal();
+//            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
             UserCard card = userCardRepo.getDetail(id);
+//            if (!userLogin.getId().equals(card.getUserData().getId())) {
+//                return getDetail(id, 10);
+//            }
+
             if (card != null) {
                 return new ResponseEntity(new BaseResponse<>(
                         true,
@@ -765,9 +773,10 @@ public class UserCardServiceImpl implements UserCardService {
 
             UserCard card = userCardRepo.getByUniqueCode(code);
             if (card != null) {
-                if ((card.getUserData().getCurrentSubscriptionPackage().getId() == 2
-                        || card.getUserData().getCurrentSubscriptionPackage().getId() == 3)
-                        && card.getIsCardLocked() == 1) {
+                if ((card.getUserData().getCurrentSubscriptionPackage().getId().equals(2)
+                        || card.getUserData().getCurrentSubscriptionPackage().getId().equals(3))
+                        && card.getIsCardLocked() == 1
+                ) {
                     // card locked
                     if (userSession != null && userLogin != null) {
                         // set used total view
@@ -824,6 +833,32 @@ public class UserCardServiceImpl implements UserCardService {
 
                     LOGGER.error("Card Locked by Users. Users must Request to View Card");
                     throw new UnprocessableEntityException("Card Locked by Users. Users must Request to View Card");
+                } else {
+                    // card not locked
+                    UserData user = card.getUserData();
+                    if (!userLogin.getId().equals(user.getId())) {
+                        user.setUsedTotalView(user.getUsedTotalView() + 1);
+                        user.setUpdatedDate(new Date());
+
+                        userDataRepo.save(user);
+
+                        // save notification data
+                        NotificationType type = notificationTypeRepo.getDetail(10); // view card
+
+                        Notification notification = new Notification();
+
+                        notification.setUserData(userLogin);
+                        notification.setTargetUserData(card.getUserData());
+                        notification.setTargetUserCard(card);
+                        notification.setNotificationType(type);
+                        notification.setIsRead(0);
+                        notification.setCreatedDate(new Date());
+                        notification.setIsActive(1);
+
+                        notificationRepo.save(notification);
+                        // end of save notification data
+                    }
+                    // end of set used total view
                 }
 
                 return new ResponseEntity(new BaseResponse<>(
