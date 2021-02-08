@@ -109,7 +109,7 @@ public class UserProfileServiceImpl implements UserProfileService {
             userProfileRepo.save(profile);
 
             // update user data
-            UserData user = profile.getUserData();
+            UserData user = userDataRepo.getDetail(userSession.getId());
 
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
