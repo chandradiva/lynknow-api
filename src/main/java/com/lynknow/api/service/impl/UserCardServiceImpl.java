@@ -836,7 +836,7 @@ public class UserCardServiceImpl implements UserCardService {
                 } else {
                     // card not locked
                     UserData user = card.getUserData();
-                    if (!userLogin.getId().equals(user.getId())) {
+                    if (userLogin != null && !userLogin.getId().equals(user.getId())) {
                         user.setUsedTotalView(user.getUsedTotalView() + 1);
                         user.setUpdatedDate(new Date());
 

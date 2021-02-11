@@ -260,10 +260,10 @@ public class UserDataServiceImpl implements UserDataService {
                 throw new NotFoundException("Subscription Package ID: " + 1);
             }
 
-            if (!this.checkByEmail(userFb.getEmail(), null)) {
-                LOGGER.error("Email: " + userFb.getEmail() + " already exist");
-                throw new ConflictException("Email: " + userFb.getEmail() + " already exist");
-            }
+//            if (!this.checkByEmail(userFb.getEmail(), null)) {
+//                LOGGER.error("Email: " + userFb.getEmail() + " already exist");
+//                throw new ConflictException("Email: " + userFb.getEmail() + " already exist");
+//            }
 
             UserData user;
             Page<UserData> pageUser = userDataRepo.getByFbId(
@@ -387,10 +387,10 @@ public class UserDataServiceImpl implements UserDataService {
                     throw new NotFoundException("Subscription Package ID: " + 1);
                 }
 
-                if (!this.checkByEmail(payload.getEmail(), null)) {
-                    LOGGER.error("Email: " + payload.getEmail() + " already exist");
-                    throw new ConflictException("Email: " + payload.getEmail() + " already exist");
-                }
+//                if (!this.checkByEmail(payload.getEmail(), null)) {
+//                    LOGGER.error("Email: " + payload.getEmail() + " already exist");
+//                    throw new ConflictException("Email: " + payload.getEmail() + " already exist");
+//                }
 
                 UserData user;
                 Page<UserData> page = userDataRepo.getByGoogleId(
