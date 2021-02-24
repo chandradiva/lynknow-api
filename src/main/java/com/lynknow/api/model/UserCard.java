@@ -123,4 +123,12 @@ public class UserCard {
     @Column(name = "socials")
     private String socials;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "next_sent_email_otp")
+    private Date nextSentEmailOtp;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "next_sent_whatsapp_otp")
+    private Date nextSentWhatsappOtp;
+
 }
