@@ -78,11 +78,27 @@ public class UserOtpServiceImpl implements UserOtpService {
 
             UserProfile profile = userProfileRepo.getDetailByUserId(userLogin.getId());
             UserPhoneDetail phoneDetail = userPhoneDetailRepo.getDetail(profile.getId(), 1);
+            if (phoneDetail == null) {
+                LOGGER.error("You Haven't Registered a WhatsApp Number on Your Profile Yet");
+                throw new UnprocessableEntityException("You Haven't Registered a WhatsApp Number on Your Profile Yet");
+            }
 
             if (profile.getIsWhatsappNoVerified() == 1) {
                 LOGGER.error("Your WhatsApp Number is Already Verified");
                 throw new ConflictException("Your WhatsApp Number is Already Verified");
             }
+
+            // check next sent whatsapp otp
+            if (profile.getNextSentWhatsappOtp() != null) {
+                if (new Date().before(profile.getNextSentWhatsappOtp())) {
+                    return new ResponseEntity(new BaseResponse<>(
+                            true,
+                            200,
+                            "Success",
+                            null), HttpStatus.OK);
+                }
+            }
+            // end of check next sent whatsapp otp
 
             OtpType type = otpTypeRepo.getDetail(1);
             if (type == null) {
@@ -129,6 +145,16 @@ public class UserOtpServiceImpl implements UserOtpService {
                 }
             }).start();
             // end of send whatsapp
+
+            // set next sent whatsapp otp
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MINUTE, 5);
+
+            profile.setNextSentWhatsappOtp(calendar.getTime());
+            profile.setUpdatedDate(new Date());
+
+            userProfileRepo.save(profile);
+            // end of set next sent whatsapp otp
 
             return new ResponseEntity(new BaseResponse<>(
                     true,
@@ -396,11 +422,27 @@ public class UserOtpServiceImpl implements UserOtpService {
             }
 
             CardPhoneDetail phoneDetail = cardPhoneDetailRepo.getDetail(card.getId(), 1);
+            if (phoneDetail == null) {
+                LOGGER.error("You Haven't Registered a WhatsApp Number on Your Card Yet");
+                throw new UnprocessableEntityException("You Haven't Registered a WhatsApp Number on Your Card Yet");
+            }
 
             if (card.getIsWhatsappNoVerified() == 1) {
                 LOGGER.error("Your Card WhatsApp Number is Already Verified");
                 throw new ConflictException("Your Card WhatsApp Number is Already Verified");
             }
+
+            // check next sent whatsapp otp
+            if (card.getNextSentWhatsappOtp() != null) {
+                if (new Date().before(card.getNextSentWhatsappOtp())) {
+                    return new ResponseEntity(new BaseResponse<>(
+                            true,
+                            200,
+                            "Success",
+                            null), HttpStatus.OK);
+                }
+            }
+            // end of check next sent whatsapp otp
 
             OtpType type = otpTypeRepo.getDetail(1);
             if (type == null) {
@@ -423,6 +465,7 @@ public class UserOtpServiceImpl implements UserOtpService {
                 otp = new UserOtp();
             }
 
+            otp.setUserData(card.getUserData());
             otp.setUserCard(card);
             otp.setOtpType(type);
             otp.setOtpCode(StringUtil.generateOtp());
@@ -447,6 +490,16 @@ public class UserOtpServiceImpl implements UserOtpService {
                 }
             }).start();
             // end of send whatsapp
+
+            // set next sent whatsapp otp
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MINUTE, 5);
+
+            card.setNextSentWhatsappOtp(calendar.getTime());
+            card.setUpdatedDate(new Date());
+
+            userCardRepo.save(card);
+            // end of set next sent whatsapp otp
 
             return new ResponseEntity(new BaseResponse<>(
                     true,
@@ -473,6 +526,18 @@ public class UserOtpServiceImpl implements UserOtpService {
                 throw new ConflictException("Your Card Email is Already Verified");
             }
 
+            // check next sent email otp
+            if (card.getNextSentEmailOtp() != null) {
+                if (new Date().before(card.getNextSentEmailOtp())) {
+                    return new ResponseEntity(new BaseResponse<>(
+                            true,
+                            200,
+                            "Success",
+                            null), HttpStatus.OK);
+                }
+            }
+            // end of check next sent email otp
+
             OtpType type = otpTypeRepo.getDetail(2);
             if (type == null) {
                 LOGGER.error("OTP Type ID: " + 2 + " is not found");
@@ -494,6 +559,7 @@ public class UserOtpServiceImpl implements UserOtpService {
                 otp = new UserOtp();
             }
 
+            otp.setUserData(card.getUserData());
             otp.setUserCard(card);
             otp.setOtpType(type);
             otp.setOtpCode(StringUtil.generateOtp());
@@ -510,6 +576,16 @@ public class UserOtpServiceImpl implements UserOtpService {
                     subjectEmailOtpCard,
                     "Your OTP Code is: " + otp.getOtpCode());
             // end of send email
+
+            // set next sent email otp
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MINUTE, 5);
+
+            card.setNextSentEmailOtp(calendar.getTime());
+            card.setUpdatedDate(new Date());
+
+            userCardRepo.save(card);
+            // end of set next sent email otp
 
             return new ResponseEntity(new BaseResponse<>(
                     true,
