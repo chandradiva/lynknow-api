@@ -178,8 +178,8 @@ public class UserCardServiceImpl implements UserCardService {
                 card.setCountry(request.getCountry());
                 card.setEmail(request.getEmail());
                 card.setWebsite(request.getWebsite());
-                card.setWhatsappNo(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
-                card.setMobileNo(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
+                card.setWhatsappNo(request.getWhatsappNo() == null ? null : StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
+                card.setMobileNo(request.getMobileNo() == null ? null : StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
                 card.setIsPublished(0);
                 card.setUniqueCode(uniqueCode);
                 card.setVerificationPoint(0);
@@ -198,42 +198,47 @@ public class UserCardServiceImpl implements UserCardService {
                 CardPhoneDetail waDetail;
                 CardPhoneDetail mobileDetail;
 
-                Page<CardPhoneDetail> pageWa = cardPhoneDetailRepo.getDetail(card.getId(), 1, PageRequest.of(0, 1, Sort.by("id").descending()));
-                if (pageWa.getContent() != null && pageWa.getContent().size() > 0) {
-                    waDetail = pageWa.getContent().get(0);
+                if (request.getWhatsappNo() != null) {
+                    Page<CardPhoneDetail> pageWa = cardPhoneDetailRepo.getDetail(card.getId(), 1, PageRequest.of(0, 1, Sort.by("id").descending()));
+                    if (pageWa.getContent() != null && pageWa.getContent().size() > 0) {
+                        waDetail = pageWa.getContent().get(0);
 
-                    waDetail.setCountryCode(request.getWhatsappNo().getCountryCode());
-                    waDetail.setDialCode(request.getWhatsappNo().getDialCode());
-                    waDetail.setNumber(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
-                } else {
-                    waDetail = new CardPhoneDetail();
+                        waDetail.setCountryCode(request.getWhatsappNo().getCountryCode());
+                        waDetail.setDialCode(request.getWhatsappNo().getDialCode());
+                        waDetail.setNumber(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
+                    } else {
+                        waDetail = new CardPhoneDetail();
 
-                    waDetail.setUserCard(card);
-                    waDetail.setCountryCode(request.getWhatsappNo().getCountryCode());
-                    waDetail.setDialCode(request.getWhatsappNo().getDialCode());
-                    waDetail.setNumber(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
-                    waDetail.setType(1);
+                        waDetail.setUserCard(card);
+                        waDetail.setCountryCode(request.getWhatsappNo().getCountryCode());
+                        waDetail.setDialCode(request.getWhatsappNo().getDialCode());
+                        waDetail.setNumber(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
+                        waDetail.setType(1);
+                    }
+
+                    cardPhoneDetailRepo.save(waDetail);
                 }
 
-                Page<CardPhoneDetail> pageMobile = cardPhoneDetailRepo.getDetail(card.getId(), 2, PageRequest.of(0, 1, Sort.by("id").descending()));
-                if (pageMobile.getContent() != null && pageMobile.getContent().size() > 0) {
-                    mobileDetail = pageMobile.getContent().get(0);
+                if (request.getMobileNo() != null) {
+                    Page<CardPhoneDetail> pageMobile = cardPhoneDetailRepo.getDetail(card.getId(), 2, PageRequest.of(0, 1, Sort.by("id").descending()));
+                    if (pageMobile.getContent() != null && pageMobile.getContent().size() > 0) {
+                        mobileDetail = pageMobile.getContent().get(0);
 
-                    mobileDetail.setCountryCode(request.getMobileNo().getCountryCode());
-                    mobileDetail.setDialCode(request.getMobileNo().getDialCode());
-                    mobileDetail.setNumber(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
-                } else {
-                    mobileDetail = new CardPhoneDetail();
+                        mobileDetail.setCountryCode(request.getMobileNo().getCountryCode());
+                        mobileDetail.setDialCode(request.getMobileNo().getDialCode());
+                        mobileDetail.setNumber(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
+                    } else {
+                        mobileDetail = new CardPhoneDetail();
 
-                    mobileDetail.setUserCard(card);
-                    mobileDetail.setCountryCode(request.getMobileNo().getCountryCode());
-                    mobileDetail.setDialCode(request.getMobileNo().getDialCode());
-                    mobileDetail.setNumber(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
-                    mobileDetail.setType(2);
+                        mobileDetail.setUserCard(card);
+                        mobileDetail.setCountryCode(request.getMobileNo().getCountryCode());
+                        mobileDetail.setDialCode(request.getMobileNo().getDialCode());
+                        mobileDetail.setNumber(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
+                        mobileDetail.setType(2);
+                    }
+
+                    cardPhoneDetailRepo.save(mobileDetail);
                 }
-
-                cardPhoneDetailRepo.save(waDetail);
-                cardPhoneDetailRepo.save(mobileDetail);
 
                 // init card verification
                 cardVerificationService.initCardVerification(card);
@@ -274,8 +279,8 @@ public class UserCardServiceImpl implements UserCardService {
                     card.setCountry(request.getCountry());
                     card.setEmail(request.getEmail());
                     card.setWebsite(request.getWebsite());
-                    card.setWhatsappNo(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
-                    card.setMobileNo(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
+                    card.setWhatsappNo(request.getWhatsappNo() == null ? null : StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
+                    card.setMobileNo(request.getMobileNo() == null ? null : StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
                     card.setSocials(mapper.writeValueAsString(request.getSocials()));
                     card.setUpdatedDate(new Date());
 
@@ -292,42 +297,47 @@ public class UserCardServiceImpl implements UserCardService {
                     CardPhoneDetail waDetail;
                     CardPhoneDetail mobileDetail;
 
-                    Page<CardPhoneDetail> pageWa = cardPhoneDetailRepo.getDetail(card.getId(), 1, PageRequest.of(0, 1, Sort.by("id").descending()));
-                    if (pageWa.getContent() != null && pageWa.getContent().size() > 0) {
-                        waDetail = pageWa.getContent().get(0);
+                    if (request.getWhatsappNo() != null) {
+                        Page<CardPhoneDetail> pageWa = cardPhoneDetailRepo.getDetail(card.getId(), 1, PageRequest.of(0, 1, Sort.by("id").descending()));
+                        if (pageWa.getContent() != null && pageWa.getContent().size() > 0) {
+                            waDetail = pageWa.getContent().get(0);
 
-                        waDetail.setCountryCode(request.getWhatsappNo().getCountryCode());
-                        waDetail.setDialCode(request.getWhatsappNo().getDialCode());
-                        waDetail.setNumber(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
-                    } else {
-                        waDetail = new CardPhoneDetail();
+                            waDetail.setCountryCode(request.getWhatsappNo().getCountryCode());
+                            waDetail.setDialCode(request.getWhatsappNo().getDialCode());
+                            waDetail.setNumber(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
+                        } else {
+                            waDetail = new CardPhoneDetail();
 
-                        waDetail.setUserCard(card);
-                        waDetail.setCountryCode(request.getWhatsappNo().getCountryCode());
-                        waDetail.setDialCode(request.getWhatsappNo().getDialCode());
-                        waDetail.setNumber(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
-                        waDetail.setType(1);
+                            waDetail.setUserCard(card);
+                            waDetail.setCountryCode(request.getWhatsappNo().getCountryCode());
+                            waDetail.setDialCode(request.getWhatsappNo().getDialCode());
+                            waDetail.setNumber(StringUtil.normalizePhoneNumber(request.getWhatsappNo().getNumber()));
+                            waDetail.setType(1);
+                        }
+
+                        cardPhoneDetailRepo.save(waDetail);
                     }
 
-                    Page<CardPhoneDetail> pageMobile = cardPhoneDetailRepo.getDetail(card.getId(), 2, PageRequest.of(0, 1, Sort.by("id").descending()));
-                    if (pageMobile.getContent() != null && pageMobile.getContent().size() > 0) {
-                        mobileDetail = pageMobile.getContent().get(0);
+                    if (request.getMobileNo() != null) {
+                        Page<CardPhoneDetail> pageMobile = cardPhoneDetailRepo.getDetail(card.getId(), 2, PageRequest.of(0, 1, Sort.by("id").descending()));
+                        if (pageMobile.getContent() != null && pageMobile.getContent().size() > 0) {
+                            mobileDetail = pageMobile.getContent().get(0);
 
-                        mobileDetail.setCountryCode(request.getMobileNo().getCountryCode());
-                        mobileDetail.setDialCode(request.getMobileNo().getDialCode());
-                        mobileDetail.setNumber(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
-                    } else {
-                        mobileDetail = new CardPhoneDetail();
+                            mobileDetail.setCountryCode(request.getMobileNo().getCountryCode());
+                            mobileDetail.setDialCode(request.getMobileNo().getDialCode());
+                            mobileDetail.setNumber(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
+                        } else {
+                            mobileDetail = new CardPhoneDetail();
 
-                        mobileDetail.setUserCard(card);
-                        mobileDetail.setCountryCode(request.getMobileNo().getCountryCode());
-                        mobileDetail.setDialCode(request.getMobileNo().getDialCode());
-                        mobileDetail.setNumber(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
-                        mobileDetail.setType(2);
+                            mobileDetail.setUserCard(card);
+                            mobileDetail.setCountryCode(request.getMobileNo().getCountryCode());
+                            mobileDetail.setDialCode(request.getMobileNo().getDialCode());
+                            mobileDetail.setNumber(StringUtil.normalizePhoneNumber(request.getMobileNo().getNumber()));
+                            mobileDetail.setType(2);
+                        }
+
+                        cardPhoneDetailRepo.save(mobileDetail);
                     }
-
-                    cardPhoneDetailRepo.save(waDetail);
-                    cardPhoneDetailRepo.save(mobileDetail);
 
                     return new ResponseEntity(new BaseResponse<>(
                             true,
