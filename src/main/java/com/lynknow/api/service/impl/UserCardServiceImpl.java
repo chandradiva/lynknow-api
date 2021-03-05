@@ -789,13 +789,14 @@ public class UserCardServiceImpl implements UserCardService {
                 ) {
                     // card locked
                     if (userSession != null && userLogin != null) {
-                        // set used total view
                         UserData user = card.getUserData();
                         if (!userLogin.getId().equals(user.getId())) {
+                            // set used total view
                             user.setUsedTotalView(user.getUsedTotalView() + 1);
                             user.setUpdatedDate(new Date());
 
                             userDataRepo.save(user);
+                            // end of set used total view
 
                             // save notification data
                             NotificationType type = notificationTypeRepo.getDetail(10); // view card
@@ -813,7 +814,6 @@ public class UserCardServiceImpl implements UserCardService {
                             notificationRepo.save(notification);
                             // end of save notification data
                         }
-                        // end of set used total view
 
                         if (userLogin.getId().equals(card.getUserData().getId())) {
                             return new ResponseEntity(new BaseResponse<>(
@@ -847,10 +847,12 @@ public class UserCardServiceImpl implements UserCardService {
                     // card not locked
                     UserData user = card.getUserData();
                     if (userLogin != null && !userLogin.getId().equals(user.getId())) {
+                        // set used total view
                         user.setUsedTotalView(user.getUsedTotalView() + 1);
                         user.setUpdatedDate(new Date());
 
                         userDataRepo.save(user);
+                        // end of set used total view
 
                         // save notification data
                         NotificationType type = notificationTypeRepo.getDetail(10); // view card
@@ -867,8 +869,31 @@ public class UserCardServiceImpl implements UserCardService {
 
                         notificationRepo.save(notification);
                         // end of save notification data
+                    } else if (userLogin == null) {
+                        // user login is null or anonymous user
+                        // set used total view
+                        user.setUsedTotalView(user.getUsedTotalView() + 1);
+                        user.setUpdatedDate(new Date());
+
+                        userDataRepo.save(user);
+                        // end of set used total view
+
+                        // save notification data
+                        NotificationType type = notificationTypeRepo.getDetail(10); // view card
+
+                        Notification notification = new Notification();
+
+                        notification.setUserData(null);
+                        notification.setTargetUserData(card.getUserData());
+                        notification.setTargetUserCard(card);
+                        notification.setNotificationType(type);
+                        notification.setIsRead(0);
+                        notification.setCreatedDate(new Date());
+                        notification.setIsActive(1);
+
+                        notificationRepo.save(notification);
+                        // end of save notification data
                     }
-                    // end of set used total view
                 }
 
                 return new ResponseEntity(new BaseResponse<>(

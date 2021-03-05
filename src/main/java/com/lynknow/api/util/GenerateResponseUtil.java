@@ -157,6 +157,23 @@ public class GenerateResponseUtil {
         return res;
     }
 
+    public UserProfilePublicResponse generateResponseProfilePublicAnonymousUser() {
+        UserProfilePublicResponse res = new UserProfilePublicResponse();
+
+        res.setId(-1L);
+        res.setFirstName("Anonymous");
+        res.setLastName("User");
+        res.setAddress1(null);
+        res.setAddress2(null);
+        res.setCountry(null);
+        res.setCreatedDate(null);
+        res.setUpdatedDate(null);
+        res.setCity(null);
+        res.setPostalCode(null);
+
+        return res;
+    }
+
     public UserDataResponse generateResponseUser(UserData user) {
         UserDataResponse res = new UserDataResponse();
 
@@ -206,6 +223,32 @@ public class GenerateResponseUtil {
                 res.setLastName(profile.getLastName());
             }
         }
+
+        return res;
+    }
+
+    public UserDataResponse generateResponseUserAnonymous() {
+        UserDataResponse res = new UserDataResponse();
+
+        res.setId(-1L);
+        res.setRole(null);
+        res.setCurrentSubscription(null);
+        res.setProfile(null);
+        res.setUsername("Anonymous User");
+        res.setEmail(null);
+        res.setFirstName("Anonymous");
+        res.setLastName("User");
+        res.setVerificationPoint(0);
+        res.setJoinDate(null);
+        res.setCreatedDate(null);
+        res.setUpdatedDate(null);
+        res.setMaxTotalView(0);
+        res.setUsedTotalView(0);
+        res.setExpiredTotalView(null);
+        res.setExpiredPremiumDate(null);
+        res.setMaxVerificationCredit(0);
+        res.setCurrentVerificationCredit(0);
+        res.setProfilePhoto(null);
 
         return res;
     }
@@ -286,6 +329,25 @@ public class GenerateResponseUtil {
         if (profile != null) {
             res.setProfile(generateResponseProfilePublic(profile));
         }
+
+        return res;
+    }
+
+    public UserDataPublicResponse generateResponseUserPublicAnonymousUser() {
+        UserDataPublicResponse res = new UserDataPublicResponse();
+
+        res.setId(-1L);
+        res.setRole(null);
+        res.setCurrentSubscription(null);
+        res.setUsername("Anonymous User");
+        res.setEmail(null);
+        res.setFirstName("Anonymous");
+        res.setLastName("User");
+        res.setVerificationPoint(0);
+        res.setJoinDate(null);
+        res.setCreatedDate(null);
+        res.setUpdatedDate(null);
+        res.setProfile(generateResponseProfilePublicAnonymousUser());
 
         return res;
     }
@@ -548,7 +610,7 @@ public class GenerateResponseUtil {
         }
 
         res.setId(notification.getId());
-        res.setUserData(generateResponseUser(notification.getUserData()));
+        res.setUserData(notification.getUserData() != null ? generateResponseUser(notification.getUserData()) : generateResponseUserAnonymous());
         res.setTargetUserData(generateResponseUser(notification.getTargetUserData()));
         res.setTargetUserCard(generateResponseUserCard(notification.getTargetUserCard()));
         res.setNotificationType(generateResponseNotificationType(notification.getNotificationType()));
