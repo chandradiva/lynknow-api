@@ -33,4 +33,21 @@ public class EmailUtil {
         }).start();
     }
 
+    public void sendEmailNoThread(String to, String subject, String text) {
+        try {
+            MimeMessagePreparator messagePreparator = mimeMessage -> {
+                InternetAddress address = new InternetAddress(to);
+
+                mimeMessage.setRecipient(Message.RecipientType.TO, address);
+                mimeMessage.setSubject(subject);
+                mimeMessage.setText(text);
+                mimeMessage.setContent(text, "text/html");
+            };
+
+            mailSender.send(messagePreparator);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

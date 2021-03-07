@@ -14,6 +14,7 @@ import com.lynknow.api.pojo.response.UserCardResponse;
 import com.lynknow.api.repository.*;
 import com.lynknow.api.service.CardVerificationService;
 import com.lynknow.api.service.UserCardService;
+import com.lynknow.api.service.UserContactService;
 import com.lynknow.api.util.GenerateResponseUtil;
 import com.lynknow.api.util.StringUtil;
 import org.apache.commons.io.IOUtils;
@@ -80,6 +81,9 @@ public class UserCardServiceImpl implements UserCardService {
 
     @Autowired
     private UserProfileRepository userProfileRepo;
+
+    @Autowired
+    private UserContactService userContactService;
 
     @Value("${upload.dir.card.front-side}")
     private String frontSideDir;
@@ -482,6 +486,14 @@ public class UserCardServiceImpl implements UserCardService {
                     card.setIsPublished(0);
                     card.setPublishedDate(null);
                 }
+
+                // notify updated card to contact
+                if (card.getUpdatedDate() != null) {
+                    new Thread(() -> {
+                        userContactService.notifyUpdatedCard(card);
+                    }).start();
+                }
+                // end of notify updated card to contact
 
                 card.setUpdatedDate(new Date());
 
