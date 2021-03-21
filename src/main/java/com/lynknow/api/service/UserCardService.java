@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 public interface UserCardService {
 
@@ -42,5 +43,7 @@ public interface UserCardService {
 
     ResponseEntity exchangeCard(Long fromCardId, Long exchangeCardId);
     ResponseEntity updateAllCode();
+
+    ResponseEntity sendNotifyUpdateCard(Long id, List<Long> userIds);
 
 }
