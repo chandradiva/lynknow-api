@@ -35,7 +35,7 @@ public class CardViewers {
     private Date updatedDate;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_date")
+    @Column(name = "deleted_date")
     private Date deletedDate;
 
     @Column(name = "is_active")

@@ -3,11 +3,14 @@ package com.lynknow.api.service.impl;
 import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.exception.NotFoundException;
 import com.lynknow.api.model.PersonalVerification;
+import com.lynknow.api.model.UserCard;
 import com.lynknow.api.model.UserData;
 import com.lynknow.api.model.UserProfile;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.pojo.response.PersonalVerificationResponse;
+import com.lynknow.api.pojo.response.UserCardResponse;
 import com.lynknow.api.repository.PersonalVerificationRepository;
+import com.lynknow.api.repository.UserCardRepository;
 import com.lynknow.api.repository.UserDataRepository;
 import com.lynknow.api.repository.UserProfileRepository;
 import com.lynknow.api.service.OtherUserDataService;
@@ -15,6 +18,7 @@ import com.lynknow.api.util.GenerateResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -35,6 +39,9 @@ public class OtherUserDataServiceImpl implements OtherUserDataService {
 
     @Autowired
     private PersonalVerificationRepository personalVerificationRepo;
+
+    @Autowired
+    private UserCardRepository userCardRepo;
 
     @Autowired
     private GenerateResponseUtil generateRes;
@@ -106,7 +113,25 @@ public class OtherUserDataServiceImpl implements OtherUserDataService {
 
     @Override
     public ResponseEntity getListOtherUserCard(Long userId) {
-        return null;
+        try {
+            List<UserCardResponse> res = new ArrayList<>();
+            List<UserCard> cards = userCardRepo.getList(userId, null, 1, Sort.by("id").ascending());
+            if (cards != null) {
+                for (UserCard item : cards) {
+                    res.add(generateRes.generateResponseUserCard(item));
+                }
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    res), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            e.printStackTrace();
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
     }
 
 }
