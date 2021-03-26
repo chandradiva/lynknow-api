@@ -9,6 +9,7 @@ public interface UserContactService {
     ResponseEntity getListPaginationContact(PaginationModel model);
     ResponseEntity getListPaginationReceived(PaginationModel model);
     ResponseEntity updateStatus(Long id, Integer status);
+
     void notifyUpdatedCard(UserCard updatedCard);
 
 }
