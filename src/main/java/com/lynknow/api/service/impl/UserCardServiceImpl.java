@@ -13,6 +13,7 @@ import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.pojo.response.UserCardResponse;
 import com.lynknow.api.repository.*;
 import com.lynknow.api.service.CardVerificationService;
+import com.lynknow.api.service.CardViewersService;
 import com.lynknow.api.service.UserCardService;
 import com.lynknow.api.service.UserContactService;
 import com.lynknow.api.util.GenerateResponseUtil;
@@ -84,6 +85,9 @@ public class UserCardServiceImpl implements UserCardService {
 
     @Autowired
     private UserContactService userContactService;
+
+    @Autowired
+    private CardViewersService cardViewersService;
 
     @Value("${upload.dir.card.front-side}")
     private String frontSideDir;
@@ -488,11 +492,11 @@ public class UserCardServiceImpl implements UserCardService {
                 }
 
                 // notify updated card to contact
-                if (card.getUpdatedDate() != null) {
-                    new Thread(() -> {
-                        userContactService.notifyUpdatedCard(card);
-                    }).start();
-                }
+//                if (card.getUpdatedDate() != null) {
+//                    new Thread(() -> {
+//                        userContactService.notifyUpdatedCard(card);
+//                    }).start();
+//                }
                 // end of notify updated card to contact
 
                 card.setUpdatedDate(new Date());
@@ -1054,6 +1058,12 @@ public class UserCardServiceImpl implements UserCardService {
                 }
                 // end of set used total view
 
+                // save data card viewers
+                if (typeId == 7) {
+                    cardViewersService.saveData(card, userLogin);
+                }
+                // emd of save data card viewers
+
                 return new ResponseEntity(new BaseResponse<>(
                         true,
                         200,
@@ -1441,11 +1451,12 @@ public class UserCardServiceImpl implements UserCardService {
                 throw new NotFoundException("From User Card ID: " + fromCardId);
             }
 
+            // now it's possibly to exchange without exchange card
             UserCard exchangeCard = userCardRepo.getDetail(exchangeCardId);
-            if (exchangeCard == null) {
-                LOGGER.error("Exchange User Card ID: " + exchangeCardId + " is not found");
-                throw new NotFoundException("Exchange User Card ID: " + exchangeCardId);
-            }
+//            if (exchangeCard == null) {
+//                LOGGER.error("Exchange User Card ID: " + exchangeCardId + " is not found");
+//                throw new NotFoundException("Exchange User Card ID: " + exchangeCardId);
+//            }
 
             // save request exchange card
             UserContact userContact = null;
@@ -1556,6 +1567,32 @@ public class UserCardServiceImpl implements UserCardService {
                     200,
                     "Success",
                     null), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity sendNotifyUpdateCard(Long id, List<Long> userIds) {
+        try {
+            UserCard card = userCardRepo.getDetail(id);
+            if (card != null) {
+                // notify updated card to contact
+                new Thread(() -> {
+                    cardViewersService.notifyUpdatedCard(card, userIds);
+                }).start();
+                // end of notify updated card to contact
+
+                return new ResponseEntity(new BaseResponse<>(
+                        true,
+                        200,
+                        "Success",
+                        null), HttpStatus.OK);
+            } else {
+                LOGGER.error("User Card ID: " + id + " is not found");
+                throw new NotFoundException("User Card ID: " + id);
+            }
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());
