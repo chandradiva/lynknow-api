@@ -18,6 +18,11 @@ public class UserContactController {
         return userContactService.getListPaginationContact(myPage);
     }
 
+    @GetMapping("requested")
+    public ResponseEntity getListPaginationRequested(PaginationModel myPage) {
+        return userContactService.getListPaginationRequested(myPage);
+    }
+
     @PatchMapping("accept")
     public ResponseEntity acceptRequest(@RequestParam Long id) {
         return userContactService.updateStatus(id, 1);

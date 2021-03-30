@@ -75,7 +75,45 @@ public class UserContactServiceImpl implements UserContactService {
                                 model.getPage(),
                                 model.getSize(),
                                 Sort.by(Sort.Direction.DESC, "status")
+                                        .and(Sort.by(Sort.Direction.DESC, model.getSortBy())))
+                ).map(generateRes::generateResponseUserContact);
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    page), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity getListPaginationRequested(PaginationModel model) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+
+            Page<UserContactResponse> page;
+            if (model.getSort().equals("asc")) {
+                page = userContactRepo.getListPaginationRequested(
+                        userSession.getId(),
+                        PageRequest.of(
+                                model.getPage(),
+                                model.getSize(),
+                                Sort.by(Sort.Direction.DESC, "status")
                                         .and(Sort.by(Sort.Direction.ASC, model.getSortBy())))
+                ).map(generateRes::generateResponseUserContact);
+            } else {
+                page = userContactRepo.getListPaginationRequested(
+                        userSession.getId(),
+                        PageRequest.of(
+                                model.getPage(),
+                                model.getSize(),
+                                Sort.by(Sort.Direction.DESC, "status")
+                                        .and(Sort.by(Sort.Direction.DESC, model.getSortBy())))
                 ).map(generateRes::generateResponseUserContact);
             }
 
