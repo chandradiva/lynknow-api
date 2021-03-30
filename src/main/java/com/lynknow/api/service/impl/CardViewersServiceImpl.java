@@ -71,8 +71,7 @@ public class CardViewersServiceImpl implements CardViewersService {
 
             cardViewersRepo.save(viewers);
         } catch (Exception e) {
-            LOGGER.error("");
-            e.printStackTrace();
+            LOGGER.error("Error processing data", e);
         }
     }
 
@@ -83,12 +82,12 @@ public class CardViewersServiceImpl implements CardViewersService {
             if (model.getSort().equals("asc")) {
                 page = cardViewersRepo.getListViewers(
                         userId,
-                        PageRequest.of(model.getPage(), model.getSize(), Sort.by(model.getSortBy()).ascending())
+                        PageRequest.of(model.getPage(), Integer.MAX_VALUE, Sort.by("userSeenBy.firstName").ascending())
                 ).map(cardViewers -> generateRes.generateResponseUser(cardViewers.getUserSeenBy()));
             } else {
                 page = cardViewersRepo.getListViewers(
                         userId,
-                        PageRequest.of(model.getPage(), model.getSize(), Sort.by(model.getSortBy()).descending())
+                        PageRequest.of(model.getPage(), Integer.MAX_VALUE, Sort.by("userSeenBy.firstName").descending())
                 ).map(cardViewers -> generateRes.generateResponseUser(cardViewers.getUserSeenBy()));
             }
 
@@ -134,7 +133,7 @@ public class CardViewersServiceImpl implements CardViewersService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Error processing data", e);
         }
     }
 

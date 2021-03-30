@@ -9,6 +9,7 @@ import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.pojo.response.UserContactResponse;
 import com.lynknow.api.repository.NotificationRepository;
 import com.lynknow.api.repository.NotificationTypeRepository;
+import com.lynknow.api.repository.UserCardRepository;
 import com.lynknow.api.repository.UserContactRepository;
 import com.lynknow.api.service.UserContactService;
 import com.lynknow.api.util.EmailUtil;
@@ -47,6 +48,9 @@ public class UserContactServiceImpl implements UserContactService {
     private NotificationRepository notificationRepo;
 
     @Autowired
+    private UserCardRepository userCardRepo;
+
+    @Autowired
     private EmailUtil emailUtil;
 
     @Value("${fe.url.view-user-card}")
@@ -64,18 +68,16 @@ public class UserContactServiceImpl implements UserContactService {
                         userSession.getId(),
                         PageRequest.of(
                                 model.getPage(),
-                                model.getSize(),
-                                Sort.by(Sort.Direction.DESC, "status")
-                                        .and(Sort.by(Sort.Direction.ASC, model.getSortBy())))
+                                Integer.MAX_VALUE,
+                                Sort.by(Sort.Direction.ASC, "userData.firstName"))
                 ).map(generateRes::generateResponseUserContact);
             } else {
                 page = userContactRepo.getListPaginationContact(
                         userSession.getId(),
                         PageRequest.of(
                                 model.getPage(),
-                                model.getSize(),
-                                Sort.by(Sort.Direction.DESC, "status")
-                                        .and(Sort.by(Sort.Direction.DESC, model.getSortBy())))
+                                Integer.MAX_VALUE,
+                                Sort.by(Sort.Direction.DESC, "userData.firstName"))
                 ).map(generateRes::generateResponseUserContact);
             }
 
@@ -167,7 +169,7 @@ public class UserContactServiceImpl implements UserContactService {
     }
 
     @Override
-    public ResponseEntity updateStatus(Long id, Integer status) {
+    public ResponseEntity updateStatus(Long id, Integer status, Long cardId) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
@@ -200,12 +202,21 @@ public class UserContactServiceImpl implements UserContactService {
                     // accept
                     UserContact exchangeContact = new UserContact();
 
-                    exchangeContact.setUserData(contact.getExchangeCard().getUserData());
-                    exchangeContact.setFromCard(contact.getExchangeCard());
                     exchangeContact.setExchangeCard(contact.getFromCard());
                     exchangeContact.setStatus(1);
                     exchangeContact.setFlag(0);
                     exchangeContact.setCreatedDate(new Date());
+
+                    if (cardId != null) {
+                        UserCard exchangeCard = userCardRepo.getDetail(cardId);
+                        if (exchangeCard != null) {
+                            exchangeContact.setUserData(exchangeCard.getUserData());
+                            exchangeContact.setFromCard(exchangeCard);
+                        }
+                    } else {
+                        exchangeContact.setUserData(contact.getExchangeCard().getUserData());
+                        exchangeContact.setFromCard(contact.getExchangeCard());
+                    }
 
                     userContactRepo.save(exchangeContact);
                 }
