@@ -185,9 +185,13 @@ public class UserCardController {
     @PostMapping("exchange")
     public ResponseEntity exchangeCard(
             @RequestParam Long fromCardId,
-            @RequestParam Long exchangeCardId
+            @RequestParam(required = false, defaultValue = "0") Long exchangeCardId,
+            @RequestParam(required = false, defaultValue = "0") Long exchangeUserId
     ) {
-        return userCardService.exchangeCard(fromCardId, exchangeCardId);
+        return userCardService.exchangeCard(
+                fromCardId,
+                exchangeCardId,
+                exchangeUserId);
     }
 
     @PatchMapping("update-all-code")
