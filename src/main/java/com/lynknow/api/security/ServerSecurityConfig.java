@@ -94,7 +94,8 @@ public class ServerSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/users/check-token",
                         "/users/reset-password",
                         "/auth/login-facebook",
-                        "/auth/login-google").permitAll()
+                        "/auth/login-google",
+                        "/users/cards/download-contact-ios").permitAll()
                 .anyRequest()
                 .access("isAuthenticated()");
     }

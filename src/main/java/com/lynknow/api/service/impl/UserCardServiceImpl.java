@@ -1081,15 +1081,20 @@ public class UserCardServiceImpl implements UserCardService {
 
     @Override
     public byte[] downloadContact(Long id, HttpServletResponse httpResponse) throws IOException {
-        BufferedWriter writer = null;
-        FileInputStream fis = null;
+        BufferedWriter writer;
+        FileInputStream fis;
 
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            UserData userSession = (UserData) auth.getPrincipal();
-            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+            UserData userSession = null;
+            UserData userLogin = null;
 
-            if (userLogin.getMaxTotalView() == userLogin.getUsedTotalView()) {
+            if (!(auth.getPrincipal() instanceof String) && !auth.getPrincipal().equals("anonymousUser")) {
+                userSession = (UserData) auth.getPrincipal();
+                userLogin = userDataRepo.getDetail(userSession.getId());
+            }
+
+            if (userSession != null && userLogin.getMaxTotalView() == userLogin.getUsedTotalView()) {
                 LOGGER.error("Your Total Action & View is running out. Please purchase more to continue.");
                 throw new UnprocessableEntityException("Your Total Action & View is running out. Please purchase more to continue.");
             }
@@ -1098,7 +1103,7 @@ public class UserCardServiceImpl implements UserCardService {
             if (card != null) {
                 // set used total view
                 UserData user = card.getUserData();
-                if (!userLogin.getId().equals(user.getId())) {
+                if (userSession != null && !userLogin.getId().equals(user.getId())) {
                     user.setUsedTotalView(user.getUsedTotalView() + 1);
                     user.setUpdatedDate(new Date());
 

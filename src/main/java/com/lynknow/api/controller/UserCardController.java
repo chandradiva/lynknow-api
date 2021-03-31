@@ -148,6 +148,11 @@ public class UserCardController {
         return userCardService.downloadContact(id, httpResponse);
     }
 
+    @GetMapping(value = "download-contact-ios")
+    public byte[] downloadContactNoAuth(@RequestParam Long id, HttpServletResponse httpResponse) throws IOException {
+        return userCardService.downloadContact(id, httpResponse);
+    }
+
     @PostMapping("request-to-view")
     public ResponseEntity requestToViewCard(@RequestParam String code) {
         return userCardService.requestToViewCard(code);
