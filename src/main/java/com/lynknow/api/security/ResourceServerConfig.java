@@ -60,7 +60,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                         "/users/check-token",
                         "/users/reset-password",
                         "/auth/login-facebook",
-                        "/auth/login-google").permitAll()
+                        "/auth/login-google",
+                        "/users/cards/download-contact-ios").permitAll()
                 .and()
                 .authorizeRequests()
                 .anyRequest()
