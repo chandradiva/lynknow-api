@@ -120,6 +120,10 @@ public class CardViewersServiceImpl implements CardViewersService {
                     notification.setCreatedDate(new Date());
                     notification.setIsActive(1);
 
+                    if (updatedCard != null) {
+                        notification.setParamId(updatedCard.getId());
+                    }
+
                     notificationRepo.save(notification);
                     // end of save notification data
 

@@ -33,6 +33,9 @@ public class GenerateResponseUtil {
     @Autowired
     private SubscriptionPackageDetailRepository subscriptionPackageDetailRepo;
 
+    @Autowired
+    private UserCardRepository userCardRepo;
+
     public RoleDataResponse generateResponseRole(RoleData role) {
         RoleDataResponse res = new RoleDataResponse();
 
@@ -627,6 +630,13 @@ public class GenerateResponseUtil {
             if (requestView != null) {
                 CardRequestViewResponse requestViewRes = generateResponseCardRequestView(requestView);
                 res.setAdditionalData(requestViewRes);
+            }
+        } else if (notification.getNotificationType() != null && notification.getNotificationType().getId() == 11) {
+            // notify update card
+            UserCard card = userCardRepo.getDetail(notification.getParamId());
+            if (card != null) {
+                UserCardPublicResponse cardRes = generateResponseUserCardPublic(card);
+                res.setAdditionalData(cardRes);
             }
         }
 
