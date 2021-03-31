@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "/users/cards")
@@ -192,6 +193,14 @@ public class UserCardController {
                 fromCardId,
                 exchangeCardId,
                 exchangeUserId);
+    }
+
+    @PostMapping("send-notify")
+    public ResponseEntity sendNotifyUpdateCard(
+            @RequestParam Long id,
+            @RequestBody List<Long> userIds
+    ) {
+        return userCardService.sendNotifyUpdateCard(id, userIds);
     }
 
     @PatchMapping("update-all-code")
