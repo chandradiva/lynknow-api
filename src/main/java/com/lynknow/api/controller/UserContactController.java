@@ -24,18 +24,21 @@ public class UserContactController {
     }
 
     @PatchMapping("accept")
-    public ResponseEntity acceptRequest(@RequestParam Long id) {
-        return userContactService.updateStatus(id, 1);
+    public ResponseEntity acceptRequest(
+            @RequestParam Long id,
+            @RequestParam(name = "cardId", required = false, defaultValue = "0") Long cardId
+    ) {
+        return userContactService.updateStatus(id, 1, cardId.equals(0L) ? null : cardId);
     }
 
     @PatchMapping("reject")
     public ResponseEntity rejectRequest(@RequestParam Long id) {
-        return userContactService.updateStatus(id, 2);
+        return userContactService.updateStatus(id, 2, null);
     }
 
     @PatchMapping("cancel")
     public ResponseEntity cancelRequest(@RequestParam Long id) {
-        return userContactService.updateStatus(id, 3);
+        return userContactService.updateStatus(id, 3, null);
     }
 
     @GetMapping("received")
