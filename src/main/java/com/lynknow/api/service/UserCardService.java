@@ -41,7 +41,7 @@ public interface UserCardService {
     ResponseEntity getDetailCheckSession(Long id);
     ResponseEntity getDetailCheckSession(String code);
 
-    ResponseEntity exchangeCard(Long fromCardId, Long exchangeCardId);
+    ResponseEntity exchangeCard(Long fromCardId, Long exchangeCardId, Long exchangeUserId);
     ResponseEntity updateAllCode();
 
     ResponseEntity sendNotifyUpdateCard(Long id, List<Long> userIds);

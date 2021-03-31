@@ -1434,7 +1434,7 @@ public class UserCardServiceImpl implements UserCardService {
     }
 
     @Override
-    public ResponseEntity exchangeCard(Long fromCardId, Long exchangeCardId) {
+    public ResponseEntity exchangeCard(Long fromCardId, Long exchangeCardId, Long exchangeUserId) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
@@ -1459,7 +1459,7 @@ public class UserCardServiceImpl implements UserCardService {
 //            }
 
             // save request exchange card
-            UserContact userContact = null;
+            UserContact userContact;
             Page<UserContact> pageContact = userContactRepo.getDetail(
                     userLogin.getId(),
                     fromCardId,
@@ -1500,12 +1500,18 @@ public class UserCardServiceImpl implements UserCardService {
             // end of save request exchange card
 
             // set used total view
-            UserData user = exchangeCard.getUserData();
-            if (!userLogin.getId().equals(user.getId())) {
-                user.setUsedTotalView(user.getUsedTotalView() + 1);
-                user.setUpdatedDate(new Date());
+            UserData exchangeUser;
+            if (exchangeCard == null) {
+                exchangeUser = userDataRepo.getDetail(exchangeUserId);
+            } else {
+                exchangeUser = exchangeCard.getUserData();
+            }
 
-                userDataRepo.save(user);
+            if (!userLogin.getId().equals(exchangeUser.getId())) {
+                exchangeUser.setUsedTotalView(exchangeUser.getUsedTotalView() + 1);
+                exchangeUser.setUpdatedDate(new Date());
+
+                userDataRepo.save(exchangeUser);
 
                 // save notification data
                 NotificationType type = notificationTypeRepo.getDetail(6); // exchange card
