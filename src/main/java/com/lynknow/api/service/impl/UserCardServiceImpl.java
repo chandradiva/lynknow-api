@@ -23,10 +23,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,8 +38,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -1157,13 +1163,13 @@ public class UserCardServiceImpl implements UserCardService {
             String data = "BEGIN:VCARD\n" +
                     "VERSION:2.1\n" +
                     "N:" + lastName + ";" + firstName + ";;\n" +
-                    "FN:"+ firstName + " " + lastName + "\n" +
-                    "ORG:"+ card.getCompany() + "\n" +
+                    "FN:" + firstName + " " + lastName + "\n" +
+                    "ORG:" + card.getCompany() + "\n" +
                     "TITLE:\n" +
                     "PHOTO;GIF:http://www.example.com/dir_photos/my_photo.gif\n" +
                     "TEL;WORK;VOICE:" + dialCodeWa + card.getWhatsappNo() + "\n" +
                     "TEL;HOME;VOICE:" + dialCodeMobile + card.getMobileNo() + "\n" +
-                    "ADR;HOME:;;" + card.getAddress1() + ";" + card.getAddress2()+ ";" + card.getCity() + ";" + card.getPostalCode() + ";" + card.getCountry() + "\n" +
+                    "ADR;HOME:;;" + card.getAddress1() + ";" + card.getAddress2() + ";" + card.getCity() + ";" + card.getPostalCode() + ";" + card.getCountry() + "\n" +
                     "EMAIL:" + card.getEmail() + "\n" +
                     "REV:20080424T195243Z\n" +
                     "END:VCARD";
@@ -1180,6 +1186,123 @@ public class UserCardServiceImpl implements UserCardService {
                 fis = new FileInputStream(new File(contactFolder + File.separator + filename));
 
                 return IOUtils.toByteArray(fis);
+            } else {
+                LOGGER.error("Error Generate File Contact Card");
+                throw new InternalServerErrorException("Error Generate File Contact Card");
+            }
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity<Resource> downloadContactResource(Long id, HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws IOException {
+        BufferedWriter writer;
+
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = null;
+            UserData userLogin = null;
+
+            if (!(auth.getPrincipal() instanceof String) && !auth.getPrincipal().equals("anonymousUser")) {
+                userSession = (UserData) auth.getPrincipal();
+                userLogin = userDataRepo.getDetail(userSession.getId());
+            }
+
+            if (userSession != null && userLogin.getMaxTotalView() == userLogin.getUsedTotalView()) {
+                LOGGER.error("Your Total Action & View is running out. Please purchase more to continue.");
+                throw new UnprocessableEntityException("Your Total Action & View is running out. Please purchase more to continue.");
+            }
+
+            UserCard card = userCardRepo.getDetail(id);
+            if (card != null) {
+                // set used total view
+                UserData user = card.getUserData();
+                if (userSession != null && !userLogin.getId().equals(user.getId())) {
+                    user.setUsedTotalView(user.getUsedTotalView() + 1);
+                    user.setUpdatedDate(new Date());
+
+                    userDataRepo.save(user);
+
+                    NotificationType type = notificationTypeRepo.getDetail(8);
+                    Notification notification = new Notification();
+
+                    notification.setUserData(userLogin);
+                    notification.setTargetUserData(card.getUserData());
+                    notification.setTargetUserCard(card);
+                    notification.setNotificationType(type);
+                    notification.setIsRead(0);
+                    notification.setCreatedDate(new Date());
+                    notification.setIsActive(1);
+
+                    notificationRepo.save(notification);
+                }
+                // end of set used total view
+            } else {
+                LOGGER.error("User Card ID: " + id + " is not found");
+                throw new NotFoundException("User Card ID: " + id);
+            }
+
+            String dialCodeWa = "";
+            CardPhoneDetail phoneWa = cardPhoneDetailRepo.getDetail(card.getId(), 1);
+            if (phoneWa != null) {
+                dialCodeWa = phoneWa.getDialCode();
+            }
+
+            String dialCodeMobile = "";
+            CardPhoneDetail phoneMobile = cardPhoneDetailRepo.getDetail(card.getId(), 2);
+            if (phoneMobile != null) {
+                dialCodeMobile = phoneMobile.getDialCode();
+            }
+
+            String filename = new Date().getTime() + "_" + UUID.randomUUID().toString() + ".vcf";
+            File contactFolder = new File(contactDir);
+            if (!contactFolder.exists()) {
+                contactFolder.mkdirs();
+            }
+
+            String firstName = card.getFirstName();
+            String lastName = card.getLastName();
+            if (card.getCardType().getId() == 2) {
+                // company card
+                firstName = card.getCompany();
+                lastName = "";
+            }
+
+            String data = "BEGIN:VCARD\n" +
+                    "VERSION:2.1\n" +
+                    "N:" + lastName + ";" + firstName + ";;\n" +
+                    "FN:" + firstName + " " + lastName + "\n" +
+                    "ORG:" + card.getCompany() + "\n" +
+                    "TITLE:\n" +
+                    "PHOTO;GIF:http://www.example.com/dir_photos/my_photo.gif\n" +
+                    "TEL;WORK;VOICE:" + dialCodeWa + card.getWhatsappNo() + "\n" +
+                    "TEL;HOME;VOICE:" + dialCodeMobile + card.getMobileNo() + "\n" +
+                    "ADR;HOME:;;" + card.getAddress1() + ";" + card.getAddress2() + ";" + card.getCity() + ";" + card.getPostalCode() + ";" + card.getCountry() + "\n" +
+                    "EMAIL:" + card.getEmail() + "\n" +
+                    "REV:20080424T195243Z\n" +
+                    "END:VCARD";
+
+            writer = new BufferedWriter(new FileWriter(contactFolder.getAbsoluteFile() + File.separator + filename));
+            writer.write(data);
+            if (writer != null) {
+                writer.close();
+
+//                httpResponse.setContentType("text/vcard");
+//                httpResponse.setHeader("Content-Disposition", "attachment; filename=" + filename);
+//                httpResponse.setStatus(HttpServletResponse.SC_OK);
+
+                Resource resource = this.loadFileAsResource(filename);
+                String contentType = httpRequest.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+                if (contentType == null) {
+                    contentType = "text/vcard";
+                }
+
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(contentType))
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
             } else {
                 LOGGER.error("Error Generate File Contact Card");
                 throw new InternalServerErrorException("Error Generate File Contact Card");
@@ -1607,6 +1730,22 @@ public class UserCardServiceImpl implements UserCardService {
         } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    private Resource loadFileAsResource(String fileName) {
+        try {
+            Path fileStorageLocation = Paths.get(contactDir).toAbsolutePath().normalize();
+            Path filePath = fileStorageLocation.resolve(fileName).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists()) {
+                return resource;
+            } else {
+                return null;
+            }
+        } catch (MalformedURLException e) {
+            LOGGER.error("Error processing data", e);
+            return null;
         }
     }
 

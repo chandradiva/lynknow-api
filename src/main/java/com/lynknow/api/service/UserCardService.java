@@ -2,9 +2,11 @@ package com.lynknow.api.service;
 
 import com.lynknow.api.pojo.PaginationModel;
 import com.lynknow.api.pojo.request.UserCardRequest;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
@@ -33,6 +35,7 @@ public interface UserCardService {
 
     ResponseEntity getDetail(Long id, int typeId);
     byte[] downloadContact(Long id, HttpServletResponse httpResponse) throws IOException;
+    ResponseEntity<Resource> downloadContactResource(Long id, HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws IOException;
     ResponseEntity requestToViewCard(String code);
     ResponseEntity grantRequest(Long requestId, int flag);
     ResponseEntity getDetailLockedCard(Long id);
