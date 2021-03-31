@@ -1647,7 +1647,7 @@ public class UserCardServiceImpl implements UserCardService {
                 Notification notification = new Notification();
 
                 notification.setUserData(userLogin);
-                notification.setTargetUserData(exchangeCard.getUserData());
+                notification.setTargetUserData(exchangeUser);
                 notification.setTargetUserCard(exchangeCard);
                 notification.setNotificationType(type);
                 notification.setIsRead(0);
