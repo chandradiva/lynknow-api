@@ -7,12 +7,14 @@ import com.lynknow.api.pojo.request.DeleteDataRequest;
 import com.lynknow.api.pojo.request.UserCardRequest;
 import com.lynknow.api.service.UserCardService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
@@ -149,8 +151,12 @@ public class UserCardController {
     }
 
     @GetMapping(value = "download-contact-ios")
-    public byte[] downloadContactNoAuth(@RequestParam Long id, HttpServletResponse httpResponse) throws IOException {
-        return userCardService.downloadContact(id, httpResponse);
+    public ResponseEntity<Resource> downloadContactNoAuth(
+            @RequestParam Long id,
+            HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse
+    ) throws IOException {
+        return userCardService.downloadContactResource(id, httpRequest, httpResponse);
     }
 
     @PostMapping("request-to-view")
