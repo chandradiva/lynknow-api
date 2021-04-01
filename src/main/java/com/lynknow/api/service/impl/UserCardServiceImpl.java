@@ -835,6 +835,10 @@ public class UserCardServiceImpl implements UserCardService {
 
                             notificationRepo.save(notification);
                             // end of save notification data
+
+                            // save user viewers
+                            cardViewersService.saveData(card, userLogin);
+                            // end of save user viewers
                         }
 
                         if (userLogin.getId().equals(card.getUserData().getId())) {
@@ -891,6 +895,10 @@ public class UserCardServiceImpl implements UserCardService {
 
                         notificationRepo.save(notification);
                         // end of save notification data
+
+                        // save user viewers
+                        cardViewersService.saveData(card, userLogin);
+                        // end of save user viewers
                     } else if (userLogin == null) {
                         // user login is null or anonymous user
                         // set used total view
@@ -1065,9 +1073,9 @@ public class UserCardServiceImpl implements UserCardService {
                 // end of set used total view
 
                 // save data card viewers
-                if (typeId == 7) {
-                    cardViewersService.saveData(card, userLogin);
-                }
+//                if (typeId == 7) {
+//                    cardViewersService.saveData(card, userLogin);
+//                }
                 // emd of save data card viewers
 
                 return new ResponseEntity(new BaseResponse<>(

@@ -13,6 +13,7 @@ import com.lynknow.api.repository.PersonalVerificationRepository;
 import com.lynknow.api.repository.UserCardRepository;
 import com.lynknow.api.repository.UserDataRepository;
 import com.lynknow.api.repository.UserProfileRepository;
+import com.lynknow.api.service.CardViewersService;
 import com.lynknow.api.service.OtherUserDataService;
 import com.lynknow.api.util.GenerateResponseUtil;
 import org.slf4j.Logger;
@@ -42,6 +43,9 @@ public class OtherUserDataServiceImpl implements OtherUserDataService {
 
     @Autowired
     private UserCardRepository userCardRepo;
+
+    @Autowired
+    private CardViewersService cardViewersService;
 
     @Autowired
     private GenerateResponseUtil generateRes;
