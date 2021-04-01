@@ -21,8 +21,8 @@ public interface UserContactRepository extends JpaRepository<UserContact, Long> 
     List<UserContact> getList(@Param("userId") Long userId, @Param("status") Integer status);
 
     @Query("SELECT uc FROM UserContact uc " +
-            "WHERE uc.userData.id = :userId " +
-            "AND uc.status = 1")
+            "WHERE uc.exchangeCard.userData.id = :userId " +
+            "AND (uc.status = 1 OR (uc.status = 0 AND uc.flag = 1))")
     Page<UserContact> getListPaginationContact(
             @Param("userId") Long userId,
             Pageable pageable);
