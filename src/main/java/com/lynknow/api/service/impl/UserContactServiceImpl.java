@@ -177,7 +177,9 @@ public class UserContactServiceImpl implements UserContactService {
             UserContact contact = userContactRepo.getDetail(id);
             if (contact != null) {
                 if (status != 3) {
-                    if (!contact.getExchangeCard().getUserData().getId().equals(userSession.getId())) {
+                    if (contact.getExchangeCard() != null
+                            && !contact.getExchangeCard().getUserData().getId().equals(userSession.getId())
+                    ) {
                         LOGGER.error("You Can't Accept or Reject Other User Exchange Card Request");
                         throw new UnprocessableEntityException("You Can't Accept or Reject Other User Exchange Card Request");
                     }
@@ -191,6 +193,12 @@ public class UserContactServiceImpl implements UserContactService {
                 if (contact.getStatus() != 0) {
                     LOGGER.error("Current Status Exchange Card is not Requested");
                     throw new UnprocessableEntityException("Current Status Exchange Card is not Requested");
+                }
+
+                if (cardId != null) {
+                    UserCard exchangeCard = userCardRepo.getDetail(cardId);
+
+                    contact.setExchangeCard(exchangeCard);
                 }
 
                 contact.setStatus(status);
