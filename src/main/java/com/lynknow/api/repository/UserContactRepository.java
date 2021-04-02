@@ -20,8 +20,8 @@ public interface UserContactRepository extends JpaRepository<UserContact, Long> 
     @Query("FROM UserContact WHERE userData.id = :userId AND status = :status")
     List<UserContact> getList(@Param("userId") Long userId, @Param("status") Integer status);
 
-    @Query("SELECT uc FROM UserContact uc " +
-            "WHERE uc.exchangeCard.userData.id = :userId " +
+    @Query("SELECT uc FROM UserContact uc LEFT JOIN uc.exchangeCard ec " +
+            "WHERE (ec.userData.id = :userId OR uc.exchangeUser.id = :userId) " +
             "AND (uc.status = 1 OR (uc.status = 0 AND uc.flag = 1))")
     Page<UserContact> getListPaginationContact(
             @Param("userId") Long userId,
@@ -44,8 +44,8 @@ public interface UserContactRepository extends JpaRepository<UserContact, Long> 
             @Param("receivedUserId") Long userId,
             Pageable pageable);
 
-    @Query("SELECT uc FROM UserContact uc " +
-            "WHERE uc.exchangeCard.userData.id = :receivedUserId " +
+    @Query("SELECT uc FROM UserContact uc LEFT JOIN uc.exchangeCard ec " +
+            "WHERE (ec.userData.id = :receivedUserId OR uc.exchangeUser.id = :receivedUserId) " +
             "AND uc.status = 0 " +
             "AND uc.flag = 1")
     Page<UserContact> getListPaginationRequested(

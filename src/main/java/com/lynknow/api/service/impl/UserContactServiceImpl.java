@@ -203,6 +203,7 @@ public class UserContactServiceImpl implements UserContactService {
                     UserContact exchangeContact = new UserContact();
 
                     exchangeContact.setExchangeCard(contact.getFromCard());
+                    exchangeContact.setExchangeUser(contact.getFromCard().getUserData());
                     exchangeContact.setStatus(1);
                     exchangeContact.setFlag(0);
                     exchangeContact.setCreatedDate(new Date());

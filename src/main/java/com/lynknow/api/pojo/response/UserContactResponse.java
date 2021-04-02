@@ -14,6 +14,7 @@ public class UserContactResponse {
     private UserDataResponse userData;
     private UserCardResponse fromCard;
     private UserCardResponse exchangeCard;
+    private UserDataResponse exchangeUser;
     private int status = 0;
     private int flag = 0;
 

@@ -1594,6 +1594,13 @@ public class UserCardServiceImpl implements UserCardService {
 //                throw new NotFoundException("Exchange User Card ID: " + exchangeCardId);
 //            }
 
+            UserData exchangeUser;
+            if (exchangeCard == null) {
+                exchangeUser = userDataRepo.getDetail(exchangeUserId);
+            } else {
+                exchangeUser = exchangeCard.getUserData();
+            }
+
             // save request exchange card
             UserContact userContact;
             Page<UserContact> pageContact = userContactRepo.getDetail(
@@ -1625,6 +1632,7 @@ public class UserCardServiceImpl implements UserCardService {
                 contact.setUserData(userLogin);
                 contact.setFromCard(fromCard);
                 contact.setExchangeCard(exchangeCard);
+                contact.setExchangeUser(exchangeUser);
                 contact.setStatus(0); // requested
                 contact.setFlag(1); // flag request exchange
                 contact.setCreatedDate(new Date());
@@ -1635,14 +1643,7 @@ public class UserCardServiceImpl implements UserCardService {
             }
             // end of save request exchange card
 
-            // set used total view
-            UserData exchangeUser;
-            if (exchangeCard == null) {
-                exchangeUser = userDataRepo.getDetail(exchangeUserId);
-            } else {
-                exchangeUser = exchangeCard.getUserData();
-            }
-
+            // set used total viev
             if (!userLogin.getId().equals(exchangeUser.getId())) {
                 exchangeUser.setUsedTotalView(exchangeUser.getUsedTotalView() + 1);
                 exchangeUser.setUpdatedDate(new Date());

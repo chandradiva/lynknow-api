@@ -30,6 +30,10 @@ public class UserContact {
     @JoinColumn(name = "exchange_card_id")
     private UserCard exchangeCard;
 
+    @ManyToOne
+    @JoinColumn(name = "exchange_user_id")
+    private UserData exchangeUser;
+
     @Column(name = "status")
     private int status = 0;
 

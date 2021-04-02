@@ -712,6 +712,7 @@ public class GenerateResponseUtil {
         res.setUserData(generateResponseUser(contact.getUserData()));
         res.setFromCard(generateResponseUserCardWithoutUser(contact.getFromCard()));
         res.setExchangeCard(generateResponseUserCardWithoutUser(contact.getExchangeCard()));
+        res.setExchangeUser(generateResponseUser(contact.getExchangeUser()));
         res.setStatus(contact.getStatus());
         res.setFlag(contact.getFlag());
         res.setCreatedDate(contact.getCreatedDate());
