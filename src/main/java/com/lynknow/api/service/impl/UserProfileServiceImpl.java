@@ -16,6 +16,7 @@ import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.repository.UserDataRepository;
 import com.lynknow.api.repository.UserPhoneDetailRepository;
 import com.lynknow.api.repository.UserProfileRepository;
+import com.lynknow.api.service.AWSS3Service;
 import com.lynknow.api.service.UserProfileService;
 import com.lynknow.api.util.GenerateResponseUtil;
 import com.lynknow.api.util.StringUtil;
@@ -67,6 +68,9 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     @Autowired
     private UserDataRepository userDataRepo;
+
+    @Autowired
+    private AWSS3Service awss3Service;
 
     @Value("${upload.dir.user.profile-pic}")
     private String profilePicDir;
@@ -244,6 +248,44 @@ public class UserProfileServiceImpl implements UserProfileService {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         } catch (IOException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity uploadProfilePictureAws(MultipartFile file) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+            UserProfile profile = userProfileRepo.getDetailByUserId(userSession.getId());
+
+            String url = awss3Service.uploadFile(file);
+            if (profile != null) {
+                profile.setProfilePhoto(url);
+                profile.setUpdatedDate(new Date());
+            } else {
+                profile = new UserProfile();
+
+                profile.setUserData(userLogin);
+                profile.setFirstName(userLogin.getFirstName());
+                profile.setLastName(userLogin.getLastName());
+                profile.setProfilePhoto(url);
+                profile.setIsEmailVerified(0);
+                profile.setIsWhatsappNoVerified(0);
+                profile.setCreatedDate(new Date());
+                profile.setIsActive(1);
+            }
+
+            userProfileRepo.save(profile);
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    generateRes.generateResponseProfile(profile)), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }

@@ -95,11 +95,11 @@ public class UserCardController {
             @RequestParam(name = "type", defaultValue = "1") Integer type
     ) {
         if (type == 1) {
-            return userCardService.uploadFrontSide(file, id);
+            return userCardService.uploadFrontSideAws(file, id);
         } else if (type == 2) {
-            return userCardService.uploadBackSide(file, id);
+            return userCardService.uploadBackSideAws(file, id);
         } else if (type == 3) {
-            return userCardService.uploadProfilePicture(file, id);
+            return userCardService.uploadProfilePictureAws(file, id);
         } else {
             throw new BadRequestException();
         }

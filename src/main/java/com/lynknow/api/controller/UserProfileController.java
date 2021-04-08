@@ -30,7 +30,7 @@ public class UserProfileController {
 
     @PostMapping("upload")
     public ResponseEntity uploadProfilePic(@RequestParam("file") MultipartFile file) {
-        return userProfileService.uploadProfilePicture(file);
+        return userProfileService.uploadProfilePictureAws(file);
     }
 
     @GetMapping("get-pic")

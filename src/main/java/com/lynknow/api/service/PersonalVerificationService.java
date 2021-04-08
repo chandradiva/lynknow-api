@@ -14,6 +14,7 @@ public interface PersonalVerificationService {
     void initVerification(UserData user);
     ResponseEntity initVerification();
     ResponseEntity requestToVerify(MultipartFile file, String remarks, Integer itemId);
+    ResponseEntity requestToVerifyAws(MultipartFile file, String remarks, Integer itemId);
     ResponseEntity verifyRequest(VerifyPersonalRequest request);
     ResponseEntity getDetail(Long id);
     ResponseEntity getDetail(Long userId, Integer itemId);

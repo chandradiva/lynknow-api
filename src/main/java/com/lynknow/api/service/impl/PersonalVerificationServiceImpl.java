@@ -17,6 +17,7 @@ import com.lynknow.api.repository.PersonalVerificationItemRepository;
 import com.lynknow.api.repository.PersonalVerificationRepository;
 import com.lynknow.api.repository.UserDataRepository;
 import com.lynknow.api.repository.UserProfileRepository;
+import com.lynknow.api.service.AWSS3Service;
 import com.lynknow.api.service.PersonalVerificationService;
 import com.lynknow.api.util.GenerateResponseUtil;
 import org.apache.commons.io.IOUtils;
@@ -64,6 +65,9 @@ public class PersonalVerificationServiceImpl implements PersonalVerificationServ
 
     @Autowired
     private GenerateResponseUtil generateRes;
+
+    @Autowired
+    private AWSS3Service awss3Service;
 
     @Value("${upload.dir.user.verification}")
     private String verificationDir;
@@ -165,6 +169,61 @@ public class PersonalVerificationServiceImpl implements PersonalVerificationServ
                 throw new NotFoundException("Personal Verification with User ID: " + userLogin.getId() + " and Item ID: " + itemId);
             }
         } catch (InternalServerErrorException | IOException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity requestToVerifyAws(MultipartFile file, String remarks, Integer itemId) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
+
+            if (userLogin.getCurrentSubscriptionPackage().getId() == 1) {
+                // basic
+                LOGGER.error("Only Pro Users that can Verify Their Personal Data");
+                throw new BadRequestException("Only Pro Users that can Verify Their Personal Data");
+            }
+
+            // init verification
+            initVerification(userLogin);
+            // end of init verification
+
+            PersonalVerification verification = personalVerificationRepo.getDetail(userLogin.getId(), itemId);
+            if (verification != null) {
+                String url = awss3Service.uploadFile(file);
+
+                // update status
+                Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.HOUR_OF_DAY, 3);
+
+                PersonalVerificationItem item = itemRepo.getDetail(itemId);
+                if (item == null) {
+                    LOGGER.error("Personal Verification Item ID: " + itemId + " is not found");
+                    throw new NotFoundException("Personal Verification Item ID: " + itemId);
+                }
+
+                verification.setUserData(userLogin);
+                verification.setPersonalVerificationItem(item);
+                verification.setRemarks(remarks);
+                verification.setParam(url);
+                verification.setIsRequested(1);
+                verification.setUpdatedDate(new Date());
+
+                personalVerificationRepo.save(verification);
+
+                return new ResponseEntity(new BaseResponse<>(
+                        true,
+                        200,
+                        "Success",
+                        generateRes.generateResponsePersonalVerification(verification)), HttpStatus.OK);
+            } else {
+                LOGGER.error("Personal Verification with User ID: " + userLogin.getId() + " and Item ID: " + itemId + " is not found");
+                throw new NotFoundException("Personal Verification with User ID: " + userLogin.getId() + " and Item ID: " + itemId);
+            }
+        } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }

@@ -21,8 +21,13 @@ public interface UserCardService {
     ResponseEntity publishCard(Long id, int type);
 
     ResponseEntity uploadFrontSide(MultipartFile file, Long id);
+    ResponseEntity uploadFrontSideAws(MultipartFile file, Long id);
+
     ResponseEntity uploadBackSide(MultipartFile file, Long id);
+    ResponseEntity uploadBackSideAws(MultipartFile file, Long id);
+
     ResponseEntity uploadProfilePicture(MultipartFile file, Long id);
+    ResponseEntity uploadProfilePictureAws(MultipartFile file, Long id);
 
     byte[] getImageFrontSide(String filename, HttpServletResponse httpResponse) throws IOException;
     byte[] getImageBackSide(String filename, HttpServletResponse httpResponse) throws IOException;
