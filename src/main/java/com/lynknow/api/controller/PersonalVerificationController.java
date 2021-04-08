@@ -24,7 +24,7 @@ public class PersonalVerificationController {
             @RequestParam(name = "item", defaultValue = "1") Integer item,
             @RequestParam(name = "remarks", defaultValue = "") String remarks
     ) {
-       return personalVerificationService.requestToVerify(file, remarks, item);
+       return personalVerificationService.requestToVerifyAws(file, remarks, item);
     }
 
     @PatchMapping("verify")

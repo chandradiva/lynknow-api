@@ -13,6 +13,7 @@ public interface UserProfileService {
     ResponseEntity updateProfile(UserProfileRequest request);
     ResponseEntity getProfile();
     ResponseEntity uploadProfilePicture(MultipartFile file);
+    ResponseEntity uploadProfilePictureAws(MultipartFile file);
     byte[] getProfilePhoto(HttpServletResponse httpResponse) throws IOException;
 
     ResponseEntity connectFacebook(AuthSocialRequest request);

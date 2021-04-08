@@ -12,10 +12,7 @@ import com.lynknow.api.pojo.request.UserCardRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.pojo.response.UserCardResponse;
 import com.lynknow.api.repository.*;
-import com.lynknow.api.service.CardVerificationService;
-import com.lynknow.api.service.CardViewersService;
-import com.lynknow.api.service.UserCardService;
-import com.lynknow.api.service.UserContactService;
+import com.lynknow.api.service.*;
 import com.lynknow.api.util.GenerateResponseUtil;
 import com.lynknow.api.util.StringUtil;
 import org.apache.commons.io.IOUtils;
@@ -94,6 +91,9 @@ public class UserCardServiceImpl implements UserCardService {
 
     @Autowired
     private CardViewersService cardViewersService;
+
+    @Autowired
+    private AWSS3Service awss3Service;
 
     @Value("${upload.dir.card.front-side}")
     private String frontSideDir;
@@ -576,6 +576,34 @@ public class UserCardServiceImpl implements UserCardService {
     }
 
     @Override
+    public ResponseEntity uploadFrontSideAws(MultipartFile file, Long id) {
+        try {
+            String url = awss3Service.uploadFile(file);
+            if (id != null || id != 0) {
+                UserCard card = userCardRepo.getDetail(id);
+                if (card != null) {
+                    card.setFrontSide(url);
+                    card.setUpdatedDate(new Date());
+
+                    userCardRepo.save(card);
+                } else {
+                    LOGGER.error("User Card ID: " + id + " is not found");
+                    throw new NotFoundException("User Card ID: " + id);
+                }
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    url), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
     public ResponseEntity uploadBackSide(MultipartFile file, Long id) {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         fileName = fileName.replaceAll("\\s+", "_");
@@ -627,6 +655,34 @@ public class UserCardServiceImpl implements UserCardService {
     }
 
     @Override
+    public ResponseEntity uploadBackSideAws(MultipartFile file, Long id) {
+        try {
+            String url = awss3Service.uploadFile(file);
+            if (id != null || id != 0) {
+                UserCard card = userCardRepo.getDetail(id);
+                if (card != null) {
+                    card.setBackSide(url);
+                    card.setUpdatedDate(new Date());
+
+                    userCardRepo.save(card);
+                } else {
+                    LOGGER.error("User Card ID: " + id + " is not found");
+                    throw new NotFoundException("User Card ID: " + id);
+                }
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    url), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
     public ResponseEntity uploadProfilePicture(MultipartFile file, Long id) {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         fileName = fileName.replaceAll("\\s+", "_");
@@ -672,6 +728,34 @@ public class UserCardServiceImpl implements UserCardService {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         } catch (IOException e) {
+            LOGGER.error("Error processing data", e);
+            throw new InternalServerErrorException("Error processing data: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseEntity uploadProfilePictureAws(MultipartFile file, Long id) {
+        try {
+            String url = awss3Service.uploadFile(file);
+            if (id != null || id != 0) {
+                UserCard card = userCardRepo.getDetail(id);
+                if (card != null) {
+                    card.setProfilePhoto(url);
+                    card.setUpdatedDate(new Date());
+
+                    userCardRepo.save(card);
+                } else {
+                    LOGGER.error("User Card ID: " + id + " is not found");
+                    throw new NotFoundException("User Card ID: " + id);
+                }
+            }
+
+            return new ResponseEntity(new BaseResponse<>(
+                    true,
+                    200,
+                    "Success",
+                    url), HttpStatus.OK);
+        } catch (InternalServerErrorException e) {
             LOGGER.error("Error processing data", e);
             throw new InternalServerErrorException("Error processing data: " + e.getMessage());
         }
