@@ -2,11 +2,15 @@ package com.lynknow.api.service.impl;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.lynknow.api.LynknowApiApplication;
 import com.lynknow.api.service.AWSS3Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +23,8 @@ import java.util.Date;
 
 @Service
 public class AWSS3ServiceImpl implements AWSS3Service {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AWSS3ServiceImpl.class);
 
     @Autowired
     private AmazonS3 amazonS3;
@@ -38,6 +44,15 @@ public class AWSS3ServiceImpl implements AWSS3Service {
             ex.printStackTrace();
             return null;
         }
+    }
+
+    @Async
+    @Override
+    public void deleteFile(String keyName) {
+        LOGGER.info("Deleting file with name= " + keyName);
+        final DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucketName, keyName);
+        amazonS3.deleteObject(deleteObjectRequest);
+        LOGGER.info("File deleted successfully.");
     }
 
     private File convertMultiPartFileToFile(final MultipartFile multipartFile) {

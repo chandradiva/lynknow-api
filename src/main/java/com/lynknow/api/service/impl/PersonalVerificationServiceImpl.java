@@ -205,6 +205,13 @@ public class PersonalVerificationServiceImpl implements PersonalVerificationServ
                     throw new NotFoundException("Personal Verification Item ID: " + itemId);
                 }
 
+                if (verification.getParam() != null) {
+                    if (verification.getParam().indexOf("amazonaws.com") != -1) {
+                        String keyName = verification.getParam().substring(verification.getParam().lastIndexOf("amazonaws.com") + 14);
+                        awss3Service.deleteFile(keyName);
+                    }
+                }
+
                 verification.setUserData(userLogin);
                 verification.setPersonalVerificationItem(item);
                 verification.setRemarks(remarks);

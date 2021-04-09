@@ -263,6 +263,13 @@ public class UserProfileServiceImpl implements UserProfileService {
 
             String url = awss3Service.uploadFile(file);
             if (profile != null) {
+                if (profile.getProfilePhoto() != null) {
+                    if (profile.getProfilePhoto().indexOf("amazonaws.com") != -1) {
+                        String keyName = profile.getProfilePhoto().substring(profile.getProfilePhoto().lastIndexOf("amazonaws.com") + 14);
+                        awss3Service.deleteFile(keyName);
+                    }
+                }
+
                 profile.setProfilePhoto(url);
                 profile.setUpdatedDate(new Date());
             } else {

@@ -582,6 +582,13 @@ public class UserCardServiceImpl implements UserCardService {
             if (id != null || id != 0) {
                 UserCard card = userCardRepo.getDetail(id);
                 if (card != null) {
+                    if (card.getFrontSide() != null) {
+                        if (card.getFrontSide().indexOf("amazonaws.com") != -1) {
+                            String keyName = card.getFrontSide().substring(card.getFrontSide().lastIndexOf("amazonaws.com") + 14);
+                            awss3Service.deleteFile(keyName);
+                        }
+                    }
+
                     card.setFrontSide(url);
                     card.setUpdatedDate(new Date());
 
@@ -661,6 +668,13 @@ public class UserCardServiceImpl implements UserCardService {
             if (id != null || id != 0) {
                 UserCard card = userCardRepo.getDetail(id);
                 if (card != null) {
+                    if (card.getBackSide() != null) {
+                        if (card.getBackSide().indexOf("amazonaws.com") != -1) {
+                            String keyName = card.getBackSide().substring(card.getBackSide().lastIndexOf("amazonaws.com") + 14);
+                            awss3Service.deleteFile(keyName);
+                        }
+                    }
+
                     card.setBackSide(url);
                     card.setUpdatedDate(new Date());
 
@@ -740,6 +754,13 @@ public class UserCardServiceImpl implements UserCardService {
             if (id != null || id != 0) {
                 UserCard card = userCardRepo.getDetail(id);
                 if (card != null) {
+                    if (card.getProfilePhoto() != null) {
+                        if (card.getProfilePhoto().indexOf("amazonaws.com") != -1) {
+                            String keyName = card.getProfilePhoto().substring(card.getProfilePhoto().lastIndexOf("amazonaws.com") + 14);
+                            awss3Service.deleteFile(keyName);
+                        }
+                    }
+
                     card.setProfilePhoto(url);
                     card.setUpdatedDate(new Date());
 
