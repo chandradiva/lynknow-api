@@ -638,6 +638,13 @@ public class GenerateResponseUtil {
                 UserCardPublicResponse cardRes = generateResponseUserCardPublic(card);
                 res.setAdditionalData(cardRes);
             }
+        } else if (notification.getNotificationType() != null && notification.getNotificationType().getId() == 12) {
+            // accept exchange card
+            UserCard card = userCardRepo.getDetail(notification.getParamId());
+            if (card != null) {
+                UserCardPublicResponse cardRes = generateResponseUserCardPublic(card);
+                res.setAdditionalData(cardRes);
+            }
         }
 
         return res;

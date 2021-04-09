@@ -7,10 +7,7 @@ import com.lynknow.api.model.*;
 import com.lynknow.api.pojo.PaginationModel;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.pojo.response.UserContactResponse;
-import com.lynknow.api.repository.NotificationRepository;
-import com.lynknow.api.repository.NotificationTypeRepository;
-import com.lynknow.api.repository.UserCardRepository;
-import com.lynknow.api.repository.UserContactRepository;
+import com.lynknow.api.repository.*;
 import com.lynknow.api.service.UserContactService;
 import com.lynknow.api.util.EmailUtil;
 import com.lynknow.api.util.GenerateResponseUtil;
@@ -52,6 +49,9 @@ public class UserContactServiceImpl implements UserContactService {
 
     @Autowired
     private EmailUtil emailUtil;
+
+    @Autowired
+    private UserDataRepository userDataRepo;
 
     @Value("${fe.url.view-user-card}")
     private String viewUserCardUrl;
@@ -173,6 +173,7 @@ public class UserContactServiceImpl implements UserContactService {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UserData userSession = (UserData) auth.getPrincipal();
+            UserData userLogin = userDataRepo.getDetail(userSession.getId());
 
             UserContact contact = userContactRepo.getDetail(id);
             if (contact != null) {
@@ -228,6 +229,23 @@ public class UserContactServiceImpl implements UserContactService {
                     }
 
                     userContactRepo.save(exchangeContact);
+
+                    // save notification data
+                    NotificationType type = notificationTypeRepo.getDetail(12); // accept exchange request
+
+                    Notification notification = new Notification();
+
+                    notification.setUserData(userLogin);
+                    notification.setTargetUserData(exchangeContact.getExchangeUser());
+                    notification.setTargetUserCard(exchangeContact.getExchangeCard());
+                    notification.setNotificationType(type);
+                    notification.setIsRead(0);
+                    notification.setCreatedDate(new Date());
+                    notification.setIsActive(1);
+                    notification.setParamId(exchangeContact.getFromCard().getId());
+
+                    notificationRepo.save(notification);
+                    // end of save notification data
                 }
 
                 return new ResponseEntity(new BaseResponse<>(
