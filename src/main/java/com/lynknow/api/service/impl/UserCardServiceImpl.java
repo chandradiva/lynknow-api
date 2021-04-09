@@ -579,7 +579,7 @@ public class UserCardServiceImpl implements UserCardService {
     public ResponseEntity uploadFrontSideAws(MultipartFile file, Long id) {
         try {
             String url = awss3Service.uploadFile(file);
-            if (id != null || id != 0) {
+            if (id != null && id != 0) {
                 UserCard card = userCardRepo.getDetail(id);
                 if (card != null) {
                     if (card.getFrontSide() != null) {
@@ -665,7 +665,7 @@ public class UserCardServiceImpl implements UserCardService {
     public ResponseEntity uploadBackSideAws(MultipartFile file, Long id) {
         try {
             String url = awss3Service.uploadFile(file);
-            if (id != null || id != 0) {
+            if (id != null && id != 0) {
                 UserCard card = userCardRepo.getDetail(id);
                 if (card != null) {
                     if (card.getBackSide() != null) {
@@ -751,7 +751,7 @@ public class UserCardServiceImpl implements UserCardService {
     public ResponseEntity uploadProfilePictureAws(MultipartFile file, Long id) {
         try {
             String url = awss3Service.uploadFile(file);
-            if (id != null || id != 0) {
+            if (id != null && id != 0) {
                 UserCard card = userCardRepo.getDetail(id);
                 if (card != null) {
                     if (card.getProfilePhoto() != null) {
