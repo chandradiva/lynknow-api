@@ -260,6 +260,7 @@ public class UserDataServiceImpl implements UserDataService {
                 throw new NotFoundException("Subscription Package ID: " + 1);
             }
 
+            LOGGER.error("Email Facebook: " + userFb.getEmail());
             if (!this.checkByEmail(userFb.getEmail(), null)) {
                 LOGGER.error("Email: " + userFb.getEmail() + " already exist");
                 throw new ConflictException("Email: " + userFb.getEmail() + " already exist");
@@ -387,6 +388,7 @@ public class UserDataServiceImpl implements UserDataService {
                     throw new NotFoundException("Subscription Package ID: " + 1);
                 }
 
+                LOGGER.error("Email Google: " + payload.getEmail());
                 if (!this.checkByEmail(payload.getEmail(), null)) {
                     LOGGER.error("Email: " + payload.getEmail() + " already exist");
                     throw new ConflictException("Email: " + payload.getEmail() + " already exist");
