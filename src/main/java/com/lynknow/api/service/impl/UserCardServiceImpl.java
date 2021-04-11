@@ -8,6 +8,7 @@ import com.lynknow.api.exception.NotFoundException;
 import com.lynknow.api.exception.UnprocessableEntityException;
 import com.lynknow.api.model.*;
 import com.lynknow.api.pojo.PaginationModel;
+import com.lynknow.api.pojo.request.NotifyUpdatedCardRequest;
 import com.lynknow.api.pojo.request.UserCardRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.pojo.response.UserCardResponse;
@@ -1822,13 +1823,13 @@ public class UserCardServiceImpl implements UserCardService {
     }
 
     @Override
-    public ResponseEntity sendNotifyUpdateCard(Long id, List<Long> userIds) {
+    public ResponseEntity sendNotifyUpdateCard(Long id, NotifyUpdatedCardRequest request) {
         try {
             UserCard card = userCardRepo.getDetail(id);
             if (card != null) {
                 // notify updated card to contact
                 new Thread(() -> {
-                    cardViewersService.notifyUpdatedCard(card, userIds);
+                    cardViewersService.notifyUpdatedCard(card, request);
                 }).start();
                 // end of notify updated card to contact
 

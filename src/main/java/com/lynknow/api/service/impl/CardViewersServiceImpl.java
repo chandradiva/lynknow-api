@@ -3,11 +3,13 @@ package com.lynknow.api.service.impl;
 import com.lynknow.api.exception.InternalServerErrorException;
 import com.lynknow.api.model.*;
 import com.lynknow.api.pojo.PaginationModel;
+import com.lynknow.api.pojo.request.NotifyUpdatedCardRequest;
 import com.lynknow.api.pojo.response.BaseResponse;
 import com.lynknow.api.pojo.response.UserDataResponse;
 import com.lynknow.api.repository.CardViewersRepository;
 import com.lynknow.api.repository.NotificationRepository;
 import com.lynknow.api.repository.NotificationTypeRepository;
+import com.lynknow.api.repository.UserContactRepository;
 import com.lynknow.api.service.CardViewersService;
 import com.lynknow.api.util.EmailUtil;
 import com.lynknow.api.util.GenerateResponseUtil;
@@ -22,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -44,6 +47,9 @@ public class CardViewersServiceImpl implements CardViewersService {
 
     @Autowired
     private EmailUtil emailUtil;
+
+    @Autowired
+    private UserContactRepository userContactRepo;
 
     @Value("${fe.url.view-user-card}")
     private String viewUserCardUrl;
@@ -103,9 +109,11 @@ public class CardViewersServiceImpl implements CardViewersService {
     }
 
     @Override
-    public void notifyUpdatedCard(UserCard updatedCard, List<Long> userIds) {
+    public void notifyUpdatedCard(UserCard updatedCard, NotifyUpdatedCardRequest request) {
         try {
-            List<CardViewers> viewers = cardViewersRepo.getListViewers(updatedCard.getId(), userIds);
+            List<Long> userIds = new ArrayList<>();
+
+            List<CardViewers> viewers = cardViewersRepo.getListViewers(updatedCard.getId(), request.getUserIds());
             if (viewers != null) {
                 for (CardViewers item : viewers) {
                     // save notification data
@@ -134,6 +142,49 @@ public class CardViewersServiceImpl implements CardViewersService {
                             "Lynknow - " + updatedCard.getUserData().getFirstName() + " has Updated the Card",
                             "Please click url below to View the Updated Card: <br/><br/> <b><a href=\"" + url + "\">View Card</a></b>");
                     // end of send email
+
+                    userIds.add(item.getUserSeenBy().getId());
+                }
+            }
+
+            List<UserContact> contacts = userContactRepo.getListContacts(request.getContactIds());
+            if (contacts != null) {
+                for (UserContact item : contacts) {
+                    // save notification data
+                    NotificationType type = notificationTypeRepo.getDetail(11); // update card info
+                    Notification notification = new Notification();
+
+                    notification.setUserData(updatedCard.getUserData());
+                    notification.setTargetUserData(item.getUserData());
+                    notification.setTargetUserCard(null);
+                    notification.setNotificationType(type);
+                    notification.setIsRead(0);
+                    notification.setCreatedDate(new Date());
+                    notification.setIsActive(1);
+
+                    if (updatedCard != null) {
+                        notification.setParamId(updatedCard.getId());
+                    }
+
+                    boolean sameUserId = false;
+                    for (Long userId : userIds) {
+                        if (userId.equals(item.getUserData().getId())) {
+                            sameUserId = true;
+                        }
+                    }
+
+                    if (!sameUserId) {
+                        notificationRepo.save(notification);
+
+                        // send email
+                        String url = viewUserCardUrl + updatedCard.getUniqueCode();
+                        emailUtil.sendEmailNoThread(
+                                item.getExchangeUser().getEmail(),
+                                "Lynknow - " + updatedCard.getUserData().getFirstName() + " has Updated the Card",
+                                "Please click url below to View the Updated Card: <br/><br/> <b><a href=\"" + url + "\">View Card</a></b>");
+                        // end of send email
+                    }
+                    // end of save notification data
                 }
             }
         } catch (Exception e) {

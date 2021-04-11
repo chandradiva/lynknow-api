@@ -4,6 +4,7 @@ import com.lynknow.api.exception.BadRequestException;
 import com.lynknow.api.model.UserData;
 import com.lynknow.api.pojo.PaginationModel;
 import com.lynknow.api.pojo.request.DeleteDataRequest;
+import com.lynknow.api.pojo.request.NotifyUpdatedCardRequest;
 import com.lynknow.api.pojo.request.UserCardRequest;
 import com.lynknow.api.service.UserCardService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -209,9 +210,9 @@ public class UserCardController {
     @PostMapping("send-notify")
     public ResponseEntity sendNotifyUpdateCard(
             @RequestParam Long id,
-            @RequestBody List<Long> userIds
-    ) {
-        return userCardService.sendNotifyUpdateCard(id, userIds);
+            @RequestBody NotifyUpdatedCardRequest request
+            ) {
+        return userCardService.sendNotifyUpdateCard(id, request);
     }
 
     @PatchMapping("update-all-code")

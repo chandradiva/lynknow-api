@@ -1,6 +1,7 @@
 package com.lynknow.api.service;
 
 import com.lynknow.api.pojo.PaginationModel;
+import com.lynknow.api.pojo.request.NotifyUpdatedCardRequest;
 import com.lynknow.api.pojo.request.UserCardRequest;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +53,6 @@ public interface UserCardService {
     ResponseEntity exchangeCard(Long fromCardId, Long exchangeCardId, Long exchangeUserId);
     ResponseEntity updateAllCode();
 
-    ResponseEntity sendNotifyUpdateCard(Long id, List<Long> userIds);
+    ResponseEntity sendNotifyUpdateCard(Long id, NotifyUpdatedCardRequest request);
 
 }

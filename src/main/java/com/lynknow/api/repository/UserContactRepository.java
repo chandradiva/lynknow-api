@@ -52,4 +52,7 @@ public interface UserContactRepository extends JpaRepository<UserContact, Long> 
             @Param("receivedUserId") Long userId,
             Pageable pageable);
 
+    @Query("FROM UserContact WHERE id IN (:contactIds)")
+    List<UserContact> getListContacts(@Param("contactIds") List<Long> contactIds);
+
 }
