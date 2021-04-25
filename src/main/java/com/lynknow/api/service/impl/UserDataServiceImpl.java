@@ -242,7 +242,7 @@ public class UserDataServiceImpl implements UserDataService {
     }
 
     @Override
-    public ResponseEntity registerFacebook(AuthSocialRequest request) {
+    public ResponseEntity registerFacebook(AuthSocialRequest request, int source) {
         try {
             Facebook fb = new FacebookTemplate(request.getToken(), "", facebookAppId);
             String[] fields = {"id", "email", "first_name", "last_name", "gender", "birthday"};
@@ -260,8 +260,11 @@ public class UserDataServiceImpl implements UserDataService {
                 throw new NotFoundException("Subscription Package ID: " + 1);
             }
 
+            // source
+            // 0 = from register
+            // 1 = from login
             LOGGER.error("Email Facebook: " + userFb.getEmail());
-            if (!this.checkByEmail(userFb.getEmail(), null)) {
+            if (!this.checkByEmail(userFb.getEmail(), null) && source == 0) {
                 LOGGER.error("Email: " + userFb.getEmail() + " already exist");
                 throw new ConflictException("Email: " + userFb.getEmail() + " already exist");
             }
@@ -363,7 +366,7 @@ public class UserDataServiceImpl implements UserDataService {
     }
 
     @Override
-    public ResponseEntity registerGoogle(AuthSocialRequest request) {
+    public ResponseEntity registerGoogle(AuthSocialRequest request, int source) {
         try {
             NetHttpTransport transport = new NetHttpTransport();
             JsonFactory jsonFactory = new JacksonFactory();
@@ -388,8 +391,11 @@ public class UserDataServiceImpl implements UserDataService {
                     throw new NotFoundException("Subscription Package ID: " + 1);
                 }
 
+                // source
+                // 0 = from register
+                // 1 = from login
                 LOGGER.error("Email Google: " + payload.getEmail());
-                if (!this.checkByEmail(payload.getEmail(), null)) {
+                if (!this.checkByEmail(payload.getEmail(), null) && source == 0) {
                     LOGGER.error("Email: " + payload.getEmail() + " already exist");
                     throw new ConflictException("Email: " + payload.getEmail() + " already exist");
                 }

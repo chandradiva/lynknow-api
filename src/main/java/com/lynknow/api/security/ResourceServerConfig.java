@@ -56,6 +56,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                         "/public/**",
                         "/users/admin-register",
                         "/users/subs-register",
+                        "/users/register-facebook",
+                        "/users/register-google",
                         "/users/forgot-password",
                         "/users/check-token",
                         "/users/reset-password",

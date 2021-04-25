@@ -10,8 +10,8 @@ public interface UserDataService {
     ResponseEntity registerNewUser(UserDataRequest request);
     UserData getByUsername(String username);
 
-    ResponseEntity registerFacebook(AuthSocialRequest request);
-    ResponseEntity registerGoogle(AuthSocialRequest request);
+    ResponseEntity registerFacebook(AuthSocialRequest request, int source);
+    ResponseEntity registerGoogle(AuthSocialRequest request, int source);
 
     ResponseEntity forgotPassword(String email);
     ResponseEntity checkToken(String token);

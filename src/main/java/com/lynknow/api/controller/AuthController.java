@@ -76,12 +76,12 @@ public class AuthController {
 
     @PostMapping("login-facebook")
     public ResponseEntity loginFacebook(@RequestBody AuthSocialRequest request) {
-        return userDataService.registerFacebook(request);
+        return userDataService.registerFacebook(request, 1);
     }
 
     @PostMapping("login-google")
     public ResponseEntity loginGoogle(@RequestBody AuthSocialRequest request) {
-        return userDataService.registerGoogle(request);
+        return userDataService.registerGoogle(request, 1);
     }
 
 }

@@ -1,9 +1,6 @@
 package com.lynknow.api.controller;
 
-import com.lynknow.api.pojo.request.ChangeEmailRequest;
-import com.lynknow.api.pojo.request.ChangePasswordRequest;
-import com.lynknow.api.pojo.request.ResetPasswordRequest;
-import com.lynknow.api.pojo.request.UserDataRequest;
+import com.lynknow.api.pojo.request.*;
 import com.lynknow.api.service.UserDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +21,16 @@ public class UserDataController {
     @PostMapping("subs-register")
     public ResponseEntity registerNewUser(@RequestBody UserDataRequest request) {
         return userDataService.registerNewUser(request);
+    }
+
+    @PostMapping("register-facebook")
+    public ResponseEntity loginFacebook(@RequestBody AuthSocialRequest request) {
+        return userDataService.registerFacebook(request, 0);
+    }
+
+    @PostMapping("register-google")
+    public ResponseEntity loginGoogle(@RequestBody AuthSocialRequest request) {
+        return userDataService.registerGoogle(request, 0);
     }
 
     @PostMapping("forgot-password")
